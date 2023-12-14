@@ -1,7 +1,7 @@
 package circuits
 
 import (
-	"github.com/consensys/gnark/frontend"
+	"S-gnark/frontend"
 )
 
 type isZero struct {

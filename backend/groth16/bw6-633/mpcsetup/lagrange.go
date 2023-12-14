@@ -21,11 +21,11 @@ import (
 	"math/bits"
 	"runtime"
 
+	"S-gnark/internal/utils"
 	"github.com/consensys/gnark-crypto/ecc"
 	curve "github.com/consensys/gnark-crypto/ecc/bw6-633"
 	"github.com/consensys/gnark-crypto/ecc/bw6-633/fr"
 	"github.com/consensys/gnark-crypto/ecc/bw6-633/fr/fft"
-	"github.com/consensys/gnark/internal/utils"
 )
 
 // TODO use gnark-crypto for this op

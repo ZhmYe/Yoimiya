@@ -1,7 +1,7 @@
 package solver
 
 import (
-	"github.com/consensys/gnark/logger"
+	"S-gnark/logger"
 	"github.com/rs/zerolog"
 )
 

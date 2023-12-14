@@ -1,7 +1,7 @@
 package test
 
 import (
-	"github.com/consensys/gnark/frontend"
+	"S-gnark/frontend"
 	"math/rand"
 	"testing"
 )

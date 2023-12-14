@@ -3,9 +3,9 @@ package bits_test
 import (
 	"testing"
 
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/std/math/bits"
-	"github.com/consensys/gnark/test"
+	"S-gnark/frontend"
+	"S-gnark/std/math/bits"
+	"S-gnark/test"
 )
 
 type toBinaryCircuit struct {

@@ -22,8 +22,8 @@ import (
 	bls12377 "github.com/consensys/gnark-crypto/ecc/bls12-377"
 	"github.com/consensys/gnark-crypto/ecc/bw6-761/fr"
 
-	"github.com/consensys/gnark/constraint/solver"
-	"github.com/consensys/gnark/frontend"
+	"S-gnark/constraint/solver"
+	"S-gnark/frontend"
 )
 
 // E2 element in a quadratic extension

@@ -4,10 +4,10 @@ import (
 	"math/big"
 	"testing"
 
+	"S-gnark/frontend"
+	"S-gnark/test"
 	"github.com/consensys/gnark-crypto/ecc"
 	"github.com/consensys/gnark-crypto/ecc/bn254"
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/test"
 )
 
 type addG2Circuit struct {

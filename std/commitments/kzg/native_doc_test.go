@@ -3,14 +3,14 @@ package kzg_test
 import (
 	"crypto/rand"
 
+	"S-gnark/backend/groth16"
+	"S-gnark/frontend"
+	"S-gnark/frontend/cs/r1cs"
+	"S-gnark/std/algebra/native/sw_bls12377"
+	"S-gnark/std/commitments/kzg"
 	"github.com/consensys/gnark-crypto/ecc"
 	fr_bls12377 "github.com/consensys/gnark-crypto/ecc/bls12-377/fr"
 	kzg_bls12377 "github.com/consensys/gnark-crypto/ecc/bls12-377/kzg"
-	"github.com/consensys/gnark/backend/groth16"
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/frontend/cs/r1cs"
-	"github.com/consensys/gnark/std/algebra/native/sw_bls12377"
-	"github.com/consensys/gnark/std/commitments/kzg"
 )
 
 // Example of using KZG verifier using 2-chains of curves. It is significantly

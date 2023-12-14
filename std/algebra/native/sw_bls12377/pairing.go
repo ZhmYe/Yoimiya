@@ -19,8 +19,8 @@ package sw_bls12377
 import (
 	"errors"
 
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/std/algebra/native/fields_bls12377"
+	"S-gnark/frontend"
+	"S-gnark/std/algebra/native/fields_bls12377"
 )
 
 // GT target group of the pairing
@@ -307,9 +307,9 @@ func doubleAndAddStep(api frontend.API, p1, p2 *G2Affine) (G2Affine, lineEvaluat
 		Sub(api, x3, p1.X).
 		Sub(api, x3, p2.X)
 
-		// omit y3 computation
+	// omit y3 computation
 
-		// compute line1
+	// compute line1
 	line1.R0 = l1
 	line1.R1.Mul(api, l1, p1.X).Sub(api, line1.R1, p1.Y)
 

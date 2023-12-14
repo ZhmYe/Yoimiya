@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/std/algebra/emulated/sw_emulated"
-	"github.com/consensys/gnark/std/math/bits"
-	"github.com/consensys/gnark/std/math/emulated"
+	"S-gnark/frontend"
+	"S-gnark/std/algebra/emulated/sw_emulated"
+	"S-gnark/std/math/bits"
+	"S-gnark/std/math/emulated"
 )
 
 // ECRecover implements [ECRECOVER] precompile contract at address 0x01.

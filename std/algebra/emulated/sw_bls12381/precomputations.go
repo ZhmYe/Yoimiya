@@ -3,8 +3,8 @@ package sw_bls12381
 import (
 	"sync"
 
-	"github.com/consensys/gnark/std/algebra/emulated/fields_bls12381"
-	"github.com/consensys/gnark/std/math/emulated"
+	"S-gnark/std/algebra/emulated/fields_bls12381"
+	"S-gnark/std/math/emulated"
 )
 
 // precomputed lines going through Q and multiples of Q

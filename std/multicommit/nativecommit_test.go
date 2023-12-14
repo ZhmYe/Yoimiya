@@ -3,11 +3,11 @@ package multicommit
 import (
 	"testing"
 
+	"S-gnark/backend"
+	"S-gnark/frontend"
+	"S-gnark/frontend/cs/r1cs"
+	"S-gnark/test"
 	"github.com/consensys/gnark-crypto/ecc"
-	"github.com/consensys/gnark/backend"
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/frontend/cs/r1cs"
-	"github.com/consensys/gnark/test"
 )
 
 type noRecursionCircuit struct {

@@ -32,10 +32,10 @@ import (
 
 	"github.com/consensys/gnark-crypto/ecc/bls12-381/fr/hash_to_field"
 
+	"S-gnark/backend"
+	"S-gnark/logger"
 	"github.com/consensys/gnark-crypto/ecc/bls12-381/kzg"
 	fiatshamir "github.com/consensys/gnark-crypto/fiat-shamir"
-	"github.com/consensys/gnark/backend"
-	"github.com/consensys/gnark/logger"
 )
 
 var (

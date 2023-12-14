@@ -3,9 +3,9 @@ package fields_bn254
 import (
 	"math/big"
 
+	"S-gnark/frontend"
+	"S-gnark/std/math/emulated"
 	"github.com/consensys/gnark-crypto/ecc/bn254"
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/std/math/emulated"
 )
 
 type curveF = emulated.Field[emulated.BN254Fp]

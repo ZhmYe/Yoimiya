@@ -15,7 +15,7 @@
 package cubic
 
 import (
-	"github.com/consensys/gnark/frontend"
+	"S-gnark/frontend"
 )
 
 // Circuit defines a simple circuit

@@ -4,14 +4,14 @@ import (
 	"bytes"
 	"testing"
 
+	"S-gnark/backend/groth16"
+	groth16_bn254 "S-gnark/backend/groth16/bn254"
+	icicle_bn254 "S-gnark/backend/groth16/bn254/icicle"
+	cs_bn254 "S-gnark/constraint/bn254"
+	"S-gnark/frontend"
+	"S-gnark/frontend/cs/r1cs"
+	"S-gnark/test"
 	"github.com/consensys/gnark-crypto/ecc"
-	"github.com/consensys/gnark/backend/groth16"
-	groth16_bn254 "github.com/consensys/gnark/backend/groth16/bn254"
-	icicle_bn254 "github.com/consensys/gnark/backend/groth16/bn254/icicle"
-	cs_bn254 "github.com/consensys/gnark/constraint/bn254"
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/frontend/cs/r1cs"
-	"github.com/consensys/gnark/test"
 )
 
 type circuit struct {

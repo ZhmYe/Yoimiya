@@ -3,10 +3,10 @@ package test
 import (
 	"testing"
 
+	"S-gnark/backend"
+	"S-gnark/constraint/solver"
+	"S-gnark/frontend"
 	"github.com/consensys/gnark-crypto/ecc"
-	"github.com/consensys/gnark/backend"
-	"github.com/consensys/gnark/constraint/solver"
-	"github.com/consensys/gnark/frontend"
 )
 
 // TestingOption defines option for altering the behavior of Assert methods.
@@ -131,7 +131,7 @@ func NoTestEngine() TestingOption {
 // When the tags are set; this requires gnark-solidity-checker to be installed, which in turns
 // requires solc and abigen to be reachable in the PATH.
 //
-// See https://github.com/ConsenSys/gnark-solidity-checker for more details.
+// See https://S-gnark-solidity-checker for more details.
 func NoSolidityChecks() TestingOption {
 	return func(opt *testingConfig) error {
 		opt.checkSolidity = false

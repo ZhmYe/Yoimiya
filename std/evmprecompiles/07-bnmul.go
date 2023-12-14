@@ -1,9 +1,9 @@
 package evmprecompiles
 
 import (
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/std/algebra/emulated/sw_emulated"
-	"github.com/consensys/gnark/std/math/emulated"
+	"S-gnark/frontend"
+	"S-gnark/std/algebra/emulated/sw_emulated"
+	"S-gnark/std/math/emulated"
 )
 
 // ECMul implements [ALT_BN128_MUL] precompile contract at address 0x07.

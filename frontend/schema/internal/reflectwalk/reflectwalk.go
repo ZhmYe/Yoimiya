@@ -75,7 +75,6 @@ func Walk(data, walker interface{}) (err error) {
 	if ok {
 		err = ew.Enter(WalkLoc)
 	}
-
 	if err == nil {
 		err = walk(v, walker)
 	}
@@ -157,7 +156,10 @@ func walk(v reflect.Value, w interface{}) (err error) {
 	if k >= reflect.Int && k <= reflect.Complex128 {
 		k = reflect.Int
 	}
-
+	/***
+		Hints: ZhmYe
+		we use the circuit as a struct, so our process will enter walkStruct function
+	***/
 	switch k {
 	case reflect.Slice:
 		err = walkSlice(v, w)

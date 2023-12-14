@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/consensys/gnark/frontend"
+	"S-gnark/frontend"
 )
 
 // Div computes a/b and returns it. It uses [DivHint] as a hint function.

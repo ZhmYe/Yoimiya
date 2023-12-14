@@ -1,8 +1,8 @@
 package test_vector_utils
 
 import (
+	"S-gnark/frontend"
 	"encoding/json"
-	"github.com/consensys/gnark/frontend"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"path/filepath"

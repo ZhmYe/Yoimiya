@@ -3,12 +3,12 @@ package fields_bls12381
 import (
 	"testing"
 
+	"S-gnark/frontend"
+	"S-gnark/std/math/emulated"
+	"S-gnark/test"
 	"github.com/consensys/gnark-crypto/ecc"
 	bls12381 "github.com/consensys/gnark-crypto/ecc/bls12-381"
 	"github.com/consensys/gnark-crypto/ecc/bls12-381/fp"
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/std/math/emulated"
-	"github.com/consensys/gnark/test"
 )
 
 type e2Add struct {

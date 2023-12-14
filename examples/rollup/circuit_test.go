@@ -19,11 +19,11 @@ package rollup
 import (
 	"testing"
 
+	"S-gnark/backend"
+	"S-gnark/frontend"
+	"S-gnark/std/hash/mimc"
+	"S-gnark/test"
 	"github.com/consensys/gnark-crypto/ecc"
-	"github.com/consensys/gnark/backend"
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/std/hash/mimc"
-	"github.com/consensys/gnark/test"
 )
 
 type circuitSignature Circuit

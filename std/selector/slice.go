@@ -1,8 +1,8 @@
 package selector
 
 import (
+	"S-gnark/frontend"
 	"fmt"
-	"github.com/consensys/gnark/frontend"
 	"math/big"
 )
 

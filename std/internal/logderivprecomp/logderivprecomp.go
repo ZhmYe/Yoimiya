@@ -17,10 +17,10 @@ import (
 	"math/big"
 	"reflect"
 
-	"github.com/consensys/gnark/constraint/solver"
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/internal/kvstore"
-	"github.com/consensys/gnark/std/internal/logderivarg"
+	"S-gnark/constraint/solver"
+	"S-gnark/frontend"
+	"S-gnark/internal/kvstore"
+	"S-gnark/std/internal/logderivarg"
 )
 
 type ctxPrecomputedKey struct{ fn uintptr }

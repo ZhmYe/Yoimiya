@@ -19,8 +19,8 @@ package groth16
 import (
 	curve "github.com/consensys/gnark-crypto/ecc/bls12-381"
 
+	"S-gnark/internal/utils"
 	"github.com/consensys/gnark-crypto/ecc/bls12-381/fr/pedersen"
-	"github.com/consensys/gnark/internal/utils"
 	"io"
 )
 

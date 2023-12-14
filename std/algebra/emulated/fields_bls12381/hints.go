@@ -3,9 +3,9 @@ package fields_bls12381
 import (
 	"math/big"
 
+	"S-gnark/constraint/solver"
+	"S-gnark/std/math/emulated"
 	bls12381 "github.com/consensys/gnark-crypto/ecc/bls12-381"
-	"github.com/consensys/gnark/constraint/solver"
-	"github.com/consensys/gnark/std/math/emulated"
 )
 
 func init() {

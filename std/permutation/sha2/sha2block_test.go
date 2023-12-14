@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
+	"S-gnark/frontend"
+	"S-gnark/std/math/uints"
+	"S-gnark/std/permutation/sha2"
+	"S-gnark/test"
 	"github.com/consensys/gnark-crypto/ecc"
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/std/math/uints"
-	"github.com/consensys/gnark/std/permutation/sha2"
-	"github.com/consensys/gnark/test"
 )
 
 var _K = []uint32{

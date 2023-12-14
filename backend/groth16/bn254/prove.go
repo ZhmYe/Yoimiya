@@ -17,6 +17,14 @@
 package groth16
 
 import (
+	"S-gnark/backend"
+	"S-gnark/backend/groth16/internal"
+	"S-gnark/backend/witness"
+	"S-gnark/constraint"
+	cs "S-gnark/constraint/bn254"
+	"S-gnark/constraint/solver"
+	"S-gnark/internal/utils"
+	"S-gnark/logger"
 	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"
 	curve "github.com/consensys/gnark-crypto/ecc/bn254"
@@ -24,19 +32,11 @@ import (
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr/fft"
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr/hash_to_field"
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr/pedersen"
-	"github.com/consensys/gnark/backend"
-	"github.com/consensys/gnark/backend/groth16/internal"
-	"github.com/consensys/gnark/backend/witness"
-	"github.com/consensys/gnark/constraint"
-	cs "github.com/consensys/gnark/constraint/bn254"
-	"github.com/consensys/gnark/constraint/solver"
-	"github.com/consensys/gnark/internal/utils"
-	"github.com/consensys/gnark/logger"
 	"math/big"
 	"runtime"
 	"time"
 
-	fcs "github.com/consensys/gnark/frontend/cs"
+	fcs "S-gnark/frontend/cs"
 )
 
 // Proof represents a Groth16 proof that was encoded with a ProvingKey and can be verified

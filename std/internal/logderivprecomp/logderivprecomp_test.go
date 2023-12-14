@@ -5,11 +5,11 @@ import (
 	"math/big"
 	"testing"
 
+	"S-gnark/backend"
+	"S-gnark/constraint/solver"
+	"S-gnark/frontend"
+	"S-gnark/test"
 	"github.com/consensys/gnark-crypto/ecc"
-	"github.com/consensys/gnark/backend"
-	"github.com/consensys/gnark/constraint/solver"
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/test"
 )
 
 type TestXORCircuit struct {

@@ -1,8 +1,8 @@
 package selector
 
 import (
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/test"
+	"S-gnark/frontend"
+	"S-gnark/test"
 	"testing"
 )
 

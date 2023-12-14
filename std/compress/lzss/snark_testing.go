@@ -1,6 +1,12 @@
 package lzss
 
 import (
+	"S-gnark/constraint"
+	"S-gnark/frontend"
+	"S-gnark/frontend/cs/scs"
+	"S-gnark/profile"
+	"S-gnark/std/compress"
+	"S-gnark/std/hash/mimc"
 	"compress/gzip"
 	"fmt"
 	goCompress "github.com/consensys/compress"
@@ -8,12 +14,6 @@ import (
 	"github.com/consensys/gnark-crypto/ecc"
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr"
 	"github.com/consensys/gnark-crypto/hash"
-	"github.com/consensys/gnark/constraint"
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/frontend/cs/scs"
-	"github.com/consensys/gnark/profile"
-	"github.com/consensys/gnark/std/compress"
-	"github.com/consensys/gnark/std/hash/mimc"
 	"os"
 	"time"
 )

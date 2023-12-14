@@ -1,16 +1,16 @@
 package test
 
 import (
+	"S-gnark/backend"
+	"S-gnark/backend/groth16"
+	"S-gnark/backend/plonk"
+	"S-gnark/backend/plonkfri"
+	"S-gnark/backend/witness"
+	"S-gnark/constraint"
+	"S-gnark/frontend"
+	"S-gnark/frontend/schema"
+	"S-gnark/test/unsafekzg"
 	"github.com/consensys/gnark-crypto/ecc"
-	"github.com/consensys/gnark/backend"
-	"github.com/consensys/gnark/backend/groth16"
-	"github.com/consensys/gnark/backend/plonk"
-	"github.com/consensys/gnark/backend/plonkfri"
-	"github.com/consensys/gnark/backend/witness"
-	"github.com/consensys/gnark/constraint"
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/frontend/schema"
-	"github.com/consensys/gnark/test/unsafekzg"
 )
 
 // CheckCircuit performs a series of check on the provided circuit.

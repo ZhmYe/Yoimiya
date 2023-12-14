@@ -6,11 +6,11 @@ import (
 	"math/big"
 	"reflect"
 
-	"github.com/consensys/gnark/constraint"
-	"github.com/consensys/gnark/debug"
-	"github.com/consensys/gnark/frontend/schema"
-	"github.com/consensys/gnark/internal/circuitdefer"
-	"github.com/consensys/gnark/logger"
+	"S-gnark/constraint"
+	"S-gnark/debug"
+	"S-gnark/frontend/schema"
+	"S-gnark/internal/circuitdefer"
+	"S-gnark/logger"
 )
 
 // Compile will generate a ConstraintSystem from the given circuit
@@ -33,6 +33,12 @@ import (
 //
 // initialCapacity is an optional parameter that reserves memory in slices
 // it should be set to the estimated number of constraints in the circuit, if known.
+
+/***
+	Hints:	ZhmYe
+	Here Compile the circuit, into "parseCircuit" function
+***/
+
 func Compile(field *big.Int, newBuilder NewBuilder, circuit Circuit, opts ...CompileOption) (constraint.ConstraintSystem, error) {
 	log := logger.Logger()
 	log.Info().Msg("compiling circuit")
@@ -69,7 +75,10 @@ func parseCircuit(builder Builder, circuit Circuit) (err error) {
 	if reflect.ValueOf(circuit).Kind() != reflect.Ptr {
 		return errors.New("frontend.Circuit methods must be defined on pointer receiver")
 	}
-
+	/*** Hints: ZhmYe
+		Here get the input number
+		Public input Number: nbPublic, Private input Number: nbSecret
+	***/
 	s, err := schema.Walk(circuit, tVariable, nil)
 	if err != nil {
 		return err
@@ -80,6 +89,9 @@ func parseCircuit(builder Builder, circuit Circuit) (err error) {
 
 	// leaf handlers are called when encoutering leafs in the circuit data struct
 	// leafs are Constraints that need to be initialized in the context of compiling a circuit
+	/*** Hints: ZhmYe
+		targetVisibility: public/private input
+	***/
 	variableAdder := func(targetVisibility schema.Visibility) func(f schema.LeafInfo, tInput reflect.Value) error {
 		return func(f schema.LeafInfo, tInput reflect.Value) error {
 			if tInput.CanSet() {

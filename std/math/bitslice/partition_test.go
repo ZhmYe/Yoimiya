@@ -3,8 +3,8 @@ package bitslice
 import (
 	"testing"
 
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/test"
+	"S-gnark/frontend"
+	"S-gnark/test"
 )
 
 type partitionCircuit struct {

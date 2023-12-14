@@ -17,34 +17,35 @@ limitations under the License.
 package r1cs
 
 import (
+	"S-gnark/constraint"
+	"S-gnark/debug"
+	"S-gnark/frontend"
+	"S-gnark/frontend/internal/expr"
+	"S-gnark/frontend/schema"
+	"S-gnark/internal/circuitdefer"
+	"S-gnark/internal/frontendtype"
+	"S-gnark/internal/kvstore"
+	"S-gnark/internal/tinyfield"
+	"S-gnark/internal/utils"
+	"S-gnark/logger"
 	"errors"
+	"github.com/consensys/gnark-crypto/ecc"
 	"math/big"
 	"reflect"
 	"sort"
 
-	"github.com/consensys/gnark-crypto/ecc"
-	"github.com/consensys/gnark/constraint"
-	"github.com/consensys/gnark/debug"
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/frontend/internal/expr"
-	"github.com/consensys/gnark/frontend/schema"
-	"github.com/consensys/gnark/internal/circuitdefer"
-	"github.com/consensys/gnark/internal/frontendtype"
-	"github.com/consensys/gnark/internal/kvstore"
-	"github.com/consensys/gnark/internal/tinyfield"
-	"github.com/consensys/gnark/internal/utils"
-	"github.com/consensys/gnark/logger"
-
-	bls12377r1cs "github.com/consensys/gnark/constraint/bls12-377"
-	bls12381r1cs "github.com/consensys/gnark/constraint/bls12-381"
-	bls24315r1cs "github.com/consensys/gnark/constraint/bls24-315"
-	bls24317r1cs "github.com/consensys/gnark/constraint/bls24-317"
-	bn254r1cs "github.com/consensys/gnark/constraint/bn254"
-	bw6633r1cs "github.com/consensys/gnark/constraint/bw6-633"
-	bw6761r1cs "github.com/consensys/gnark/constraint/bw6-761"
-	"github.com/consensys/gnark/constraint/solver"
-	tinyfieldr1cs "github.com/consensys/gnark/constraint/tinyfield"
+	bls12377r1cs "S-gnark/constraint/bls12-377"
+	bls12381r1cs "S-gnark/constraint/bls12-381"
+	bls24315r1cs "S-gnark/constraint/bls24-315"
+	bls24317r1cs "S-gnark/constraint/bls24-317"
+	bn254r1cs "S-gnark/constraint/bn254"
+	bw6633r1cs "S-gnark/constraint/bw6-633"
+	bw6761r1cs "S-gnark/constraint/bw6-761"
+	"S-gnark/constraint/solver"
+	tinyfieldr1cs "S-gnark/constraint/tinyfield"
 )
+
+var R1csStrs []string
 
 // NewBuilder returns a new R1CS builder which implements frontend.API.
 // Additionally, this builder also implements [frontend.Committer].
@@ -93,21 +94,29 @@ func newBuilder(field *big.Int, config frontend.CompileConfig) *builder {
 	// by default the circuit is given a public wire equal to 1
 
 	curve := utils.FieldToCurve(field)
-
+	// add by ZhmYe 2023/12/13
+	log := logger.Logger()
 	switch curve {
 	case ecc.BLS12_377:
+		log.Info().Str("builder.cs", "bls12377r1cs").Msg("YZM TEST ")
 		builder.cs = bls12377r1cs.NewR1CS(config.Capacity)
 	case ecc.BLS12_381:
+		log.Info().Str("builder.cs", "bls12381r1cs").Msg("YZM TEST ")
 		builder.cs = bls12381r1cs.NewR1CS(config.Capacity)
 	case ecc.BN254:
+		log.Info().Str("builder.cs", "bn254r1cs").Msg("YZM TEST ")
 		builder.cs = bn254r1cs.NewR1CS(config.Capacity)
 	case ecc.BW6_761:
+		log.Info().Str("builder.cs", "bw6761r1cs").Msg("YZM TEST ")
 		builder.cs = bw6761r1cs.NewR1CS(config.Capacity)
 	case ecc.BW6_633:
+		log.Info().Str("builder.cs", "bw6633r1cs").Msg("YZM TEST ")
 		builder.cs = bw6633r1cs.NewR1CS(config.Capacity)
 	case ecc.BLS24_315:
+		log.Info().Str("builder.cs", "bls24315r1cs").Msg("YZM TEST ")
 		builder.cs = bls24315r1cs.NewR1CS(config.Capacity)
 	case ecc.BLS24_317:
+		log.Info().Str("builder.cs", "bls24317r1cs").Msg("YZM TEST ")
 		builder.cs = bls24317r1cs.NewR1CS(config.Capacity)
 	default:
 		if field.Cmp(tinyfield.Modulus()) == 0 {
@@ -285,7 +294,17 @@ func (builder *builder) Compile() (constraint.ConstraintSystem, error) {
 			return nil, err
 		}
 	}
-
+	// add by ZhmYe
+	/*** Hints : ZhmYe
+		Here we can get R1cs, and store its string into r1cs.R1csStrs
+	***/
+	r1cs := builder.cs.GetR1Cs()
+	tmp := make([]string, 0)
+	for _, r1c := range r1cs {
+		//fmt.Println(r1c.String(builder.cs))
+		tmp = append(tmp, r1c.String(builder.cs))
+	}
+	R1csStrs = tmp
 	return builder.cs, nil
 }
 

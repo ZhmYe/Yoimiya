@@ -19,9 +19,9 @@ package fields_bls24315
 import (
 	"math/big"
 
+	"S-gnark/constraint/solver"
+	"S-gnark/frontend"
 	bls24315 "github.com/consensys/gnark-crypto/ecc/bls24-315"
-	"github.com/consensys/gnark/constraint/solver"
-	"github.com/consensys/gnark/frontend"
 )
 
 // E4 element in a quadratic extension

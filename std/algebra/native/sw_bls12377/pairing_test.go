@@ -21,12 +21,12 @@ import (
 	"math/big"
 	"testing"
 
+	"S-gnark/frontend"
+	"S-gnark/std/algebra/native/fields_bls12377"
+	"S-gnark/test"
 	"github.com/consensys/gnark-crypto/ecc"
 	bls12377 "github.com/consensys/gnark-crypto/ecc/bls12-377"
 	"github.com/consensys/gnark-crypto/ecc/bls12-377/fr"
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/std/algebra/native/fields_bls12377"
-	"github.com/consensys/gnark/test"
 )
 
 type finalExp struct {

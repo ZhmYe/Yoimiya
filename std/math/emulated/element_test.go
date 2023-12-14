@@ -7,12 +7,12 @@ import (
 	"reflect"
 	"testing"
 
+	"S-gnark/backend"
+	"S-gnark/frontend"
+	"S-gnark/frontend/cs/r1cs"
+	"S-gnark/frontend/cs/scs"
+	"S-gnark/test"
 	"github.com/consensys/gnark-crypto/ecc"
-	"github.com/consensys/gnark/backend"
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/frontend/cs/r1cs"
-	"github.com/consensys/gnark/frontend/cs/scs"
-	"github.com/consensys/gnark/test"
 )
 
 const testCurve = ecc.BN254
@@ -828,7 +828,7 @@ func TestIssue348UnconstrainedLimbs(t *testing.T) {
 	// for freshly initialised elements (using NewElement, or directly by
 	// constructing the structure), we do not automatically enforce the widths.
 	//
-	// The bug is tracked in https://github.com/ConsenSys/gnark/issues/348
+	// The bug is tracked in https://S-gnark/issues/348
 	a := big.NewInt(5)
 	b, _ := new(big.Int).SetString("21888242871839275222246405745257275088548364400416034343698204186575808495612", 10)
 	assert := test.NewAssert(t)

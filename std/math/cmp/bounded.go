@@ -1,10 +1,10 @@
 package cmp
 
 import (
+	"S-gnark/constraint/solver"
+	"S-gnark/frontend"
+	"S-gnark/std/math/bits"
 	"fmt"
-	"github.com/consensys/gnark/constraint/solver"
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/std/math/bits"
 	"math/big"
 )
 

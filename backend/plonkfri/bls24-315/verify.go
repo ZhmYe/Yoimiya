@@ -17,12 +17,12 @@
 package plonkfri
 
 import (
+	"S-gnark/backend"
 	"errors"
 	"fmt"
 	"github.com/consensys/gnark-crypto/ecc/bls24-315/fr"
 	"github.com/consensys/gnark-crypto/ecc/bls24-315/fr/fri"
 	fiatshamir "github.com/consensys/gnark-crypto/fiat-shamir"
-	"github.com/consensys/gnark/backend"
 	"math/big"
 )
 

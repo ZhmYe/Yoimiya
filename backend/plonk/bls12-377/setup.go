@@ -17,15 +17,15 @@
 package plonk
 
 import (
+	"S-gnark/backend/plonk/internal"
+	"S-gnark/constraint"
+	cs "S-gnark/constraint/bls12-377"
 	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"
 	"github.com/consensys/gnark-crypto/ecc/bls12-377/fr"
 	"github.com/consensys/gnark-crypto/ecc/bls12-377/fr/fft"
 	"github.com/consensys/gnark-crypto/ecc/bls12-377/fr/iop"
 	"github.com/consensys/gnark-crypto/ecc/bls12-377/kzg"
-	"github.com/consensys/gnark/backend/plonk/internal"
-	"github.com/consensys/gnark/constraint"
-	cs "github.com/consensys/gnark/constraint/bls12-377"
 )
 
 // VerifyingKey stores the data needed to verify a proof:

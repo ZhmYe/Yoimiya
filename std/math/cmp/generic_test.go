@@ -1,10 +1,10 @@
 package cmp
 
 import (
+	"S-gnark/frontend"
+	"S-gnark/std/math/bits"
+	"S-gnark/test"
 	"github.com/consensys/gnark-crypto/ecc"
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/std/math/bits"
-	"github.com/consensys/gnark/test"
 	"math/big"
 	"testing"
 )

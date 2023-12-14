@@ -17,15 +17,15 @@
 package cs
 
 import (
+	"S-gnark/constraint"
+	hint "S-gnark/constraint/solver"
+	"S-gnark/std/utils/algo_utils"
 	"fmt"
 	"github.com/consensys/gnark-crypto/ecc/bls24-317/fr"
 	"github.com/consensys/gnark-crypto/ecc/bls24-317/fr/gkr"
 	"github.com/consensys/gnark-crypto/ecc/bls24-317/fr/polynomial"
 	fiatshamir "github.com/consensys/gnark-crypto/fiat-shamir"
 	"github.com/consensys/gnark-crypto/utils"
-	"github.com/consensys/gnark/constraint"
-	hint "github.com/consensys/gnark/constraint/solver"
-	"github.com/consensys/gnark/std/utils/algo_utils"
 	"hash"
 	"math/big"
 	"sync"

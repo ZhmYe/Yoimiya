@@ -4,11 +4,11 @@ import (
 	"crypto/elliptic"
 	"math/big"
 
+	"S-gnark/std/math/emulated"
 	bls12381 "github.com/consensys/gnark-crypto/ecc/bls12-381"
 	"github.com/consensys/gnark-crypto/ecc/bn254"
 	bw6761 "github.com/consensys/gnark-crypto/ecc/bw6-761"
 	"github.com/consensys/gnark-crypto/ecc/secp256k1"
-	"github.com/consensys/gnark/std/math/emulated"
 )
 
 // CurveParams defines parameters of an elliptic curve in short Weierstrass form

@@ -20,10 +20,10 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/consensys/gnark/debug"
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/frontend/internal/expr"
-	"github.com/consensys/gnark/std/math/bits"
+	"S-gnark/debug"
+	"S-gnark/frontend"
+	"S-gnark/frontend/internal/expr"
+	"S-gnark/std/math/bits"
 )
 
 // AssertIsEqual fails if i1 != i2

@@ -1,19 +1,19 @@
 package std
 
 import (
-	"github.com/consensys/gnark/std/math/cmp"
+	"S-gnark/std/math/cmp"
 	"sync"
 
-	"github.com/consensys/gnark/constraint/solver"
-	"github.com/consensys/gnark/std/algebra/native/sw_bls12377"
-	"github.com/consensys/gnark/std/algebra/native/sw_bls24315"
-	"github.com/consensys/gnark/std/evmprecompiles"
-	"github.com/consensys/gnark/std/internal/logderivarg"
-	"github.com/consensys/gnark/std/math/bits"
-	"github.com/consensys/gnark/std/math/bitslice"
-	"github.com/consensys/gnark/std/math/emulated"
-	"github.com/consensys/gnark/std/rangecheck"
-	"github.com/consensys/gnark/std/selector"
+	"S-gnark/constraint/solver"
+	"S-gnark/std/algebra/native/sw_bls12377"
+	"S-gnark/std/algebra/native/sw_bls24315"
+	"S-gnark/std/evmprecompiles"
+	"S-gnark/std/internal/logderivarg"
+	"S-gnark/std/math/bits"
+	"S-gnark/std/math/bitslice"
+	"S-gnark/std/math/emulated"
+	"S-gnark/std/rangecheck"
+	"S-gnark/std/selector"
 )
 
 var registerOnce sync.Once

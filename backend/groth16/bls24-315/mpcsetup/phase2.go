@@ -21,10 +21,10 @@ import (
 	"errors"
 	"math/big"
 
+	"S-gnark/constraint"
+	cs "S-gnark/constraint/bls24-315"
 	curve "github.com/consensys/gnark-crypto/ecc/bls24-315"
 	"github.com/consensys/gnark-crypto/ecc/bls24-315/fr"
-	"github.com/consensys/gnark/constraint"
-	cs "github.com/consensys/gnark/constraint/bls24-315"
 )
 
 type Phase2Evaluations struct {

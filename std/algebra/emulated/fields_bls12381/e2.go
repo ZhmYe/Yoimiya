@@ -3,9 +3,9 @@ package fields_bls12381
 import (
 	"math/big"
 
+	"S-gnark/frontend"
+	"S-gnark/std/math/emulated"
 	bls12381 "github.com/consensys/gnark-crypto/ecc/bls12-381"
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/std/math/emulated"
 )
 
 type curveF = emulated.Field[emulated.BLS12381Fp]

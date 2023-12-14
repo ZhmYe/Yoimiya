@@ -1,7 +1,7 @@
 package compress
 
 import (
-	"github.com/consensys/gnark/frontend"
+	"S-gnark/frontend"
 )
 
 func Pack(api frontend.API, words []frontend.Variable, wordLen int) []frontend.Variable {

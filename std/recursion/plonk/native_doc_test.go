@@ -1,13 +1,13 @@
 package plonk_test
 
 import (
+	native_plonk "S-gnark/backend/plonk"
+	"S-gnark/frontend"
+	"S-gnark/frontend/cs/scs"
+	"S-gnark/std/algebra/native/sw_bls12377"
+	"S-gnark/std/recursion/plonk"
+	"S-gnark/test/unsafekzg"
 	"github.com/consensys/gnark-crypto/ecc"
-	native_plonk "github.com/consensys/gnark/backend/plonk"
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/frontend/cs/scs"
-	"github.com/consensys/gnark/std/algebra/native/sw_bls12377"
-	"github.com/consensys/gnark/std/recursion/plonk"
-	"github.com/consensys/gnark/test/unsafekzg"
 )
 
 // Example of verifying recursively BLS12-371 PLONK proof in BW6-761 PLONK circuit using field emulation

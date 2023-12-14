@@ -39,17 +39,17 @@ import (
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr/hash_to_field"
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr/iop"
 
+	"S-gnark/backend"
+	"S-gnark/backend/witness"
 	"github.com/consensys/gnark-crypto/ecc/bn254/kzg"
 	fiatshamir "github.com/consensys/gnark-crypto/fiat-shamir"
-	"github.com/consensys/gnark/backend"
-	"github.com/consensys/gnark/backend/witness"
 
-	"github.com/consensys/gnark/constraint"
-	cs "github.com/consensys/gnark/constraint/bn254"
-	"github.com/consensys/gnark/constraint/solver"
-	fcs "github.com/consensys/gnark/frontend/cs"
-	"github.com/consensys/gnark/internal/utils"
-	"github.com/consensys/gnark/logger"
+	"S-gnark/constraint"
+	cs "S-gnark/constraint/bn254"
+	"S-gnark/constraint/solver"
+	fcs "S-gnark/frontend/cs"
+	"S-gnark/internal/utils"
+	"S-gnark/logger"
 )
 
 // TODO in gnark-crypto:

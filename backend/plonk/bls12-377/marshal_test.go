@@ -21,9 +21,9 @@ import (
 
 	"github.com/consensys/gnark-crypto/ecc/bls12-377/fr"
 
+	"S-gnark/io"
 	"github.com/consensys/gnark-crypto/ecc/bls12-377/fr/fft"
 	"github.com/consensys/gnark-crypto/ecc/bls12-377/fr/iop"
-	"github.com/consensys/gnark/io"
 	"math/big"
 	"math/rand"
 	"testing"

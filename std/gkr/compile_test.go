@@ -1,7 +1,7 @@
 package gkr
 
 import (
-	"github.com/consensys/gnark/constraint"
+	"S-gnark/constraint"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

@@ -1,4 +1,4 @@
-module github.com/consensys/gnark
+module S-gnark
 
 go 1.20
 

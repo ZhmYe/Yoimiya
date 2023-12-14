@@ -22,15 +22,15 @@ import (
 	"io"
 	"time"
 
+	"S-gnark/backend"
+	"S-gnark/constraint"
+	"S-gnark/logger"
 	"github.com/consensys/gnark-crypto/ecc"
 	curve "github.com/consensys/gnark-crypto/ecc/bls24-315"
 	"github.com/consensys/gnark-crypto/ecc/bls24-315/fr"
 	"github.com/consensys/gnark-crypto/ecc/bls24-315/fr/hash_to_field"
 	"github.com/consensys/gnark-crypto/ecc/bls24-315/fr/pedersen"
 	"github.com/consensys/gnark-crypto/utils"
-	"github.com/consensys/gnark/backend"
-	"github.com/consensys/gnark/constraint"
-	"github.com/consensys/gnark/logger"
 )
 
 var (

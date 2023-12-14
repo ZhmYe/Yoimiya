@@ -17,15 +17,15 @@
 package groth16
 
 import (
+	"S-gnark/backend/groth16/internal"
+	"S-gnark/constraint"
+	cs "S-gnark/constraint/bw6-761"
 	"errors"
 	"github.com/consensys/gnark-crypto/ecc"
 	curve "github.com/consensys/gnark-crypto/ecc/bw6-761"
 	"github.com/consensys/gnark-crypto/ecc/bw6-761/fr"
 	"github.com/consensys/gnark-crypto/ecc/bw6-761/fr/fft"
 	"github.com/consensys/gnark-crypto/ecc/bw6-761/fr/pedersen"
-	"github.com/consensys/gnark/backend/groth16/internal"
-	"github.com/consensys/gnark/constraint"
-	cs "github.com/consensys/gnark/constraint/bw6-761"
 	"math/big"
 	"math/bits"
 )

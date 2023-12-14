@@ -1,6 +1,6 @@
 package circuits
 
-import "github.com/consensys/gnark/frontend"
+import "S-gnark/frontend"
 
 type commitCircuit struct {
 	Public frontend.Variable `gnark:",public"`

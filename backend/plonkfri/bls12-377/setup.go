@@ -17,11 +17,11 @@
 package plonkfri
 
 import (
+	cs "S-gnark/constraint/bls12-377"
 	"crypto/sha256"
 	"github.com/consensys/gnark-crypto/ecc/bls12-377/fr"
 	"github.com/consensys/gnark-crypto/ecc/bls12-377/fr/fft"
 	"github.com/consensys/gnark-crypto/ecc/bls12-377/fr/fri"
-	cs "github.com/consensys/gnark/constraint/bls12-377"
 )
 
 // ProvingKey stores the data needed to generate a proof:

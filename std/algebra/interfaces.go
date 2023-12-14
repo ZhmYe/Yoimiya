@@ -1,9 +1,9 @@
 package algebra
 
 import (
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/std/algebra/algopts"
-	"github.com/consensys/gnark/std/math/emulated"
+	"S-gnark/frontend"
+	"S-gnark/std/algebra/algopts"
+	"S-gnark/std/math/emulated"
 )
 
 type GroupElementT any

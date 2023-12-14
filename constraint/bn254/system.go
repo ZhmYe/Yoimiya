@@ -21,11 +21,11 @@ import (
 	"io"
 	"time"
 
-	"github.com/consensys/gnark/backend/witness"
-	"github.com/consensys/gnark/constraint"
-	csolver "github.com/consensys/gnark/constraint/solver"
-	"github.com/consensys/gnark/internal/backend/ioutils"
-	"github.com/consensys/gnark/logger"
+	"S-gnark/backend/witness"
+	"S-gnark/constraint"
+	csolver "S-gnark/constraint/solver"
+	"S-gnark/internal/backend/ioutils"
+	"S-gnark/logger"
 	"reflect"
 
 	"github.com/consensys/gnark-crypto/ecc"
@@ -123,7 +123,6 @@ func (cs *system) IsSolved(witness witness.Witness, opts ...csolver.Option) erro
 // GetR1Cs return the list of R1C
 func (cs *system) GetR1Cs() []constraint.R1C {
 	toReturn := make([]constraint.R1C, 0, cs.GetNbConstraints())
-
 	for _, inst := range cs.Instructions {
 		blueprint := cs.Blueprints[inst.BlueprintID]
 		if bc, ok := blueprint.(constraint.BlueprintR1C); ok {

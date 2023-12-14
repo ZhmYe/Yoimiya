@@ -5,16 +5,16 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/consensys/gnark/backend"
-	groth16 "github.com/consensys/gnark/backend/groth16/bn254"
-	"github.com/consensys/gnark/backend/witness"
-	cs "github.com/consensys/gnark/constraint/bn254"
-	"github.com/consensys/gnark/frontend/cs/r1cs"
+	"S-gnark/backend"
+	groth16 "S-gnark/backend/groth16/bn254"
+	"S-gnark/backend/witness"
+	cs "S-gnark/constraint/bn254"
+	"S-gnark/frontend/cs/r1cs"
 	"github.com/stretchr/testify/require"
 
+	"S-gnark/frontend"
+	"S-gnark/frontend/cs/scs"
 	"github.com/consensys/gnark-crypto/ecc"
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/frontend/cs/scs"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -23,15 +23,15 @@ import (
 	"text/template"
 	"time"
 
+	"S-gnark/backend"
+	"S-gnark/constraint"
+	"S-gnark/logger"
 	"github.com/consensys/gnark-crypto/ecc"
 	curve "github.com/consensys/gnark-crypto/ecc/bn254"
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr"
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr/hash_to_field"
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr/pedersen"
 	"github.com/consensys/gnark-crypto/utils"
-	"github.com/consensys/gnark/backend"
-	"github.com/consensys/gnark/constraint"
-	"github.com/consensys/gnark/logger"
 )
 
 var (
@@ -143,7 +143,7 @@ func Verify(proof *Proof, vk *VerifyingKey, publicWitness fr.Vector, opts ...bac
 // ExportSolidity writes a solidity Verifier contract on provided writer.
 // This is an experimental feature and gnark solidity generator as not been thoroughly tested.
 //
-// See https://github.com/ConsenSys/gnark-tests for example usage.
+// See https://S-gnark-tests for example usage.
 func (vk *VerifyingKey) ExportSolidity(w io.Writer) error {
 	helpers := template.FuncMap{
 		"sub": func(a, b int) int {

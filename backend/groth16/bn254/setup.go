@@ -17,15 +17,16 @@
 package groth16
 
 import (
+	"S-gnark/backend/groth16/internal"
+	"S-gnark/constraint"
+	cs "S-gnark/constraint/bn254"
+	"S-gnark/logger"
 	"errors"
 	"github.com/consensys/gnark-crypto/ecc"
 	curve "github.com/consensys/gnark-crypto/ecc/bn254"
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr"
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr/fft"
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr/pedersen"
-	"github.com/consensys/gnark/backend/groth16/internal"
-	"github.com/consensys/gnark/constraint"
-	cs "github.com/consensys/gnark/constraint/bn254"
 	"math/big"
 	"math/bits"
 )
@@ -94,12 +95,27 @@ func Setup(r1cs *cs.R1CS, pk *ProvingKey, vk *VerifyingKey) error {
 	*/
 
 	// get R1CS nb constraints, wires and public/private inputs
+	log := logger.Logger()
+	log.Info().Int("Internal Variables", r1cs.NbInternalVariables).Int("Public Variables", r1cs.GetNbPublicVariables()).Int("Private Variables", r1cs.GetNbSecretVariables()).Int("Constraints Number", r1cs.GetNbConstraints()).Msg("YZM TEST")
+	/***
+		Hints: ZhmYe
+		Here NbPublicVariables is number of Public Inputs written in the circuit
+	  		 NbSecretVariables is number of Private Inputs written in the circuit
+			 NbInternalVariables is number of extra variables in the R1CS. such as X1 * X1 = V1, V1 is a extra variable
+		In TwoSampleTCircuit, Public inputs: 10, Private inputs: 3, Internal Variables: 1722
+	***/
 	nbWires := r1cs.NbInternalVariables + r1cs.GetNbPublicVariables() + r1cs.GetNbSecretVariables()
-
 	commitmentInfo := r1cs.CommitmentInfo.(constraint.Groth16Commitments)
 	commitmentWires := commitmentInfo.CommitmentIndexes()
 	privateCommitted := commitmentInfo.GetPrivateCommitted()
 	nbPrivateCommittedWires := internal.NbElements(privateCommitted)
+
+	// add by ZhmYe
+	//fmt.Println(commitmentInfo)
+	//fmt.Println(commitmentWires)
+	//fmt.Println(privateCommitted)
+	//fmt.Println(nbPrivateCommittedWires)
+	// In TwoSampleTCircuit, result is [], [], [], 0
 
 	// a commitment is itself defined by a hint so the prover considers it private
 	// but the verifier will need to inject the value itself so on the groth16

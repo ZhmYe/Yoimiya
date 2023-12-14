@@ -5,13 +5,13 @@ import (
 	"math/big"
 	"math/bits"
 
+	"S-gnark/internal/utils"
+	fiatshamir "S-gnark/std/fiat-shamir"
+	"S-gnark/std/hash"
 	"github.com/consensys/gnark-crypto/ecc"
-	"github.com/consensys/gnark/internal/utils"
-	fiatshamir "github.com/consensys/gnark/std/fiat-shamir"
-	"github.com/consensys/gnark/std/hash"
 
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/std/accumulator/merkle"
+	"S-gnark/frontend"
+	"S-gnark/std/accumulator/merkle"
 )
 
 // same constant as in gnark-crypto

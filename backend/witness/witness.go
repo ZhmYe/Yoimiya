@@ -47,6 +47,9 @@ import (
 	"math/big"
 	"reflect"
 
+	"S-gnark/debug"
+	"S-gnark/frontend/schema"
+	"S-gnark/internal/tinyfield"
 	fr_bls12377 "github.com/consensys/gnark-crypto/ecc/bls12-377/fr"
 	fr_bls12381 "github.com/consensys/gnark-crypto/ecc/bls12-381/fr"
 	fr_bls24315 "github.com/consensys/gnark-crypto/ecc/bls24-315/fr"
@@ -54,9 +57,6 @@ import (
 	fr_bn254 "github.com/consensys/gnark-crypto/ecc/bn254/fr"
 	fr_bw6633 "github.com/consensys/gnark-crypto/ecc/bw6-633/fr"
 	fr_bw6761 "github.com/consensys/gnark-crypto/ecc/bw6-761/fr"
-	"github.com/consensys/gnark/debug"
-	"github.com/consensys/gnark/frontend/schema"
-	"github.com/consensys/gnark/internal/tinyfield"
 )
 
 var ErrInvalidWitness = errors.New("invalid witness")

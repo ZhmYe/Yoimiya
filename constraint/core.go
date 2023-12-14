@@ -2,19 +2,19 @@ package constraint
 
 import (
 	"fmt"
+	"github.com/blang/semver/v4"
 	"math/big"
 	"strconv"
 	"sync"
 
-	"github.com/blang/semver/v4"
-	"github.com/consensys/gnark"
+	"S-gnark"
+	"S-gnark/constraint/solver"
+	"S-gnark/debug"
+	"S-gnark/internal/tinyfield"
+	"S-gnark/internal/utils"
+	"S-gnark/logger"
+	"S-gnark/profile"
 	"github.com/consensys/gnark-crypto/ecc"
-	"github.com/consensys/gnark/constraint/solver"
-	"github.com/consensys/gnark/debug"
-	"github.com/consensys/gnark/internal/tinyfield"
-	"github.com/consensys/gnark/internal/utils"
-	"github.com/consensys/gnark/logger"
-	"github.com/consensys/gnark/profile"
 )
 
 type SystemType uint16

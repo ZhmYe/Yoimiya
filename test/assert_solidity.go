@@ -9,10 +9,10 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/consensys/gnark/backend"
-	groth16_bn254 "github.com/consensys/gnark/backend/groth16/bn254"
-	plonk_bn254 "github.com/consensys/gnark/backend/plonk/bn254"
-	"github.com/consensys/gnark/backend/witness"
+	"S-gnark/backend"
+	groth16_bn254 "S-gnark/backend/groth16/bn254"
+	plonk_bn254 "S-gnark/backend/plonk/bn254"
+	"S-gnark/backend/witness"
 )
 
 type verifyingKey interface {

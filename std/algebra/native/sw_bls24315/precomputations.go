@@ -16,7 +16,7 @@ limitations under the License.
 
 package sw_bls24315
 
-import "github.com/consensys/gnark/std/algebra/native/fields_bls24315"
+import "S-gnark/std/algebra/native/fields_bls24315"
 
 // precomputed lines going through Q and multiples of Q
 // where Q is the fixed canonical generator of G2

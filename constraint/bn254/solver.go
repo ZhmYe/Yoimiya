@@ -17,12 +17,12 @@
 package cs
 
 import (
+	"S-gnark/constraint"
+	csolver "S-gnark/constraint/solver"
 	"errors"
 	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"
 	"github.com/consensys/gnark-crypto/field/pool"
-	"github.com/consensys/gnark/constraint"
-	csolver "github.com/consensys/gnark/constraint/solver"
 	"github.com/rs/zerolog"
 	"math"
 	"math/big"

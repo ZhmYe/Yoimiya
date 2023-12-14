@@ -4,9 +4,9 @@ import (
 	"math/bits"
 	"testing"
 
+	"S-gnark/frontend"
+	"S-gnark/test"
 	"github.com/consensys/gnark-crypto/ecc"
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/test"
 )
 
 type lrotCirc struct {

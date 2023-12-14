@@ -5,12 +5,12 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/consensys/gnark"
+	"S-gnark"
 	"github.com/consensys/gnark-crypto/ecc"
 
-	"github.com/consensys/gnark/constraint/solver"
-	"github.com/consensys/gnark/frontend"
-	"github.com/consensys/gnark/std/math/bits"
+	"S-gnark/constraint/solver"
+	"S-gnark/frontend"
+	"S-gnark/std/math/bits"
 )
 
 type hintCircuit struct {
