@@ -343,7 +343,7 @@ func (builder *builder) toVariable(input interface{}) expr.LinearExpression {
 
 	switch t := input.(type) {
 	case expr.LinearExpression:
-		// this is already a "kwown" variable
+		// this is already a "known" variable
 		assertIsSet(t)
 		return t
 	case *expr.LinearExpression:
@@ -360,14 +360,17 @@ func (builder *builder) toVariable(input interface{}) expr.LinearExpression {
 	}
 }
 
+/*** Hints: ZhmYe
+	Here transform variable into linear expression
+***/
 // toVariables return frontend.Variable corresponding to inputs and the total size of the linear expressions
 func (builder *builder) toVariables(in ...frontend.Variable) ([]expr.LinearExpression, int) {
 	r := make([]expr.LinearExpression, 0, len(in))
 	s := 0
 	e := func(i frontend.Variable) {
 		v := builder.toVariable(i)
-		r = append(r, v)
-		s += len(v)
+		r = append(r, v) // linear expressions
+		s += len(v)      // size
 	}
 	// e(i1)
 	// e(i2)
