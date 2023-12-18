@@ -30,7 +30,7 @@ type InstructionTree interface {
 func (system *System) HasWire(wireID uint32) bool {
 	offset := system.internalWireOffset()
 	if wireID < offset {
-		// it's a input.
+		// it's an input.
 		return false
 	}
 	// if wireID == maxUint32, it's a constant.

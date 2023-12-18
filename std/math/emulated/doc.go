@@ -13,7 +13,7 @@ parameters for splitting the limb and defining the modulus are stored in types
 implementing [FieldParams] type. The elements are parametrized by those types to
 make compile-time distinction between different emulated fields.
 
-This package defines [Element] type which stores the element value in split
+This package defines [Element] type which stores the element value in graph
 limbs. On top of the Element instance, this package defines typical arithmetic
 as addition, multiplication and subtraction. If the modulus is a prime (i.e.
 defines a finite field), then inversion and division operations are also

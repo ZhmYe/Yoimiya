@@ -93,7 +93,7 @@ func (c *commitChecker) commit(api frontend.API) error {
 			composed = api.Add(composed, api.Mul(limbs[j], coef.Lsh(one, uint(baseLength*j))))
 		}
 		api.AssertIsEqual(composed, c.collected[i].v)
-		// we have split the input into nbLimbs partitions of length baseLength.
+		// we have graph the input into nbLimbs partitions of length baseLength.
 		// This ensures that the checked variable is not more than
 		// nbLimbs*baseLength bits, but was requested to be c.collected[i].bits,
 		// which may be less. Conditionally add one more check to the most

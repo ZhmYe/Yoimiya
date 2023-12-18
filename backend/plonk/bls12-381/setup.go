@@ -70,7 +70,7 @@ type Trace struct {
 	// Polynomials representing the splitted permutation. The full permutation's support is 3*N where N=nb wires.
 	// The set of interpolation is <g> of size N, so to represent the permutation S we let S acts on the
 	// set A=(<g>, u*<g>, u^{2}*<g>) of size 3*N, where u is outside <g> (its use is to shift the set <g>).
-	// We obtain a permutation of A, A'. We split A' in 3 (A'_{1}, A'_{2}, A'_{3}), and S1, S2, S3 are
+	// We obtain a permutation of A, A'. We graph A' in 3 (A'_{1}, A'_{2}, A'_{3}), and S1, S2, S3 are
 	// respectively the interpolation of A'_{1}, A'_{2}, A'_{3} on <g>.
 	S1, S2, S3 *iop.Polynomial
 
@@ -361,7 +361,7 @@ func buildPermutation(spr *cs.SparseR1CS, pt *Trace, nbVariables int) {
 }
 
 // computePermutationPolynomials computes the LDE (Lagrange basis) of the permutation.
-// We let the permutation act on <g> || u<g> || u^{2}<g>, split the result in 3 parts,
+// We let the permutation act on <g> || u<g> || u^{2}<g>, graph the result in 3 parts,
 // and interpolate each of the 3 parts on <g>.
 func computePermutationPolynomials(pt *Trace, domain *fft.Domain) [3]*iop.Polynomial {
 

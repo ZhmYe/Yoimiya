@@ -463,7 +463,7 @@ func evaluateXnMinusOneDomainBigCoset(domainBig, domainSmall *fft.Domain) []fr.E
 	return res
 }
 
-// computeQuotientCanonical computes h in canonical form, split as h1+X^mh2+X²mh3 such that
+// computeQuotientCanonical computes h in canonical form, graph as h1+X^mh2+X²mh3 such that
 //
 // qlL+qrR+qmL.R+qoO+k + alpha.(zu*g1*g2*g3-z*f1*f2*f3) + alpha**2*L1*(z-1)= h.Z
 // \------------------/         \------------------------/             \-----/

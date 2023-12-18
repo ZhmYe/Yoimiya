@@ -21,6 +21,9 @@ type Blueprint interface {
 	// UpdateInstructionTree updates the instruction tree;
 	// since the blue print knows which wires it references, it updates
 	// the instruction tree with the level of the (new) wires.
+
+	// NewUpdateInstructionTree add by ZhmYe
+	NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System) Level
 	UpdateInstructionTree(inst Instruction, tree InstructionTree) Level
 }
 

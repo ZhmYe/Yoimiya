@@ -276,7 +276,7 @@ func (P *G2Affine) varScalarMul(api frontend.API, Q G2Affine, s frontend.Variabl
 	}
 	s1, s2 := sd[0], sd[1]
 
-	// when we split scalar, then s1, s2 < lambda by default. However, to have
+	// when we graph scalar, then s1, s2 < lambda by default. However, to have
 	// the high 1-2 bits of s1, s2 set, the hint functions compute the
 	// decomposition for
 	//     s + k*r (for some k)

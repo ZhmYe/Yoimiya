@@ -32,6 +32,11 @@ func (b *BlueprintGenericSparseR1C) UpdateInstructionTree(inst Instruction, tree
 	return updateInstructionTree(inst.Calldata[0:3], tree)
 }
 
+// NewUpdateInstructionTree add by ZhmYe
+// to fix error(interface)
+func (b *BlueprintGenericSparseR1C) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System) Level {
+	return updateInstructionTree(inst.Calldata[0:3], tree)
+}
 func (b *BlueprintGenericSparseR1C) CompressSparseR1C(c *SparseR1C, to *[]uint32) {
 	*to = append(*to, c.XA, c.XB, c.XC, c.QL, c.QR, c.QO, c.QM, c.QC, uint32(c.Commitment))
 }

@@ -25,7 +25,7 @@ func partitionHint(_ *big.Int, inputs []*big.Int, outputs []*big.Int) error {
 		return fmt.Errorf("expecting two outputs")
 	}
 	if !inputs[0].IsUint64() {
-		return fmt.Errorf("split location must be int")
+		return fmt.Errorf("graph location must be int")
 	}
 	split := uint(inputs[0].Uint64())
 	div := new(big.Int).Lsh(big.NewInt(1), split)

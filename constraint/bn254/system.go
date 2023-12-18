@@ -68,12 +68,16 @@ func (cs *system) Solve(witness witness.Witness, opts ...csolver.Option) (any, e
 	v := witness.Vector().(fr.Vector)
 
 	// init the solver
-	solver, err := newSolver(cs, v, opts...)
+	Asolver, err := newSolver(cs, v, opts...)
 	if err != nil {
 		log.Err(err).Send()
 		return nil, err
 	}
 
+	/***
+		Hints: ZhmYe
+		todo what is Blueprints?
+	***/
 	// reset the stateful blueprints
 	for i := range cs.Blueprints {
 		if b, ok := cs.Blueprints[i].(constraint.BlueprintStateful); ok {
@@ -83,10 +87,10 @@ func (cs *system) Solve(witness witness.Witness, opts ...csolver.Option) (any, e
 
 	// defer log printing once all solver.values are computed
 	// (or sooner, if a constraint is not satisfied)
-	defer solver.printLogs(cs.Logs)
+	defer Asolver.printLogs(cs.Logs)
 
 	// run it.
-	if err := solver.run(); err != nil {
+	if err := Asolver.run(); err != nil {
 		log.Err(err).Send()
 		return nil, err
 	}
@@ -97,16 +101,16 @@ func (cs *system) Solve(witness witness.Witness, opts ...csolver.Option) (any, e
 	// TODO @gbotrel revisit post-refactor
 	if cs.Type == constraint.SystemR1CS {
 		var res R1CSSolution
-		res.W = solver.values
-		res.A = solver.a
-		res.B = solver.b
-		res.C = solver.c
+		res.W = Asolver.values
+		res.A = Asolver.a
+		res.B = Asolver.b
+		res.C = Asolver.c
 		return &res, nil
 	} else {
 		// sparse R1CS
 		var res SparseR1CSSolution
 		// query l, r, o in Lagrange basis, not blinded
-		res.L, res.R, res.O = evaluateLROSmallDomain(cs, solver.values)
+		res.L, res.R, res.O = evaluateLROSmallDomain(cs, Asolver.values)
 
 		return &res, nil
 	}

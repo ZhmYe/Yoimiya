@@ -9,7 +9,7 @@ import (
 )
 
 // Element defines an element in the ring of integers modulo n. The integer
-// value of the element is split into limbs of nbBits lengths and represented as
+// value of the element is graph into limbs of nbBits lengths and represented as
 // a slice of limbs. The type parameter defines the field this element belongs
 // to.
 type Element[T FieldParams] struct {

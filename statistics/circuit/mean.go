@@ -1,7 +1,6 @@
 package circuit
 
 import (
-	"S-gnark/constraint/solver"
 	"S-gnark/frontend"
 	"fmt"
 	"math/big"
@@ -50,12 +49,12 @@ func (circuit *MeanCircuit) Define(api frontend.API) error {
 		那么Y = 100E(X)
 	***/
 	// then \sigma X - Y * N = e * N, 0 <= e < 1, thus 0 <= e * N < N
-	solver.RegisterHint(computeMeanAccuracyHint)
-	accuracy, _ := api.Compiler().NewHint(computeMeanAccuracyHint, 1, circuit.N)
+	//solver.RegisterHint(computeMeanAccuracyHint)
+	//accuracy, _ := api.Compiler().NewHint(computeMeanAccuracyHint, 1, circuit.N)
 	// verify X - Y * N < N
 	api.AssertIsLessOrEqual(api.Sub(
 		api.Add(circuit.X1, circuit.X2, circuit.X3, circuit.X4, circuit.X5, circuit.X6, circuit.X7, circuit.X8, circuit.X9, circuit.X10),
 		api.Mul(circuit.Y, circuit.N)),
-		accuracy[0])
+		circuit.N)
 	return nil
 }

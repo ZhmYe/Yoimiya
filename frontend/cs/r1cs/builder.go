@@ -147,15 +147,28 @@ func (builder *builder) newInternalVariable() expr.LinearExpression {
 	return expr.NewLinearExpression(idx, builder.tOne)
 }
 
+/***
+	Hints: ZhmYe
+	Here we can get Public/Private Variables parsed in the circuit.
+ ***/
+
 // PublicVariable creates a new public Variable
 func (builder *builder) PublicVariable(f schema.LeafInfo) frontend.Variable {
+	// add by ZhmYe
+	log := logger.Logger()
+	// here AddPublicVariable() is in constraint/core.go
+	// idx := ${len(Public)}, Public.append(fullName)
 	idx := builder.cs.AddPublicVariable(f.FullName())
+	log.Info().Str("Full Name", f.FullName()).Int("Index", idx).Msg("Public Variable")
 	return expr.NewLinearExpression(idx, builder.tOne)
 }
 
 // SecretVariable creates a new secret Variable
 func (builder *builder) SecretVariable(f schema.LeafInfo) frontend.Variable {
+	// add by ZhmYe
+	log := logger.Logger()
 	idx := builder.cs.AddSecretVariable(f.FullName())
+	log.Info().Str("Full Name", f.FullName()).Int("Index", idx).Msg("Private Variable")
 	return expr.NewLinearExpression(idx, builder.tOne)
 }
 
@@ -340,7 +353,6 @@ func (builder *builder) constantValue(v frontend.Variable) (constraint.Element, 
 // if input is already a linearExpression, does nothing
 // else, attempts to convert input to a big.Int (see utils.FromInterface) and returns a toVariable linearExpression
 func (builder *builder) toVariable(input interface{}) expr.LinearExpression {
-
 	switch t := input.(type) {
 	case expr.LinearExpression:
 		// this is already a "known" variable

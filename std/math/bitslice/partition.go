@@ -7,14 +7,14 @@ import (
 	"S-gnark/std/rangecheck"
 )
 
-// Partition partitions v into two parts splitted at bit numbered split. The
+// Partition partitions v into two parts splitted at bit numbered graph. The
 // following holds
 //
-//	v = lower + 2^split * upper.
+//	v = lower + 2^graph * upper.
 //
-// The method enforces that lower < 2^split and upper < 2^split', where
-// split'=nbScalar-split. When giving the option [WithNbDigits], we instead use
-// the bound split'=nbDigits-split.
+// The method enforces that lower < 2^graph and upper < 2^graph', where
+// graph'=nbScalar-graph. When giving the option [WithNbDigits], we instead use
+// the bound graph'=nbDigits-graph.
 func Partition(api frontend.API, v frontend.Variable, split uint, opts ...Option) (lower, upper frontend.Variable) {
 	opt, err := parseOpts(opts...)
 	if err != nil {

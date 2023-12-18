@@ -202,11 +202,19 @@ func (builder *builder) Mul(i1, i2 frontend.Variable, in ...frontend.Variable) f
 
 		n1, v1Constant := builder.constantValue(v1)
 		n2, v2Constant := builder.constantValue(v2)
-
 		// v1 and v2 are both unknown, this is the only case we add a constraint
 		if !v1Constant && !v2Constant {
 			res := builder.newInternalVariable()
-			builder.cs.AddR1C(builder.newR1C(v1, v2, res), builder.genericGate)
+			/*** Hints: ZhmYe
+				here can output r1c, other apis same
+			***/
+			r1c := builder.newR1C(v1, v2, res)
+			/*** Hints: ZhmYe
+				r1c.String()
+				L · R == O
+			***/
+			//fmt.Println(r1c.String(builder.cs)) // Y · N = v0
+			builder.cs.AddR1C(r1c, builder.genericGate)
 			return res
 		}
 

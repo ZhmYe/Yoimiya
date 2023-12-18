@@ -1,20 +1,20 @@
 package constraint
 
 import (
-	"fmt"
-	"github.com/blang/semver/v4"
-	"math/big"
-	"strconv"
-	"sync"
-
 	"S-gnark"
 	"S-gnark/constraint/solver"
 	"S-gnark/debug"
+	"S-gnark/graph"
 	"S-gnark/internal/tinyfield"
 	"S-gnark/internal/utils"
 	"S-gnark/logger"
 	"S-gnark/profile"
+	"fmt"
+	"github.com/blang/semver/v4"
 	"github.com/consensys/gnark-crypto/ecc"
+	"math/big"
+	"strconv"
+	"sync"
 )
 
 type SystemType uint16
@@ -73,6 +73,11 @@ type Instruction struct {
 	Calldata         []uint32
 }
 
+/*** Hints: ZhmYe
+	Here can add new structures
+	todo: modify
+***/
+
 // System contains core elements for a constraint System
 type System struct {
 	// serialization header
@@ -127,6 +132,10 @@ type System struct {
 	GkrInfo        GkrInfo
 
 	genericHint BlueprintID
+
+	// add by ZhmYe
+	Wires2Instruction map[uint32]int // an output wire "w" first compute in Instruction "I", then store "w" -> "i"
+	InstructionDAG    *graph.DAG     // DAG constructed by Instructions
 }
 
 // NewSystem initialize the common structure among constraint system
@@ -145,6 +154,8 @@ func NewSystem(scalarField *big.Int, capacity int, t SystemType) System {
 		lbWireLevel:        make([]Level, 0, capacity),
 		Levels:             make([][]int, 0, capacity/2),
 		CommitmentInfo:     NewCommitments(t),
+		Wires2Instruction:  make(map[uint32]int),
+		InstructionDAG:     graph.NewDAG(),
 	}
 
 	system.genericHint = system.AddBlueprint(&BlueprintGenericHint{})
@@ -343,9 +354,13 @@ func (system *System) VariableToString(vID int) string {
 	return fmt.Sprintf("v%d", vID) // TODO @gbotrel  vs strconv.Itoa.
 }
 
+/***
+	Hints: ZhmYe
+	Here call "AddInstruction"
+***/
+
 func (cs *System) AddR1C(c R1C, bID BlueprintID) int {
 	profile.RecordConstraint()
-
 	blueprint := cs.Blueprints[bID]
 
 	// get a []uint32 from a pool
@@ -353,6 +368,13 @@ func (cs *System) AddR1C(c R1C, bID BlueprintID) int {
 
 	// compress the R1C into a []uint32 and add the instruction
 	blueprint.(BlueprintR1C).CompressR1C(&c, calldata)
+	/***
+		Hints: ZhmYe
+		callData:
+			len: 4 + 2 * len(L) + 2 * len(R) + 2 * len(O)
+			4: len, len(L), len(R), len(O)
+			2* len(L)/len(R)/len(O): 2 * (CoeffID(), WireID())
+	***/
 	cs.AddInstruction(bID, *calldata)
 
 	// release the []uint32 to the pool
@@ -380,6 +402,13 @@ func (cs *System) AddSparseR1C(c SparseR1C, bID BlueprintID) int {
 	return cs.NbConstraints - 1
 }
 
+/***
+	Hints: ZhmYe
+	todo Here get the Levels
+	1. 现在的代码是怎么划分level的，目前level内部独立，level之间可能相连
+	2. 如何修改？
+***/
+
 func (cs *System) AddInstruction(bID BlueprintID, calldata []uint32) []uint32 {
 	// set the offsets
 	pi := PackedInstruction{
@@ -399,6 +428,10 @@ func (cs *System) AddInstruction(bID BlueprintID, calldata []uint32) []uint32 {
 	// add the output wires
 	inst := pi.Unpack(cs)
 	nbOutputs := blueprint.NbOutputs(inst)
+	/***
+		Hints: ZhmYe
+		blueprint.NbOutputs-> return 0
+	***/
 	var wires []uint32
 	for i := 0; i < nbOutputs; i++ {
 		wires = append(wires, uint32(cs.AddInternalVariable()))
@@ -408,8 +441,8 @@ func (cs *System) AddInstruction(bID BlueprintID, calldata []uint32) []uint32 {
 	cs.Instructions = append(cs.Instructions, pi)
 
 	// update the instruction dependency tree
-	level := blueprint.UpdateInstructionTree(inst, cs)
 	iID := len(cs.Instructions) - 1
+	level := blueprint.NewUpdateInstructionTree(inst, cs, iID, cs)
 
 	// we can't skip levels, so appending is fine.
 	if int(level) >= len(cs.Levels) {

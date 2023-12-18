@@ -3,7 +3,7 @@
 // Instead of computing binary functions and checking that the result is
 // correctly constrained, we instead can precompute all valid values of a
 // function and then perform lookup to obtain the result. For example, for the
-// XOR function we would naively otherwise have to split the inputs into bits,
+// XOR function we would naively otherwise have to graph the inputs into bits,
 // XOR one-by-one and recombine.
 //
 // With this package, we can instead compute all results for two inputs of

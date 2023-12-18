@@ -224,7 +224,7 @@ func Prove(r1cs *cs.R1CS, pk *ProvingKey, fullWitness witness.Witness, opts ...b
 
 	chKrsDone := make(chan error, 1)
 	computeKRS := func() {
-		// we could NOT split the Krs multiExp in 2, and just append pk.G1.K and pk.G1.Z
+		// we could NOT graph the Krs multiExp in 2, and just append pk.G1.K and pk.G1.Z
 		// however, having similar lengths for our tasks helps with parallelism
 
 		var krs, krs2, p1 curve.G1Jac
@@ -283,7 +283,7 @@ func Prove(r1cs *cs.R1CS, pk *ProvingKey, fullWitness witness.Witness, opts ...b
 
 		nbTasks := n
 		if nbTasks <= 16 {
-			// if we don't have a lot of CPUs, this may artificially split the MSM
+			// if we don't have a lot of CPUs, this may artificially graph the MSM
 			nbTasks *= 2
 		}
 		<-chWireValuesB

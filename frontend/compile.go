@@ -57,7 +57,6 @@ func Compile(field *big.Int, newBuilder NewBuilder, circuit Circuit, opts ...Com
 		log.Err(err).Msg("instantiating builder")
 		return nil, fmt.Errorf("new compiler: %w", err)
 	}
-
 	// parse the circuit builds a schema of the circuit
 	// and call circuit.Define() method to initialize a list of constraints in the compiler
 	if err = parseCircuit(builder, circuit); err != nil {
@@ -65,7 +64,6 @@ func Compile(field *big.Int, newBuilder NewBuilder, circuit Circuit, opts ...Com
 		return nil, fmt.Errorf("parse circuit: %w", err)
 
 	}
-
 	// compile the circuit into its final form
 	return builder.Compile()
 }
@@ -100,6 +98,11 @@ func parseCircuit(builder Builder, circuit Circuit) (err error) {
 				}
 				if f.Visibility == targetVisibility {
 					if f.Visibility == schema.Public {
+						/*** Hints: ZhmYe
+							builder.PublicVariable() / SecretVariable()
+							eg. idx = len(builder.Public), builder.Public.append(name)
+							return new LinearExpresssion(Term{idx, builder.tone}) -> []Term
+						***/
 						tInput.Set(reflect.ValueOf(builder.PublicVariable(f)))
 					} else if f.Visibility == schema.Secret {
 						tInput.Set(reflect.ValueOf(builder.SecretVariable(f)))
@@ -131,6 +134,11 @@ func parseCircuit(builder Builder, circuit Circuit) (err error) {
 		}
 	}()
 
+	/***
+		Hints: ZhmYe
+		todo
+		Define() -> cs? How?
+	 ***/
 	// call Define() to fill in the Constraints
 	if err = circuit.Define(builder); err != nil {
 		return fmt.Errorf("define circuit: %w", err)
@@ -138,7 +146,6 @@ func parseCircuit(builder Builder, circuit Circuit) (err error) {
 	if err = callDeferred(builder); err != nil {
 		return fmt.Errorf("deferred: %w", err)
 	}
-
 	return
 }
 

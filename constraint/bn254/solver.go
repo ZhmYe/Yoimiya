@@ -19,6 +19,7 @@ package cs
 import (
 	"S-gnark/constraint"
 	csolver "S-gnark/constraint/solver"
+	"S-gnark/logger"
 	"errors"
 	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"
@@ -55,6 +56,12 @@ type solver struct {
 	q *big.Int
 }
 
+/*** Hints: ZhmYe
+
+	todo solver.LEVEL?
+
+***/
+
 func newSolver(cs *system, witness fr.Vector, opts ...csolver.Option) (*solver, error) {
 	// parse options
 	opt, err := csolver.NewConfig(opts...)
@@ -67,9 +74,19 @@ func newSolver(cs *system, witness fr.Vector, opts ...csolver.Option) (*solver, 
 	if cs.Type == constraint.SystemR1CS {
 		witnessOffset++
 	}
-
+	// total number of variables in the circuit
 	nbWires := len(cs.Public) + len(cs.Secret) + cs.NbInternalVariables
+	// todo Why in R1CS witnessOffset = 1?
 	expectedWitnessSize := len(cs.Public) - witnessOffset + len(cs.Secret)
+	log := logger.Logger()
+	log.Debug().Int("Public Variables", len(cs.Public)).Int("Private Variables", len(cs.Secret)).Int("Witness Size", len(witness)).Msg("Solver")
+
+	/***
+		Hints: ZhmYe
+		In TwoSampleT Circuit, the output above is 10, 3, 12
+		todo Why in R1CS witnessOffset = 1?
+		In R1CS, witness is (1, ...), so 1 is solved, see line 119
+	 ***/
 
 	if len(witness) != expectedWitnessSize {
 		return nil, fmt.Errorf("invalid witness size, got %d, expected %d", len(witness), expectedWitnessSize)
@@ -98,9 +115,12 @@ func newSolver(cs *system, witness fr.Vector, opts ...csolver.Option) (*solver, 
 		logger:          opt.Logger,
 		q:               cs.Field(),
 	}
-
 	// set the witness indexes as solved
 	if witnessOffset == 1 {
+		/***
+			Hints: ZhmYe
+			1 in witness(1, ...) is Solved
+		 ***/
 		s.solved[0] = true // ONE_WIRE
 		s.values[0].SetOne()
 	}
@@ -114,12 +134,22 @@ func newSolver(cs *system, witness fr.Vector, opts ...csolver.Option) (*solver, 
 	s.nbSolved += uint64(len(witness) + witnessOffset)
 
 	if s.Type == constraint.SystemR1CS {
+		/***
+		Hints: ZhmYe
+			todo
+			1. n = 2^(int(log2(NbConstraints)) + 1), for FFT?
+			2. why a.shape, b.shape, c.shape? (az) (Hadamard) (bz) = (cz)
+		***/
 		n := ecc.NextPowerOfTwo(uint64(cs.GetNbConstraints()))
 		s.a = make(fr.Vector, cs.GetNbConstraints(), n)
 		s.b = make(fr.Vector, cs.GetNbConstraints(), n)
 		s.c = make(fr.Vector, cs.GetNbConstraints(), n)
+		// add by ZhmYe
+		// INIT A, B, C in R1CS, all elements in matrix is 0 default
+		log.Debug().Any("A shape", []int{len(s.a), len(s.a[0])}).Msg("YZM R1CS Shape TEST")
+		log.Debug().Any("A shape", []int{len(s.b), len(s.b[0])}).Msg("YZM R1CS Shape TEST")
+		log.Debug().Any("A shape", []int{len(s.c), len(s.c[0])}).Msg("YZM R1CS Shape TEST")
 	}
-
 	return &s, nil
 }
 
@@ -413,6 +443,12 @@ func (solver *solver) processInstruction(pi constraint.PackedInstruction, scratc
 	return nil
 }
 
+/***
+	Hints: ZhmYe
+
+	todo modify
+***/
+
 // run runs the solver. it return an error if a constraint is not satisfied or if not all wires
 // were instantiated.
 func (solver *solver) run() error {
@@ -420,9 +456,13 @@ func (solver *solver) run() error {
 	// in other words, if a level has less than minWorkPerCPU, it will not be parallelized and executed
 	// sequentially without sync.
 	const minWorkPerCPU = 50.0 // TODO @gbotrel revisit that with blocks.
-
+	/*** Hints: ZhmYe
+		todo cs.Levels
+		comments followed!
+	***/
 	// cs.Levels has a list of levels, where all constraints in a level l(n) are independent
 	// and may only have dependencies on previous levels
+
 	// for each constraint
 	// we are guaranteed that each R1C contains at most one unsolved wire
 	// first we solve the unsolved wire (if any)
@@ -458,8 +498,12 @@ func (solver *solver) run() error {
 	}()
 
 	var scratch scratch
-
 	// for each level, we push the tasks
+	/***
+		Hints: ZhmYe
+		solver.Wires2Instruction can get map
+		solver.InstructionDAG.Print() can get DAG
+	 ***/
 	for _, level := range solver.Levels {
 
 		// max CPU to use

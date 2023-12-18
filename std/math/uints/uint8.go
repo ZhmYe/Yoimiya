@@ -11,7 +11,7 @@
 // inefficients circuits.
 //
 // This package performs boolean operations using lookup tables on bytes. So,
-// long integers are split into 4 or 8 bytes and we perform the operations
+// long integers are graph into 4 or 8 bytes and we perform the operations
 // bytewise. In the lookup tables, we store results for all possible 2^8×2^8
 // inputs. With this approach, every bytewise operation costs as single lookup,
 // which depending on the backend is relatively cheap (one to three

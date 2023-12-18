@@ -155,3 +155,62 @@ func (b *BlueprintLookupHint) UpdateInstructionTree(inst Instruction, tree Instr
 
 	return maxLevel
 }
+
+// NewUpdateInstructionTree add by ZhmYe
+// to fix error(interface)
+func (b *BlueprintLookupHint) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System) Level {
+	// depend on the table UP to the number of entries at time of instruction creation.
+	nbEntries := int(inst.Calldata[1])
+
+	// check if we already cached the max level
+	if b.maxLevelPosition-1 < nbEntries { // adjust for default value of b.maxLevelPosition (0)
+
+		j := b.maxLevelOffset // skip the entries we already processed
+		for i := b.maxLevelPosition; i < nbEntries; i++ {
+			// first we have the length of the linear expression
+			n := int(b.EntriesCalldata[j])
+			j++
+			for k := 0; k < n; k++ {
+				wireID := b.EntriesCalldata[j+1]
+				j += 2
+				if !tree.HasWire(wireID) {
+					continue
+				}
+				if level := tree.GetWireLevel(wireID); (level + 1) > b.maxLevel {
+					b.maxLevel = level + 1
+				}
+			}
+		}
+		b.maxLevelOffset = j
+		b.maxLevelPosition = nbEntries
+	}
+
+	maxLevel := b.maxLevel - 1 // offset for default value.
+
+	// update the max level with the lookup query inputs wires
+	nbInputs := int(inst.Calldata[2])
+	j := 3
+	for i := 0; i < nbInputs; i++ {
+		// first we have the length of the linear expression
+		n := int(inst.Calldata[j])
+		j++
+		for k := 0; k < n; k++ {
+			wireID := inst.Calldata[j+1]
+			j += 2
+			if !tree.HasWire(wireID) {
+				continue
+			}
+			if level := tree.GetWireLevel(wireID); level > maxLevel {
+				maxLevel = level
+			}
+		}
+	}
+
+	// finally we have the outputs
+	maxLevel++
+	for i := 0; i < nbInputs; i++ {
+		tree.InsertWire(uint32(i+int(inst.WireOffset)), maxLevel)
+	}
+
+	return maxLevel
+}
