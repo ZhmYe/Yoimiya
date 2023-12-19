@@ -136,6 +136,7 @@ type System struct {
 	// add by ZhmYe
 	Wires2Instruction map[uint32]int // an output wire "w" first compute in Instruction "I", then store "w" -> "i"
 	InstructionDAG    *graph.DAG     // DAG constructed by Instructions
+	degree            map[int]int    // store each node's degree(to order)
 }
 
 // NewSystem initialize the common structure among constraint system
@@ -156,10 +157,78 @@ func NewSystem(scalarField *big.Int, capacity int, t SystemType) System {
 		CommitmentInfo:     NewCommitments(t),
 		Wires2Instruction:  make(map[uint32]int),
 		InstructionDAG:     graph.NewDAG(),
+		degree:             make(map[int]int),
 	}
 
 	system.genericHint = system.AddBlueprint(&BlueprintGenericHint{})
 	return system
+}
+
+// GetDegree add by ZhmYe
+func (system *System) GetDegree(id int) int {
+	d, exist := system.degree[id]
+	if !exist {
+		return -1
+	} else {
+		return d
+	}
+}
+func (system *System) initDegree(id int) {
+	_, exist := system.degree[id]
+	if !exist {
+		system.degree[id] = 0
+	}
+}
+
+// UpdateDegree add by ZhmYe
+func (system *System) UpdateDegree(sub bool, ids ...int) {
+	for _, id := range ids {
+		_, exist := system.degree[id]
+		if !exist && sub {
+			// 没有这个内容无法减一
+			fmt.Errorf("can't update sub operation to an undefined id")
+			return
+		}
+		if !exist && !sub {
+			system.degree[id] = 1
+		}
+		if exist {
+			if sub {
+				system.degree[id]--
+			} else {
+				system.degree[id]++
+			}
+		}
+	}
+}
+
+// GetZeroDegree add by ZhmYe
+func (system *System) GetZeroDegree() (result []int) {
+	for id, d := range system.degree {
+		if d == 0 {
+			result = append(result, id)
+		}
+	}
+	return result
+}
+
+// GetOrder add by ZhmYe
+// 相当于对DAG进行拓扑排序
+func (system *System) GetOrder() (order [][]int) {
+	for {
+		zeroList := system.GetZeroDegree()
+		if len(zeroList) == 0 {
+			break
+		}
+		order = append(order, zeroList)
+		for _, id := range zeroList {
+			links := system.InstructionDAG.GetLinks(id)
+			links = append(links, id)
+			system.UpdateDegree(true, links...)
+		}
+	}
+	//fmt.Println(len(order))
+	return order
 }
 
 // GetNbInstructions returns the number of instructions in the system

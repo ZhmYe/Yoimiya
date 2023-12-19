@@ -31,6 +31,13 @@ func (d *DAG) SizeOf(id int) int {
 		return len(d.list[id])
 	}
 }
+func (d *DAG) GetLinks(id int) (links []int) {
+	if !d.Exist(id) {
+		return links
+	} else {
+		return d.list[id]
+	}
+}
 func (d *DAG) insert(id int) {
 	if d.Exist(id) {
 		return

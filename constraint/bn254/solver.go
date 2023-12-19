@@ -502,8 +502,24 @@ func (solver *solver) run() error {
 	/***
 		Hints: ZhmYe
 		solver.Wires2Instruction can get map
+		solver.GetDegree can get degree, and solver.UpdateDegree(sub=true/false, ids...) can batch modify degree(+1 / -1)
 		solver.InstructionDAG.Print() can get DAG
 	 ***/
+	order := solver.GetOrder()
+	fmt.Println(len(order), len(solver.Levels))
+	orderElement := make([]int, 0)
+	LevelElement := make([]int, 0)
+	for _, o := range order {
+		for _, element := range o {
+			orderElement = append(orderElement, element)
+		}
+	}
+	for _, l := range solver.Levels {
+		for _, element := range l {
+			LevelElement = append(LevelElement, element)
+		}
+	}
+	fmt.Println(len(orderElement), len(LevelElement))
 	for _, level := range solver.Levels {
 
 		// max CPU to use
