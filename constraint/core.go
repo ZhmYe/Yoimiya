@@ -215,6 +215,7 @@ func (system *System) GetZeroDegree() (result []int) {
 // GetOrder add by ZhmYe
 // 相当于对DAG进行拓扑排序
 func (system *System) GetOrder() (order [][]int) {
+	fmt.Println(len(system.degree))
 	for {
 		zeroList := system.GetZeroDegree()
 		if len(zeroList) == 0 {
@@ -512,14 +513,13 @@ func (cs *System) AddInstruction(bID BlueprintID, calldata []uint32) []uint32 {
 	// update the instruction dependency tree
 	iID := len(cs.Instructions) - 1
 	level := blueprint.NewUpdateInstructionTree(inst, cs, iID, cs)
-
 	// we can't skip levels, so appending is fine.
 	if int(level) >= len(cs.Levels) {
 		cs.Levels = append(cs.Levels, []int{iID})
 	} else {
 		cs.Levels[level] = append(cs.Levels[level], iID)
 	}
-
+	cs.GetDegree(iID)
 	return wires
 }
 

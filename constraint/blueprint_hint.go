@@ -111,10 +111,10 @@ func (b *BlueprintGenericHint) UpdateInstructionTree(inst Instruction, tree Inst
 func (b *BlueprintGenericHint) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System) Level {
 	// BlueprintGenericHint knows the input and output to the instruction
 	maxLevel := LevelUnset
-
 	// iterate over the inputs and find the max level
 	lenInputs := int(inst.Calldata[2])
 	j := 3
+	cs.initDegree(iID)
 	for i := 0; i < lenInputs; i++ {
 		n := int(inst.Calldata[j]) // len of linear expr
 		j++
@@ -127,6 +127,9 @@ func (b *BlueprintGenericHint) NewUpdateInstructionTree(inst Instruction, tree I
 			}
 			if level := tree.GetWireLevel(wireID); level > maxLevel {
 				maxLevel = level
+				previousInstructionID := cs.Wires2Instruction[wireID] // 前序Instruction
+				cs.InstructionDAG.Update(previousInstructionID, iID)
+				cs.UpdateDegree(false, iID) // 更新degree
 			}
 			if debug.Debug && tree.GetWireLevel(wireID) == LevelUnset {
 				panic("wire we depend on is not in the instruction tree")
@@ -137,6 +140,7 @@ func (b *BlueprintGenericHint) NewUpdateInstructionTree(inst Instruction, tree I
 	// iterate over the outputs and insert them at maxLevel + 1
 	outputLevel := maxLevel + 1
 	for k := inst.Calldata[j]; k < inst.Calldata[j+1]; k++ {
+		cs.Wires2Instruction[k] = iID
 		tree.InsertWire(k, outputLevel)
 	}
 	return outputLevel

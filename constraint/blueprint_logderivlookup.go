@@ -161,7 +161,6 @@ func (b *BlueprintLookupHint) UpdateInstructionTree(inst Instruction, tree Instr
 func (b *BlueprintLookupHint) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System) Level {
 	// depend on the table UP to the number of entries at time of instruction creation.
 	nbEntries := int(inst.Calldata[1])
-
 	// check if we already cached the max level
 	if b.maxLevelPosition-1 < nbEntries { // adjust for default value of b.maxLevelPosition (0)
 

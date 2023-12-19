@@ -77,12 +77,13 @@ func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree In
 		Wires and levels detailed in constraints/instruction_tree.go
 	***/
 	// a R1C doesn't know which wires are input and which are outputs
+	//fmt.Println(iID)
 	lenL := int(inst.Calldata[1])
 	lenR := int(inst.Calldata[2])
 	lenO := int(inst.Calldata[3])
-
 	outputWires := make([]uint32, 0)
 	maxLevel := LevelUnset
+	cs.initDegree(iID)
 	walkWires := func(n, idx int) {
 		for k := 0; k < n; k++ {
 			// 遍历每一个L、R、O中的WireID
@@ -103,7 +104,6 @@ func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree In
 				// 当前wireID已经在之前的Instruction中被记录，那么建立顺序关系
 				previousInstructionID := cs.Wires2Instruction[wireID] // 前序Instruction
 				cs.InstructionDAG.Update(previousInstructionID, iID)
-				cs.initDegree(previousInstructionID)
 				cs.UpdateDegree(false, iID) // 更新degree
 			}
 		}

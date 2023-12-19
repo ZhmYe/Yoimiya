@@ -505,22 +505,26 @@ func (solver *solver) run() error {
 		solver.GetDegree can get degree, and solver.UpdateDegree(sub=true/false, ids...) can batch modify degree(+1 / -1)
 		solver.InstructionDAG.Print() can get DAG
 	 ***/
+	// add by ZhmYe
 	order := solver.GetOrder()
-	fmt.Println(len(order), len(solver.Levels))
-	orderElement := make([]int, 0)
-	LevelElement := make([]int, 0)
-	for _, o := range order {
-		for _, element := range o {
-			orderElement = append(orderElement, element)
-		}
-	}
-	for _, l := range solver.Levels {
-		for _, element := range l {
-			LevelElement = append(LevelElement, element)
-		}
-	}
-	fmt.Println(len(orderElement), len(LevelElement))
-	for _, level := range solver.Levels {
+	log := logger.Logger()
+	log.Info().Int("Origin Levels", len(solver.Levels)).Int("Order Levels", len(order)).Msg("YZM TEST")
+	//orderElement := make([]int, 0)
+	//LevelElement := make([]int, 0)
+	//for _, o := range order {
+	//	for _, element := range o {
+	//		orderElement = append(orderElement, element)
+	//	}
+	//}
+	//for _, l := range solver.Levels {
+	//	for _, element := range l {
+	//		LevelElement = append(LevelElement, element)
+	//	}
+	//}
+	//fmt.Println(len(orderElement), len(LevelElement))
+
+	// modify by ZhmYe, range solver.Levels
+	for _, level := range order {
 
 		// max CPU to use
 		maxCPU := float64(len(level)) / minWorkPerCPU
