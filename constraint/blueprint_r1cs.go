@@ -103,7 +103,8 @@ func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree In
 				// add by ZhmYe
 				// 当前wireID已经在之前的Instruction中被记录，那么建立顺序关系
 				previousInstructionID := cs.Wires2Instruction[wireID] // 前序Instruction
-				cs.InstructionDAG.Update(previousInstructionID, iID)
+				cs.InstructionForwardDAG.Update(previousInstructionID, iID)
+				cs.InstructionBackwardDAG.Update(iID, previousInstructionID)
 				cs.UpdateDegree(false, iID) // 更新degree
 			}
 		}

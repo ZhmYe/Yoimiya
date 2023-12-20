@@ -134,30 +134,32 @@ type System struct {
 	genericHint BlueprintID
 
 	// add by ZhmYe
-	Wires2Instruction map[uint32]int // an output wire "w" first compute in Instruction "I", then store "w" -> "i"
-	InstructionDAG    *graph.DAG     // DAG constructed by Instructions
-	degree            map[int]int    // store each node's degree(to order)
+	Wires2Instruction      map[uint32]int // an output wire "w" first compute in Instruction "I", then store "w" -> "i"
+	InstructionForwardDAG  *graph.DAG     // DAG constructed by Instructions, forward
+	InstructionBackwardDAG *graph.DAG     // DAG constructed by Instructions, backward
+	degree                 map[int]int    // store each node's degree(to order)
 }
 
 // NewSystem initialize the common structure among constraint system
 func NewSystem(scalarField *big.Int, capacity int, t SystemType) System {
 	system := System{
-		Type:               t,
-		SymbolTable:        debug.NewSymbolTable(),
-		MDebug:             map[int]int{},
-		GnarkVersion:       gnark.Version.String(),
-		ScalarField:        scalarField.Text(16),
-		MHintsDependencies: make(map[solver.HintID]string),
-		q:                  new(big.Int).Set(scalarField),
-		bitLen:             scalarField.BitLen(),
-		Instructions:       make([]PackedInstruction, 0, capacity),
-		CallData:           make([]uint32, 0, capacity*8),
-		lbWireLevel:        make([]Level, 0, capacity),
-		Levels:             make([][]int, 0, capacity/2),
-		CommitmentInfo:     NewCommitments(t),
-		Wires2Instruction:  make(map[uint32]int),
-		InstructionDAG:     graph.NewDAG(),
-		degree:             make(map[int]int),
+		Type:                   t,
+		SymbolTable:            debug.NewSymbolTable(),
+		MDebug:                 map[int]int{},
+		GnarkVersion:           gnark.Version.String(),
+		ScalarField:            scalarField.Text(16),
+		MHintsDependencies:     make(map[solver.HintID]string),
+		q:                      new(big.Int).Set(scalarField),
+		bitLen:                 scalarField.BitLen(),
+		Instructions:           make([]PackedInstruction, 0, capacity),
+		CallData:               make([]uint32, 0, capacity*8),
+		lbWireLevel:            make([]Level, 0, capacity),
+		Levels:                 make([][]int, 0, capacity/2),
+		CommitmentInfo:         NewCommitments(t),
+		Wires2Instruction:      make(map[uint32]int),
+		InstructionForwardDAG:  graph.NewDAG(),
+		InstructionBackwardDAG: graph.NewDAG(),
+		degree:                 make(map[int]int),
 	}
 
 	system.genericHint = system.AddBlueprint(&BlueprintGenericHint{})
@@ -215,7 +217,6 @@ func (system *System) GetZeroDegree() (result []int) {
 // GetOrder add by ZhmYe
 // 相当于对DAG进行拓扑排序
 func (system *System) GetOrder() (order [][]int) {
-	fmt.Println(len(system.degree))
 	for {
 		zeroList := system.GetZeroDegree()
 		if len(zeroList) == 0 {
@@ -223,7 +224,7 @@ func (system *System) GetOrder() (order [][]int) {
 		}
 		order = append(order, zeroList)
 		for _, id := range zeroList {
-			links := system.InstructionDAG.GetLinks(id)
+			links := system.InstructionForwardDAG.GetLinks(id)
 			links = append(links, id)
 			system.UpdateDegree(true, links...)
 		}

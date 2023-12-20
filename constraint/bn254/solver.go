@@ -523,8 +523,8 @@ func (solver *solver) run() error {
 	//}
 	//fmt.Println(len(orderElement), len(LevelElement))
 
-	// modify by ZhmYe, range solver.Levels
-	for _, level := range order {
+	// modify by ZhmYe, range solver.Levels/ order
+	for _, level := range solver.Levels {
 
 		// max CPU to use
 		maxCPU := float64(len(level)) / minWorkPerCPU

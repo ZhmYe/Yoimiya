@@ -128,7 +128,8 @@ func (b *BlueprintGenericHint) NewUpdateInstructionTree(inst Instruction, tree I
 			if level := tree.GetWireLevel(wireID); level > maxLevel {
 				maxLevel = level
 				previousInstructionID := cs.Wires2Instruction[wireID] // 前序Instruction
-				cs.InstructionDAG.Update(previousInstructionID, iID)
+				cs.InstructionForwardDAG.Update(previousInstructionID, iID)
+				cs.InstructionBackwardDAG.Update(iID, previousInstructionID)
 				cs.UpdateDegree(false, iID) // 更新degree
 			}
 			if debug.Debug && tree.GetWireLevel(wireID) == LevelUnset {
