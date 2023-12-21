@@ -1,14 +1,21 @@
 package graph
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/jedib0t/go-pretty/v6/text"
+	"strconv"
+)
 
 type SplitEngine struct {
-	forward           *DAG        // 电路Instruction之间的依赖关系(前面的Instruction指向后面的Instruction)组成的DAG
-	backward          *DAG        // 电路Instruction之间的依赖关系(后面的Instruction指向前面的Instruction)组成的DAG
-	LastLevel         []int       // 记录那些没有后续计算的Instruction
-	Stages            []*Stage    // 用于保存Stage, new Stage id = len(Stages)
-	RootStages        []*Stage    // 用于保存那些没有父Stage的stage，这些stage从一开始就可以并行运行
-	Instruction2Stage map[int]int // 查询Instruction在哪个Stage中
+	forward           *DAG         // 电路Instruction之间的依赖关系(前面的Instruction指向后面的Instruction)组成的DAG
+	backward          *DAG         // 电路Instruction之间的依赖关系(后面的Instruction指向前面的Instruction)组成的DAG
+	LastLevel         []int        // 记录那些没有后续计算的Instruction
+	Stages            []*Stage     // 用于保存Stage, new Stage id = len(Stages)
+	RootStages        []*Stage     // 用于保存那些没有父Stage的stage，这些stage从一开始就可以并行运行
+	Instruction2Stage map[int]int  // 查询Instruction在哪个Stage中
+	stack             []*Stage     // 用于输出
+	HasStore          map[int]bool // 用于输出
 }
 
 func NewSplitEngine(forward *DAG, backward *DAG, level []int) *SplitEngine {
@@ -18,13 +25,15 @@ func NewSplitEngine(forward *DAG, backward *DAG, level []int) *SplitEngine {
 	s.LastLevel = level
 	s.Stages = make([]*Stage, 0)
 	s.RootStages = make([]*Stage, 0)
+	s.Instruction2Stage = make(map[int]int)
+	s.HasStore = make(map[int]bool)
 	return s
 }
 func (s *SplitEngine) NewStage(Instruction []int) *Stage {
 	stage := NewStage(len(s.Stages), Instruction)
 	s.Stages = append(s.Stages, stage)
 	for _, id := range Instruction {
-		Instruction[id] = stage.id
+		s.Instruction2Stage[id] = stage.id
 	}
 	return stage
 }
@@ -104,4 +113,79 @@ func (s *SplitEngine) processStage(iID int, stage *Stage) {
 			s.processStage(id, stage)
 		}
 	}
+}
+func (s *SplitEngine) getTable() table.Writer {
+	var (
+		colTitleStageID       = "ID"
+		colTitleParentID      = "Parent IDs"
+		colTitleChildID       = "Child IDs"
+		colTitleInstructionID = "Instructions"
+		colTitleCount         = "Count"
+		colTitleCheck         = "Check(Count = Number of Parents)"
+		rowHeader             = table.Row{colTitleStageID, colTitleParentID, colTitleChildID, colTitleInstructionID, colTitleCount, colTitleCheck}
+	)
+	t := table.NewWriter()
+	tTemp := table.Table{}
+	tTemp.Render()
+	t.AppendHeader(rowHeader)
+	//t.AppendFooter(table.Row{"", "", "Total", 10000})
+	t.SetColumnConfigs([]table.ColumnConfig{
+		{Name: colTitleStageID, Align: text.AlignCenter, VAlign: text.VAlignMiddle},
+		{Name: colTitleParentID, Align: text.AlignCenter, VAlign: text.VAlignMiddle},
+		{Name: colTitleChildID, Align: text.AlignCenter, VAlign: text.VAlignMiddle},
+		{Name: colTitleInstructionID, Align: text.AlignCenter, VAlign: text.VAlignMiddle},
+		{Name: colTitleCount, Align: text.AlignCenter, VAlign: text.VAlignMiddle},
+		{Name: colTitleCheck, Align: text.AlignCenter, VAlign: text.VAlignMiddle},
+	})
+	t.Style().Options.DrawBorder = true
+	t.Style().Options.SeparateColumns = true
+	t.Style().Options.SeparateFooter = true
+	t.Style().Options.SeparateHeader = true
+	t.SetStyle(table.StyleBold)
+	t.SetTitle("Stage Log")
+	//fmt.Println(t.Render())
+	return t
+}
+func (s *SplitEngine) appendToStack(stage *Stage) {
+	_, exist := s.HasStore[stage.id]
+	if exist {
+		return
+	}
+	s.HasStore[stage.id] = true
+	s.stack = append(s.stack, stage)
+	for _, subStage := range stage.child {
+		s.stack = append(s.stack, subStage)
+		s.appendToStack(subStage)
+	}
+}
+func shortOutput(output []int) string {
+	if len(output) > 5 {
+		return strconv.Itoa(output[0]) + " " + strconv.Itoa(output[1]) + " ... " + strconv.Itoa(output[len(output)-2]) + " " + strconv.Itoa(output[len(output)-1])
+	}
+	if len(output) == 0 {
+		return "None"
+	}
+	str := ""
+	for _, element := range output {
+		str += strconv.Itoa(element)
+		str += " "
+	}
+	return str[:len(str)-1]
+}
+func (s *SplitEngine) PrintStages() {
+	t := s.getTable()
+	for _, stage := range s.RootStages {
+		s.appendToStack(stage)
+	}
+	HasPrint := make(map[int]bool)
+	for _, stage := range s.stack {
+		_, exist := HasPrint[stage.id]
+		if exist {
+			continue
+		}
+		HasPrint[stage.id] = true
+		flag := stage.GetCount() == len(stage.GetParentIDs())
+		t.AppendRow(table.Row{stage.id, shortOutput(stage.GetParentIDs()), shortOutput(stage.GetChildIDs()), shortOutput(stage.GetInstructions()), stage.count, flag})
+	}
+	fmt.Println(t.Render())
 }

@@ -19,6 +19,7 @@ package cs
 import (
 	"S-gnark/constraint"
 	csolver "S-gnark/constraint/solver"
+	"S-gnark/graph"
 	"S-gnark/logger"
 	"errors"
 	"fmt"
@@ -506,6 +507,11 @@ func (solver *solver) run() error {
 		solver.InstructionDAG.Print() can get DAG
 	 ***/
 	// add by ZhmYe
+	finalInstruction := solver.GetZeroDegree() // 没有后续依赖的instruction
+	forward, backward := solver.GetDAGs()
+	splitEngine := graph.NewSplitEngine(forward, backward, finalInstruction)
+	splitEngine.Split()
+	splitEngine.PrintStages()
 	order := solver.GetOrder()
 	log := logger.Logger()
 	log.Info().Int("Origin Levels", len(solver.Levels)).Int("Order Levels", len(order)).Msg("YZM TEST")

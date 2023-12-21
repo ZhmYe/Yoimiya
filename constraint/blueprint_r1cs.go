@@ -105,7 +105,7 @@ func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree In
 				previousInstructionID := cs.Wires2Instruction[wireID] // 前序Instruction
 				cs.InstructionForwardDAG.Update(previousInstructionID, iID)
 				cs.InstructionBackwardDAG.Update(iID, previousInstructionID)
-				cs.UpdateDegree(false, iID) // 更新degree
+				cs.UpdateDegree(false, previousInstructionID) // 更新degree,这里用于更新Backward的degree
 			}
 		}
 	}

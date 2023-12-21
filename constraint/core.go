@@ -214,6 +214,11 @@ func (system *System) GetZeroDegree() (result []int) {
 	return result
 }
 
+// GetDAGs add by ZhmYe
+func (system *System) GetDAGs() (*graph.DAG, *graph.DAG) {
+	return system.InstructionForwardDAG, system.InstructionBackwardDAG
+}
+
 // GetOrder add by ZhmYe
 // 相当于对DAG进行拓扑排序
 func (system *System) GetOrder() (order [][]int) {

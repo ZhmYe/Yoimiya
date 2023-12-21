@@ -40,6 +40,7 @@ func (s *Stage) AddChild(child *Stage) {
 // AddParent 添加父Stage
 func (s *Stage) AddParent(parent *Stage) {
 	s.parent = append(s.parent, parent)
+	s.count = len(s.parent)
 }
 
 // AddInstruction 添加Instruction
@@ -50,6 +51,30 @@ func (s *Stage) AddInstruction(id int, reverse bool) {
 	} else {
 		s.Instructions = append(s.Instructions, id)
 	}
+}
+
+// GetParentIDs 返回所有父Stage的ID
+func (s *Stage) GetParentIDs() (ids []int) {
+	for _, stage := range s.parent {
+		ids = append(ids, stage.id)
+	}
+	return ids
+}
+
+// GetChildIDs 返回所有子Stage的ID
+func (s *Stage) GetChildIDs() (ids []int) {
+	for _, stage := range s.child {
+		ids = append(ids, stage.id)
+	}
+	return ids
+}
+
+// GetInstructions 返回所有Instruction
+func (s *Stage) GetInstructions() []int {
+	return s.Instructions
+}
+func (s *Stage) GetCount() int {
+	return s.count
 }
 func NewStage(id int, instructions []int) *Stage {
 	stage := new(Stage)
