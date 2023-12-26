@@ -19,6 +19,7 @@ package cs
 import (
 	"S-gnark/constraint"
 	csolver "S-gnark/constraint/solver"
+	"S-gnark/evaluate"
 	"S-gnark/graph"
 	"S-gnark/logger"
 	"errors"
@@ -156,7 +157,7 @@ func newSolver(cs *system, witness fr.Vector, opts ...csolver.Option) (*solver, 
 
 func (s *solver) set(id int, value fr.Element) {
 	if s.solved[id] {
-		panic("solving the same wire twice should never happen.")
+		fmt.Println("solving the same wire twice should never happen.")
 	}
 	s.values[id] = value
 	s.solved[id] = true
@@ -444,23 +445,68 @@ func (solver *solver) processInstruction(pi constraint.PackedInstruction, scratc
 	return nil
 }
 
-/***
+/*
+**
+
 	Hints: ZhmYe
 
 	todo modify
-***/
 
-// run runs the solver. it return an error if a constraint is not satisfied or if not all wires
-// were instantiated.
-func (solver *solver) run() error {
+**
+*/
+func (solver *solver) runStage(stage *graph.Stage, wg *sync.WaitGroup) {
+	stage.WakeUp()
+	if !stage.Check() {
+		return
+	}
+	var scratch scratch
+	for _, i := range stage.GetInstructions() {
+		err := solver.processInstruction(solver.Instructions[i], &scratch)
+		if err != nil {
+			fmt.Errorf("error")
+		}
+	}
+	for _, subStage := range stage.GetSubStages() {
+		tmp := subStage
+		go func() {
+			solver.runStage(tmp, wg)
+		}()
+	}
+	wg.Done()
+}
+func (solver *solver) runInStage() error {
+	var wg sync.WaitGroup
+	finalInstruction := solver.GetZeroDegree() // 没有后续依赖的instruction
+	forward, backward := solver.GetDAGs()
+	splitEngine := graph.NewSplitEngine(forward, backward, finalInstruction)
+	rootStages := splitEngine.Split()
+	wg.Add(splitEngine.GetStageNumber())
+	// DEBUG
+	//total := 0
+	//for _, stage := range splitEngine.Stages {
+	//	total += len(stage.GetInstructions())
+	//}
+	//LevelElement := make([]int, 0)
+	//for _, l := range solver.Levels {
+	//	for _, element := range l {
+	//		LevelElement = append(LevelElement, element)
+	//	}
+	//}
+	//log := logger.Logger()
+	//log.Debug().Int("Origin Level Elements Number", len(LevelElement)).Int("Stage Instructions Number", total).Msg("YZM DEBUG")
+	for _, stage := range rootStages {
+		tmp := stage
+		go func() {
+			solver.runStage(tmp, &wg)
+		}()
+	}
+	wg.Wait()
+	return nil
+}
+func (solver *solver) runInLevels() error {
 	// minWorkPerCPU is the minimum target number of constraint a task should hold
 	// in other words, if a level has less than minWorkPerCPU, it will not be parallelized and executed
 	// sequentially without sync.
-	const minWorkPerCPU = 50.0 // TODO @gbotrel revisit that with blocks.
-	/*** Hints: ZhmYe
-		todo cs.Levels
-		comments followed!
-	***/
 	// cs.Levels has a list of levels, where all constraints in a level l(n) are independent
 	// and may only have dependencies on previous levels
 
@@ -469,6 +515,7 @@ func (solver *solver) run() error {
 	// first we solve the unsolved wire (if any)
 	// then we check that the constraint is valid
 	// if a[i] * b[i] != c[i]; it means the constraint is not satisfied
+	const minWorkPerCPU = 50.0 // TODO @gbotrel revisit that with blocks.
 	var wg sync.WaitGroup
 	chTasks := make(chan []int, runtime.NumCPU())
 	chError := make(chan error, runtime.NumCPU())
@@ -491,47 +538,14 @@ func (solver *solver) run() error {
 			}
 		}()
 	}
-
+	// add by ZhmYe
 	// clean up pool go routines
 	defer func() {
 		close(chTasks)
 		close(chError)
 	}()
-
-	var scratch scratch
-	// for each level, we push the tasks
-	/***
-		Hints: ZhmYe
-		solver.Wires2Instruction can get map
-		solver.GetDegree can get degree, and solver.UpdateDegree(sub=true/false, ids...) can batch modify degree(+1 / -1)
-		solver.InstructionDAG.Print() can get DAG
-	 ***/
-	// add by ZhmYe
-	finalInstruction := solver.GetZeroDegree() // 没有后续依赖的instruction
-	forward, backward := solver.GetDAGs()
-	splitEngine := graph.NewSplitEngine(forward, backward, finalInstruction)
-	splitEngine.Split()
-	splitEngine.PrintStages()
-	order := solver.GetOrder()
-	log := logger.Logger()
-	log.Info().Int("Origin Levels", len(solver.Levels)).Int("Order Levels", len(order)).Msg("YZM TEST")
-	//orderElement := make([]int, 0)
-	//LevelElement := make([]int, 0)
-	//for _, o := range order {
-	//	for _, element := range o {
-	//		orderElement = append(orderElement, element)
-	//	}
-	//}
-	//for _, l := range solver.Levels {
-	//	for _, element := range l {
-	//		LevelElement = append(LevelElement, element)
-	//	}
-	//}
-	//fmt.Println(len(orderElement), len(LevelElement))
-
-	// modify by ZhmYe, range solver.Levels/ order
 	for _, level := range solver.Levels {
-
+		var scratch scratch
 		// max CPU to use
 		maxCPU := float64(len(level)) / minWorkPerCPU
 
@@ -585,7 +599,26 @@ func (solver *solver) run() error {
 			return <-chError
 		}
 	}
+	return nil
+}
 
+// run runs the solver. it return an error if a constraint is not satisfied or if not all wires
+// were instantiated.
+func (solver *solver) run() error {
+	// add by ZhmYe
+	switch evaluate.Config.Split {
+	case evaluate.SPLIT_STAGES:
+		err := solver.runInStage()
+		if err != nil {
+			return err
+		}
+	case evaluate.SPLIT_LEVELS:
+		err := solver.runInLevels()
+		if err != nil {
+			return err
+		}
+
+	}
 	if int(solver.nbSolved) != len(solver.values) {
 		return errors.New("solver didn't assign a value to all wires")
 	}

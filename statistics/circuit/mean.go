@@ -27,18 +27,19 @@ func computeMeanAccuracyHint(_ *big.Int, inputs []*big.Int, outputs []*big.Int) 
 // MeanCircuit
 // verify the Mean which is claimed by prover is true in a high accuracy
 type MeanCircuit struct {
-	X1  frontend.Variable `gnark:"x1"`
-	X2  frontend.Variable `gnark:"x2"`
-	X3  frontend.Variable `gnark:"x3"`
-	X4  frontend.Variable `gnark:"x4"`
-	X5  frontend.Variable `gnark:"x5"`
-	X6  frontend.Variable `gnark:"x6"`
-	X7  frontend.Variable `gnark:"x7"`
-	X8  frontend.Variable `gnark:"x8"`
-	X9  frontend.Variable `gnark:"x9"`
-	X10 frontend.Variable `gnark:"x10"`
-	N   frontend.Variable `gnark:",public"` // N is needed, if the number of sample is less than 10, we will fill 0
-	Y   frontend.Variable `gnark:",public"`
+	//X1  frontend.Variable `gnark:"x1"`
+	//X2  frontend.Variable `gnark:"x2"`
+	//X3  frontend.Variable `gnark:"x3"`
+	//X4  frontend.Variable `gnark:"x4"`
+	//X5  frontend.Variable `gnark:"x5"`
+	//X6  frontend.Variable `gnark:"x6"`
+	//X7  frontend.Variable `gnark:"x7"`
+	//X8  frontend.Variable `gnark:"x8"`
+	//X9  frontend.Variable `gnark:"x9"`
+	//X10 frontend.Variable `gnark:"x10"`
+	X [10]frontend.Variable `gnark:"x"`
+	N frontend.Variable     `gnark:",public"` // N is needed, if the number of sample is less than 10, we will fill 0
+	Y frontend.Variable     `gnark:",public"`
 }
 
 func (circuit *MeanCircuit) Define(api frontend.API) error {
@@ -52,9 +53,10 @@ func (circuit *MeanCircuit) Define(api frontend.API) error {
 	//solver.RegisterHint(computeMeanAccuracyHint)
 	//accuracy, _ := api.Compiler().NewHint(computeMeanAccuracyHint, 1, circuit.N)
 	// verify X - Y * N < N
-	api.AssertIsLessOrEqual(api.Sub(
-		api.Add(circuit.X1, circuit.X2, circuit.X3, circuit.X4, circuit.X5, circuit.X6, circuit.X7, circuit.X8, circuit.X9, circuit.X10),
-		api.Mul(circuit.Y, circuit.N)),
-		circuit.N)
+	//api.AssertIsLessOrEqual(api.Sub(
+	//	api.Add(circuit.X1, circuit.X2, circuit.X3, circuit.X4, circuit.X5, circuit.X6, circuit.X7, circuit.X8, circuit.X9, circuit.X10),
+	//	api.Mul(circuit.Y, circuit.N)),
+	//	circuit.N)
+	api.AssertIsLessOrEqual(api.Sub(api.Add(circuit.X[0], circuit.X[1], circuit.X[2:]...), api.Mul(circuit.Y, circuit.N)), circuit.N)
 	return nil
 }

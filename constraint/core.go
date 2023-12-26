@@ -221,6 +221,7 @@ func (system *System) GetDAGs() (*graph.DAG, *graph.DAG) {
 
 // GetOrder add by ZhmYe
 // 相当于对DAG进行拓扑排序
+// 这里由于后续修改，需要把degree修改回前向的degree才可以使用，这里的拓扑排序分层结果等价于源代码中的Levels
 func (system *System) GetOrder() (order [][]int) {
 	for {
 		zeroList := system.GetZeroDegree()

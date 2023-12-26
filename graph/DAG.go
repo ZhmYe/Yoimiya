@@ -50,6 +50,13 @@ func (d *DAG) Update(from int, to int) {
 	}
 	d.list[from] = append(d.list[from], to)
 }
+
+func (d *DAG) GetLinksNumber() (result int) {
+	for id, _ := range d.list {
+		result += d.SizeOf(id)
+	}
+	return result
+}
 func (d *DAG) Print() {
 	for idx, l := range d.list {
 		fmt.Print("from: " + strconv.Itoa(idx) + " to: ")

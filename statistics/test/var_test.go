@@ -25,7 +25,7 @@ type TestVar struct {
 func NewTestVar() *TestVar {
 	t := new(TestVar)
 	t.success, t.N = false, MaxN
-	t.X = generateSamples(t.N)
+	_, t.X = generateSamples(t.N)
 	t.Y = utils.Variance(t.X...)
 	return t
 }

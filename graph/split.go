@@ -76,7 +76,64 @@ func (s *SplitEngine) Split() []*Stage {
 		stage := s.NewStage([]int{iID}) // 新建一个Stage
 		s.processStage(iID, stage)
 	}
+	//testMap := make(map[int]int)
+	//number := 0
+	//for _, stage := range s.RootStages {
+	//	s.dfs(stage, testMap, &number)
+	//}
+	//fmt.Println(number)
+	if !s.Examine() {
+		fmt.Errorf("examine Not Pass")
+	}
 	return s.RootStages
+}
+func (s *SplitEngine) Examine() bool {
+	// 检验所有RootStage是否确实没有前置依赖
+	for _, stage := range s.RootStages {
+		if s.backward.Exist(stage.GetID()) {
+			return false
+		}
+	}
+	// 检验所有Stage的Instruction是否有重复，使用map
+	testMap := make(map[int]bool)
+	for _, stage := range s.Stages {
+		for _, i := range stage.GetInstructions() {
+			_, exist := testMap[i]
+			if !exist {
+				testMap[i] = true
+			} else {
+				return false
+			}
+		}
+	}
+	return true
+
+}
+func (s *SplitEngine) dfs(stage *Stage, testMap map[int]int, number *int) {
+	_, exist := testMap[stage.id]
+	if exist {
+		//fmt.Println("error")
+		testMap[stage.id] += 1
+		if testMap[stage.id] != len(stage.GetParentIDs()) {
+			return
+		}
+	} else {
+		testMap[stage.id] = 1
+		if len(stage.GetParentIDs()) > 1 {
+			return
+		}
+	}
+	*number++
+	for _, sub := range stage.GetSubStages() {
+		s.dfs(sub, testMap, number)
+	}
+}
+func (s *SplitEngine) GetRootStages() []*Stage {
+	return s.RootStages
+}
+
+func (s *SplitEngine) GetStageNumber() int {
+	return len(s.Stages)
 }
 func (s *SplitEngine) processStage(iID int, stage *Stage) {
 	if !s.backward.Exist(iID) {
@@ -125,8 +182,6 @@ func (s *SplitEngine) getTable() table.Writer {
 		rowHeader             = table.Row{colTitleStageID, colTitleParentID, colTitleChildID, colTitleInstructionID, colTitleCount, colTitleCheck}
 	)
 	t := table.NewWriter()
-	tTemp := table.Table{}
-	tTemp.Render()
 	t.AppendHeader(rowHeader)
 	//t.AppendFooter(table.Row{"", "", "Total", 10000})
 	t.SetColumnConfigs([]table.ColumnConfig{
@@ -142,7 +197,7 @@ func (s *SplitEngine) getTable() table.Writer {
 	t.Style().Options.SeparateFooter = true
 	t.Style().Options.SeparateHeader = true
 	t.SetStyle(table.StyleBold)
-	t.SetTitle("Stage Log")
+	//t.SetTitle("Stage Log")
 	//fmt.Println(t.Render())
 	return t
 }

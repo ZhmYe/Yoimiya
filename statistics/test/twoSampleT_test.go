@@ -28,8 +28,8 @@ func NewTestTwoSampleT() *TestTwoSampleT {
 	t := new(TestTwoSampleT)
 	t.success = false
 	t.m1, t.m2 = MaxN, MaxN
-	t.X = generateSamples(t.m1)
-	t.Y = generateSamples(t.m2)
+	_, t.X = generateSamples(t.m1)
+	_, t.Y = generateSamples(t.m2)
 	t.T = utils.TwoSampleT(t.X, t.Y)
 	return t
 }
