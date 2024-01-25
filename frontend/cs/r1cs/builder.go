@@ -155,20 +155,20 @@ func (builder *builder) newInternalVariable() expr.LinearExpression {
 // PublicVariable creates a new public Variable
 func (builder *builder) PublicVariable(f schema.LeafInfo) frontend.Variable {
 	// add by ZhmYe
-	log := logger.Logger()
+	//log := logger.Logger()
 	// here AddPublicVariable() is in constraint/core.go
 	// idx := ${len(Public)}, Public.append(fullName)
 	idx := builder.cs.AddPublicVariable(f.FullName())
-	log.Info().Str("Full Name", f.FullName()).Int("Index", idx).Msg("Public Variable")
+	//log.Info().Str("Full Name", f.FullName()).Int("Index", idx).Msg("Public Variable")
 	return expr.NewLinearExpression(idx, builder.tOne)
 }
 
 // SecretVariable creates a new secret Variable
 func (builder *builder) SecretVariable(f schema.LeafInfo) frontend.Variable {
 	// add by ZhmYe
-	log := logger.Logger()
+	//log := logger.Logger()
 	idx := builder.cs.AddSecretVariable(f.FullName())
-	log.Info().Str("Full Name", f.FullName()).Int("Index", idx).Msg("Private Variable")
+	//log.Info().Str("Full Name", f.FullName()).Int("Index", idx).Msg("Private Variable")
 	return expr.NewLinearExpression(idx, builder.tOne)
 }
 

@@ -76,22 +76,33 @@ func (s *SplitEngine) Split() []*Stage {
 		stage := s.NewStage([]int{iID}) // 新建一个Stage
 		s.processStage(iID, stage)
 	}
-	//testMap := make(map[int]int)
-	//number := 0
-	//for _, stage := range s.RootStages {
-	//	s.dfs(stage, testMap, &number)
-	//}
-	//fmt.Println(number)
-	if !s.Examine() {
-		fmt.Errorf("examine Not Pass")
-	}
 	return s.RootStages
 }
-func (s *SplitEngine) Examine() bool {
+
+type ExamineResult int
+
+const (
+	Pass ExamineResult = iota
+	RootStageHasParent
+	InstructionRepeat
+	LinkError
+	StageLoss
+)
+
+func (s *SplitEngine) ClearStack() {
+	s.stack = make([]*Stage, 0)
+}
+func (s *SplitEngine) Examine() ExamineResult {
+	// 检验是否有stage被漏记录
+	for _, stage := range s.Stages {
+		if stage.id > len(s.Stages)-1 {
+			return StageLoss
+		}
+	}
 	// 检验所有RootStage是否确实没有前置依赖
 	for _, stage := range s.RootStages {
 		if s.backward.Exist(stage.GetID()) {
-			return false
+			return RootStageHasParent
 		}
 	}
 	// 检验所有Stage的Instruction是否有重复，使用map
@@ -102,11 +113,30 @@ func (s *SplitEngine) Examine() bool {
 			if !exist {
 				testMap[i] = true
 			} else {
-				return false
+				return InstructionRepeat
 			}
 		}
 	}
-	return true
+	// 检验所有stage的父stage个数和实际包含的是否一致
+	testLinkMap := make(map[int]int)
+	for _, stage := range s.Stages {
+		for _, subStage := range stage.GetSubStages() {
+			_, exist := testLinkMap[subStage.GetID()]
+			if !exist {
+				testLinkMap[subStage.GetID()] = 1
+			} else {
+				testLinkMap[subStage.GetID()] += 1
+			}
+		}
+	}
+	for _, stage := range s.Stages {
+		if len(stage.GetParentIDs()) != testLinkMap[stage.GetID()] {
+			return LinkError
+		}
+	}
+
+	s.ClearStack()
+	return Pass
 
 }
 func (s *SplitEngine) dfs(stage *Stage, testMap map[int]int, number *int) {

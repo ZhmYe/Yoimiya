@@ -13,18 +13,18 @@ import (
 
 // TestMean test for mean of samples
 type TestMean struct {
-	success  bool                  // test pass or not
-	prover   Prover                // prover
-	verifier Verifier              // verifier
-	X        [10]frontend.Variable // input X
-	Y        int                   // input Y
-	N        int                   // input N
-	proof    groth16.Proof         // proof
+	success  bool                     // test pass or not
+	prover   Prover                   // prover
+	verifier Verifier                 // verifier
+	X        [10000]frontend.Variable // input X
+	Y        int                      // input Y
+	N        int                      // input N
+	proof    groth16.Proof            // proof
 }
 
 func NewTestMean() *TestMean {
 	t := new(TestMean)
-	t.success, t.N = false, MaxN
+	t.success, t.N = false, 10000
 	SampleVariable, SampleInt := generateSamples(t.N)
 	t.X = SampleVariable
 	t.Y = utils.Mean(SampleInt...)

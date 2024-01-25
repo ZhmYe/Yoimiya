@@ -176,7 +176,9 @@ func (b *BlueprintSparseR1CMul) NbOutputs(inst Instruction) int {
 func (b *BlueprintSparseR1CMul) UpdateInstructionTree(inst Instruction, tree InstructionTree) Level {
 	return updateInstructionTree(inst.Calldata[0:3], tree)
 }
-
+func (b *BlueprintSparseR1CMul) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System) Level {
+	return updateInstructionTree(inst.Calldata[0:3], tree)
+}
 func (b *BlueprintSparseR1CMul) CompressSparseR1C(c *SparseR1C, to *[]uint32) {
 	*to = append(*to, c.XA, c.XB, c.XC, c.QM)
 }
@@ -220,7 +222,9 @@ func (b *BlueprintSparseR1CAdd) NbOutputs(inst Instruction) int {
 func (b *BlueprintSparseR1CAdd) UpdateInstructionTree(inst Instruction, tree InstructionTree) Level {
 	return updateInstructionTree(inst.Calldata[0:3], tree)
 }
-
+func (b *BlueprintSparseR1CAdd) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System) Level {
+	return updateInstructionTree(inst.Calldata[0:3], tree)
+}
 func (b *BlueprintSparseR1CAdd) CompressSparseR1C(c *SparseR1C, to *[]uint32) {
 	*to = append(*to, c.XA, c.XB, c.XC, c.QL, c.QR, c.QC)
 }
@@ -269,7 +273,9 @@ func (b *BlueprintSparseR1CBool) NbOutputs(inst Instruction) int {
 func (b *BlueprintSparseR1CBool) UpdateInstructionTree(inst Instruction, tree InstructionTree) Level {
 	return updateInstructionTree(inst.Calldata[0:1], tree)
 }
-
+func (b *BlueprintSparseR1CBool) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System) Level {
+	return updateInstructionTree(inst.Calldata[0:1], tree)
+}
 func (b *BlueprintSparseR1CBool) CompressSparseR1C(c *SparseR1C, to *[]uint32) {
 	*to = append(*to, c.XA, c.QL, c.QM)
 }

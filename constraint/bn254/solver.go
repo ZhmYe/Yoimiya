@@ -34,6 +34,7 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr"
 )
@@ -468,17 +469,31 @@ func (solver *solver) runStage(stage *graph.Stage, wg *sync.WaitGroup) {
 	}
 	for _, subStage := range stage.GetSubStages() {
 		tmp := subStage
-		go func() {
-			solver.runStage(tmp, wg)
-		}()
+		//go func() {
+		solver.runStage(tmp, wg)
+		//}()
 	}
 	wg.Done()
 }
 func (solver *solver) runInStage() error {
 	var wg sync.WaitGroup
 	finalInstruction := solver.GetZeroDegree() // 没有后续依赖的instruction
+	log := logger.Logger()
 	forward, backward := solver.GetDAGs()
 	splitEngine := graph.NewSplitEngine(forward, backward, finalInstruction)
+	switch splitEngine.Examine() {
+	case graph.Pass:
+		log.Debug().Str("Examine Split Result", "Pass").Msg("YZM DEBUG")
+	case graph.RootStageHasParent:
+		log.Debug().Str("Examine Split Result", "RootStageHasParent").Msg("YZM DEBUG")
+	case graph.InstructionRepeat:
+		log.Debug().Str("Examine Split Result", "InstructionRepeat").Msg("YZM DEBUG")
+
+	case graph.LinkError:
+		log.Debug().Str("Examine Split Result", "LinkError").Msg("YZM DEBUG")
+	case graph.StageLoss:
+		log.Debug().Str("Examine Split Result", "StageLoss").Msg("YZM DEBUG")
+	}
 	rootStages := splitEngine.Split()
 	wg.Add(splitEngine.GetStageNumber())
 	// DEBUG
@@ -496,9 +511,9 @@ func (solver *solver) runInStage() error {
 	//log.Debug().Int("Origin Level Elements Number", len(LevelElement)).Int("Stage Instructions Number", total).Msg("YZM DEBUG")
 	for _, stage := range rootStages {
 		tmp := stage
-		go func() {
-			solver.runStage(tmp, &wg)
-		}()
+		//go func() {
+		solver.runStage(tmp, &wg)
+		//}()
 	}
 	wg.Wait()
 	return nil
@@ -606,13 +621,18 @@ func (solver *solver) runInLevels() error {
 // were instantiated.
 func (solver *solver) run() error {
 	// add by ZhmYe
+	logger := logger.Logger()
+	logger.Debug().Msg("Start Run...")
+	startTime := time.Now()
 	switch evaluate.Config.Split {
 	case evaluate.SPLIT_STAGES:
+		logger.Debug().Str("Run Mode", "SPLIT_STAGES").Msg("YZM DEBUG")
 		err := solver.runInStage()
 		if err != nil {
 			return err
 		}
 	case evaluate.SPLIT_LEVELS:
+		logger.Debug().Str("Run Mode", "SPLIT_LEVELS").Msg("YZM DEBUG")
 		err := solver.runInLevels()
 		if err != nil {
 			return err
@@ -622,7 +642,7 @@ func (solver *solver) run() error {
 	if int(solver.nbSolved) != len(solver.values) {
 		return errors.New("solver didn't assign a value to all wires")
 	}
-
+	logger.Info().Str("Run Function Time", time.Since(startTime).String()).Msg("YZM TEST")
 	return nil
 }
 
