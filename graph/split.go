@@ -87,6 +87,7 @@ const (
 	InstructionRepeat
 	LinkError
 	StageLoss
+	StageRepeat
 )
 
 func (s *SplitEngine) ClearStack() {
@@ -94,11 +95,26 @@ func (s *SplitEngine) ClearStack() {
 }
 func (s *SplitEngine) Examine() ExamineResult {
 	// 检验是否有stage被漏记录
+	testIdMap := make(map[int]bool)
 	for _, stage := range s.Stages {
 		if stage.id > len(s.Stages)-1 {
 			return StageLoss
 		}
+		_, exist := testIdMap[stage.id]
+		if exist {
+			return StageRepeat
+		} else {
+			testIdMap[stage.id] = true
+		}
 	}
+	for _, stage := range s.RootStages {
+		s.appendToStack(stage)
+	}
+	if len(s.stack) != len(s.Stages) {
+		return StageLoss
+	}
+	s.ClearStack()
+
 	// 检验所有RootStage是否确实没有前置依赖
 	for _, stage := range s.RootStages {
 		if s.backward.Exist(stage.GetID()) {
@@ -135,7 +151,6 @@ func (s *SplitEngine) Examine() ExamineResult {
 		}
 	}
 
-	s.ClearStack()
 	return Pass
 
 }

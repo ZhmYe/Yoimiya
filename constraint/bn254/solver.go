@@ -456,8 +456,7 @@ func (solver *solver) processInstruction(pi constraint.PackedInstruction, scratc
 **
 */
 func (solver *solver) runStage(stage *graph.Stage, wg *sync.WaitGroup) {
-	stage.WakeUp()
-	if !stage.Check() {
+	if !stage.WakeUp() {
 		return
 	}
 	var scratch scratch
@@ -488,27 +487,15 @@ func (solver *solver) runInStage() error {
 		log.Debug().Str("Examine Split Result", "RootStageHasParent").Msg("YZM DEBUG")
 	case graph.InstructionRepeat:
 		log.Debug().Str("Examine Split Result", "InstructionRepeat").Msg("YZM DEBUG")
-
 	case graph.LinkError:
 		log.Debug().Str("Examine Split Result", "LinkError").Msg("YZM DEBUG")
 	case graph.StageLoss:
 		log.Debug().Str("Examine Split Result", "StageLoss").Msg("YZM DEBUG")
+	case graph.StageRepeat:
+		log.Debug().Str("Examine Split Result", "StageRepeat").Msg("YZM DEBUG")
 	}
 	rootStages := splitEngine.Split()
 	wg.Add(splitEngine.GetStageNumber())
-	// DEBUG
-	//total := 0
-	//for _, stage := range splitEngine.Stages {
-	//	total += len(stage.GetInstructions())
-	//}
-	//LevelElement := make([]int, 0)
-	//for _, l := range solver.Levels {
-	//	for _, element := range l {
-	//		LevelElement = append(LevelElement, element)
-	//	}
-	//}
-	//log := logger.Logger()
-	//log.Debug().Int("Origin Level Elements Number", len(LevelElement)).Int("Stage Instructions Number", total).Msg("YZM DEBUG")
 	for _, stage := range rootStages {
 		tmp := stage
 		//go func() {
@@ -553,7 +540,6 @@ func (solver *solver) runInLevels() error {
 			}
 		}()
 	}
-	// add by ZhmYe
 	// clean up pool go routines
 	defer func() {
 		close(chTasks)

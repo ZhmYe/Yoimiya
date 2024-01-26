@@ -19,11 +19,20 @@ func (s *Stage) GetID() int {
 }
 
 // WakeUp 父stage在并行执行各个子stage时尝试call这些子stage，调用这些stage的wakeup函数，使得其count++
-func (s *Stage) WakeUp() {
+func (s *Stage) WakeUp() bool {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 	//fmt.Println(s.id)
-	s.count++
+	// RootStage
+	if len(s.parent) == 0 {
+		return true
+	} else {
+		s.count++
+		if s.count == len(s.parent) {
+			return true
+		}
+	}
+	return false
 }
 
 func (s *Stage) Check() bool {
