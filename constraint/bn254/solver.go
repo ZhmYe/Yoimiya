@@ -658,6 +658,7 @@ func (solver *solver) solveR1C(cID uint32, r *constraint.R1C) error {
 			}
 
 			if loc != 0 {
+				fmt.Println(solver.Wires2Instruction[t.GetWireID()])
 				panic("found more than one wire to instantiate")
 			}
 			termToCompute = t

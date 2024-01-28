@@ -149,6 +149,10 @@ func (s *SplitEngine) Examine() ExamineResult {
 		if len(stage.GetParentIDs()) != testLinkMap[stage.GetID()] {
 			return LinkError
 		}
+		if testLinkMap[stage.GetID()] != s.backward.SizeOf(stage.GetID()) {
+			fmt.Println(testLinkMap[stage.GetID()], s.backward.SizeOf(stage.GetID()))
+			return LinkError
+		}
 	}
 
 	return Pass

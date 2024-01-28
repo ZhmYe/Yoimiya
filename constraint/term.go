@@ -43,7 +43,9 @@ func (t *Term) IsConstant() bool {
 func (t *Term) WireID() int {
 	return int(t.VID)
 }
-
+func (t *Term) GetWireID() uint32 {
+	return t.VID
+}
 func (t *Term) CoeffID() int {
 	return int(t.CID)
 }
