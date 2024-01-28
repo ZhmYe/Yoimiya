@@ -88,6 +88,7 @@ const (
 	LinkError
 	StageLoss
 	StageRepeat
+	StageOverFlow
 )
 
 func (s *SplitEngine) ClearStack() {
@@ -98,7 +99,7 @@ func (s *SplitEngine) Examine() ExamineResult {
 	testIdMap := make(map[int]bool)
 	for _, stage := range s.Stages {
 		if stage.id > len(s.Stages)-1 {
-			return StageLoss
+			return StageOverFlow
 		}
 		_, exist := testIdMap[stage.id]
 		if exist {
@@ -111,13 +112,24 @@ func (s *SplitEngine) Examine() ExamineResult {
 		s.appendToStack(stage)
 	}
 	if len(s.stack) != len(s.Stages) {
+		fmt.Println(len(s.stack), len(s.Stages))
+		testStackMap := make(map[int]bool)
+		for _, stage := range s.stack {
+			testStackMap[stage.GetID()] = true
+		}
+		for _, stage := range s.Stages {
+			_, exist := testStackMap[stage.GetID()]
+			if !exist {
+				fmt.Println(stage.GetID(), stage.child, stage.parent)
+			}
+		}
 		return StageLoss
 	}
 	s.ClearStack()
 
 	// 检验所有RootStage是否确实没有前置依赖
 	for _, stage := range s.RootStages {
-		if s.backward.Exist(stage.GetID()) {
+		if s.backward.Exist(stage.GetInstructions()[0]) {
 			return RootStageHasParent
 		}
 	}
@@ -139,8 +151,11 @@ func (s *SplitEngine) Examine() ExamineResult {
 		for _, subStage := range stage.GetSubStages() {
 			_, exist := testLinkMap[subStage.GetID()]
 			if !exist {
-				testLinkMap[subStage.GetID()] = 1
+				testLinkMap[subStage.GetID()] = 0
 			} else {
+				if testLinkMap[subStage.GetID()] == 0 {
+					testLinkMap[subStage.GetID()] = 1
+				}
 				testLinkMap[subStage.GetID()] += 1
 			}
 		}
@@ -258,7 +273,7 @@ func (s *SplitEngine) appendToStack(stage *Stage) {
 	s.HasStore[stage.id] = true
 	s.stack = append(s.stack, stage)
 	for _, subStage := range stage.child {
-		s.stack = append(s.stack, subStage)
+		//s.stack = append(s.stack, subStage)
 		s.appendToStack(subStage)
 	}
 }

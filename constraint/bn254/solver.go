@@ -480,6 +480,7 @@ func (solver *solver) runInStage() error {
 	log := logger.Logger()
 	forward, backward := solver.GetDAGs()
 	splitEngine := graph.NewSplitEngine(forward, backward, finalInstruction)
+	rootStages := splitEngine.Split()
 	switch splitEngine.Examine() {
 	case graph.Pass:
 		log.Debug().Str("Examine Split Result", "Pass").Msg("YZM DEBUG")
@@ -493,8 +494,9 @@ func (solver *solver) runInStage() error {
 		log.Debug().Str("Examine Split Result", "StageLoss").Msg("YZM DEBUG")
 	case graph.StageRepeat:
 		log.Debug().Str("Examine Split Result", "StageRepeat").Msg("YZM DEBUG")
+	case graph.StageOverFlow:
+		log.Debug().Str("Examine Split Result", "StageOverFlow").Msg("YZM DEBUG")
 	}
-	rootStages := splitEngine.Split()
 	wg.Add(splitEngine.GetStageNumber())
 	for _, stage := range rootStages {
 		tmp := stage
