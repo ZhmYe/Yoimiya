@@ -96,11 +96,9 @@ func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree In
 			// outputWires中存储所有level为LevelUnset的wireID
 			if level := tree.GetWireLevel(wireID); level == LevelUnset {
 				outputWires = append(outputWires, wireID)
-			} else if level > maxLevel {
-				// 如果当前wireID所在level不是LevelUnset(已经被记录了)，那么更新最大level, 便于知道outputWires应该插入到哪里
-				// 那些还没有加入到level中的wires需要等这些已经加入的output wires计算完成后才能计算，因此level需要更大
-				maxLevel = level
+			} else {
 				// add by ZhmYe
+				// 即使level没有超过最大level，只要有level就要遍历
 				// 当前wireID已经在之前的Instruction中被记录，那么建立顺序关系
 				// 前序Instruction
 				for _, previousInstructionID := range cs.Wires2Instruction[wireID] {
@@ -108,13 +106,10 @@ func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree In
 					cs.InstructionBackwardDAG.Update(iID, previousInstructionID)
 					cs.UpdateDegree(false, previousInstructionID) // 更新degree,这里用于更新Backward的degree
 				}
-			} else {
-				// add by ZhmYe
-				// 即使level没有超过最大level，只要有level就要遍历
-				for _, previousInstructionID := range cs.Wires2Instruction[wireID] {
-					cs.InstructionForwardDAG.Update(previousInstructionID, iID)
-					cs.InstructionBackwardDAG.Update(iID, previousInstructionID)
-					cs.UpdateDegree(false, previousInstructionID) // 更新degree,这里用于更新Backward的degree
+				if level > maxLevel {
+					// 如果当前wireID所在level不是LevelUnset(已经被记录了)，那么更新最大level, 便于知道outputWires应该插入到哪里
+					// 那些还没有加入到level中的wires需要等这些已经加入的output wires计算完成后才能计算，因此level需要更大
+					maxLevel = level
 				}
 			}
 		}

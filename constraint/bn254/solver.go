@@ -161,9 +161,6 @@ func (s *solver) set(id int, value fr.Element) {
 		fmt.Println(id)
 		panic("solving the same wire twice should never happen.")
 	}
-	if id == 10865 {
-		fmt.Println(111)
-	}
 	s.values[id] = value
 	s.solved[id] = true
 	atomic.AddUint64(&s.nbSolved, 1)
@@ -473,9 +470,9 @@ func (solver *solver) runStage(stage *graph.Stage, wg *sync.WaitGroup, total *in
 	}
 	for _, subStage := range stage.GetSubStages() {
 		tmp := subStage
-		//go func() {
-		solver.runStage(tmp, wg, total)
-		//}()
+		go func() {
+			solver.runStage(tmp, wg, total)
+		}()
 	}
 	wg.Done()
 }
@@ -506,9 +503,9 @@ func (solver *solver) runInStage() error {
 	total := 0
 	for _, stage := range rootStages {
 		tmp := stage
-		//go func() {
-		solver.runStage(tmp, &wg, &total)
-		//}()
+		go func() {
+			solver.runStage(tmp, &wg, &total)
+		}()
 	}
 	wg.Wait()
 	log.Debug().Int("total run number", total).Msg("YZM DEBUG")
