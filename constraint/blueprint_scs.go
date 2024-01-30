@@ -315,16 +315,25 @@ func NewupdateInstructionTree(wires []uint32, tree InstructionTree, iID int, cs 
 			found = true
 		} else if level > maxLevel {
 			maxLevel = level
-			previousInstructionID := cs.Wires2Instruction[wireID] // 前序Instruction
-			cs.InstructionForwardDAG.Update(previousInstructionID, iID)
-			cs.InstructionBackwardDAG.Update(iID, previousInstructionID)
-			cs.UpdateDegree(false, previousInstructionID) // 更新degree
+			for _, previousInstructionID := range cs.Wires2Instruction[wireID] {
+				cs.InstructionForwardDAG.Update(previousInstructionID, iID)
+				cs.InstructionBackwardDAG.Update(iID, previousInstructionID)
+				cs.UpdateDegree(false, previousInstructionID) // 更新degree,这里用于更新Backward的degree
+			} // 更新degree,这里用于更新Backward的degree
+		} else {
+			// add by ZhmYe
+			// 即使level没有超过最大level，只要有level就要遍历
+			for _, previousInstructionID := range cs.Wires2Instruction[wireID] {
+				cs.InstructionForwardDAG.Update(previousInstructionID, iID)
+				cs.InstructionBackwardDAG.Update(iID, previousInstructionID)
+				cs.UpdateDegree(false, previousInstructionID) // 更新degree,这里用于更新Backward的degree
+			}
 		}
 	}
 
 	maxLevel++
 	if found {
-		cs.Wires2Instruction[outputWire] = iID
+		cs.AppendWire2Instruction(outputWire, iID)
 		tree.InsertWire(outputWire, maxLevel)
 	}
 

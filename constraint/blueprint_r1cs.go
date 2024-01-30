@@ -102,10 +102,20 @@ func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree In
 				maxLevel = level
 				// add by ZhmYe
 				// 当前wireID已经在之前的Instruction中被记录，那么建立顺序关系
-				previousInstructionID := cs.Wires2Instruction[wireID] // 前序Instruction
-				cs.InstructionForwardDAG.Update(previousInstructionID, iID)
-				cs.InstructionBackwardDAG.Update(iID, previousInstructionID)
-				cs.UpdateDegree(false, previousInstructionID) // 更新degree,这里用于更新Backward的degree
+				// 前序Instruction
+				for _, previousInstructionID := range cs.Wires2Instruction[wireID] {
+					cs.InstructionForwardDAG.Update(previousInstructionID, iID)
+					cs.InstructionBackwardDAG.Update(iID, previousInstructionID)
+					cs.UpdateDegree(false, previousInstructionID) // 更新degree,这里用于更新Backward的degree
+				}
+			} else {
+				// add by ZhmYe
+				// 即使level没有超过最大level，只要有level就要遍历
+				for _, previousInstructionID := range cs.Wires2Instruction[wireID] {
+					cs.InstructionForwardDAG.Update(previousInstructionID, iID)
+					cs.InstructionBackwardDAG.Update(iID, previousInstructionID)
+					cs.UpdateDegree(false, previousInstructionID) // 更新degree,这里用于更新Backward的degree
+				}
 			}
 		}
 	}
@@ -120,7 +130,7 @@ func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree In
 	for _, wireID := range outputWires {
 		// add by ZhmYe
 		// 获得wire和Instruction之间的关系
-		cs.Wires2Instruction[wireID] = iID
+		cs.AppendWire2Instruction(wireID, iID)
 		tree.InsertWire(wireID, maxLevel)
 	}
 

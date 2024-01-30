@@ -158,7 +158,11 @@ func newSolver(cs *system, witness fr.Vector, opts ...csolver.Option) (*solver, 
 
 func (s *solver) set(id int, value fr.Element) {
 	if s.solved[id] {
-		fmt.Println("solving the same wire twice should never happen.")
+		fmt.Println(id)
+		panic("solving the same wire twice should never happen.")
+	}
+	if id == 10865 {
+		fmt.Println(111)
 	}
 	s.values[id] = value
 	s.solved[id] = true
@@ -455,11 +459,12 @@ func (solver *solver) processInstruction(pi constraint.PackedInstruction, scratc
 
 **
 */
-func (solver *solver) runStage(stage *graph.Stage, wg *sync.WaitGroup) {
+func (solver *solver) runStage(stage *graph.Stage, wg *sync.WaitGroup, total *int) {
 	if !stage.WakeUp() {
 		return
 	}
 	var scratch scratch
+	*total += len(stage.GetInstructions())
 	for _, i := range stage.GetInstructions() {
 		err := solver.processInstruction(solver.Instructions[i], &scratch)
 		if err != nil {
@@ -469,7 +474,7 @@ func (solver *solver) runStage(stage *graph.Stage, wg *sync.WaitGroup) {
 	for _, subStage := range stage.GetSubStages() {
 		tmp := subStage
 		//go func() {
-		solver.runStage(tmp, wg)
+		solver.runStage(tmp, wg, total)
 		//}()
 	}
 	wg.Done()
@@ -498,13 +503,15 @@ func (solver *solver) runInStage() error {
 		log.Debug().Str("Examine Split Result", "StageOverFlow").Msg("YZM DEBUG")
 	}
 	wg.Add(splitEngine.GetStageNumber())
+	total := 0
 	for _, stage := range rootStages {
 		tmp := stage
 		//go func() {
-		solver.runStage(tmp, &wg)
+		solver.runStage(tmp, &wg, &total)
 		//}()
 	}
 	wg.Wait()
+	log.Debug().Int("total run number", total).Msg("YZM DEBUG")
 	return nil
 }
 func (solver *solver) runInLevels() error {
@@ -627,6 +634,7 @@ func (solver *solver) run() error {
 		}
 
 	}
+	fmt.Println(int(solver.nbSolved), len(solver.values))
 	if int(solver.nbSolved) != len(solver.values) {
 		return errors.New("solver didn't assign a value to all wires")
 	}

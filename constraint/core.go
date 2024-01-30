@@ -134,10 +134,10 @@ type System struct {
 	genericHint BlueprintID
 
 	// add by ZhmYe
-	Wires2Instruction      map[uint32]int // an output wire "w" first compute in Instruction "I", then store "w" -> "i"
-	InstructionForwardDAG  *graph.DAG     // DAG constructed by Instructions, forward
-	InstructionBackwardDAG *graph.DAG     // DAG constructed by Instructions, backward
-	degree                 map[int]int    // store each node's degree(to order)
+	Wires2Instruction      map[uint32][]int // an output wire "w" first compute in Instruction "I", then store "w" -> "i"
+	InstructionForwardDAG  *graph.DAG       // DAG constructed by Instructions, forward
+	InstructionBackwardDAG *graph.DAG       // DAG constructed by Instructions, backward
+	degree                 map[int]int      // store each node's degree(to order)
 }
 
 // NewSystem initialize the common structure among constraint system
@@ -156,7 +156,7 @@ func NewSystem(scalarField *big.Int, capacity int, t SystemType) System {
 		lbWireLevel:            make([]Level, 0, capacity),
 		Levels:                 make([][]int, 0, capacity/2),
 		CommitmentInfo:         NewCommitments(t),
-		Wires2Instruction:      make(map[uint32]int),
+		Wires2Instruction:      make(map[uint32][]int),
 		InstructionForwardDAG:  graph.NewDAG(),
 		InstructionBackwardDAG: graph.NewDAG(),
 		degree:                 make(map[int]int),
@@ -164,6 +164,18 @@ func NewSystem(scalarField *big.Int, capacity int, t SystemType) System {
 
 	system.genericHint = system.AddBlueprint(&BlueprintGenericHint{})
 	return system
+}
+
+// AppendWire2Instruction add by ZhmYe
+func (system *System) AppendWire2Instruction(wireId uint32, iID int) {
+	_, exist := system.Wires2Instruction[wireId]
+	if !exist {
+		system.Wires2Instruction[wireId] = make([]int, 0)
+	}
+	system.Wires2Instruction[wireId] = append(system.Wires2Instruction[wireId], iID)
+	if len(system.Wires2Instruction[wireId]) != 1 {
+		fmt.Println("not 1")
+	}
 }
 
 // GetDegree add by ZhmYe
@@ -526,7 +538,7 @@ func (cs *System) AddInstruction(bID BlueprintID, calldata []uint32) []uint32 {
 	} else {
 		cs.Levels[level] = append(cs.Levels[level], iID)
 	}
-	cs.GetDegree(iID)
+	//cs.GetDegree(iID)
 	return wires
 }
 

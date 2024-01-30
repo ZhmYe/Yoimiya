@@ -1,6 +1,7 @@
 package graph
 
 import (
+	"S-gnark/logger"
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
@@ -63,12 +64,15 @@ func (s *SplitEngine) Exist(id int) bool {
 	_, exist := s.Instruction2Stage[id]
 	return exist
 }
-func (s *SplitEngine) getStage(id int) *Stage {
+func (s *SplitEngine) getStageByInstruction(id int) *Stage {
 	if !s.Exist(id) {
 		fmt.Errorf("Stage does not exist")
 		return nil
 	}
 	return s.Stages[s.Instruction2Stage[id]]
+}
+func (s *SplitEngine) getStageById(id int) *Stage {
+	return s.Stages[id]
 }
 func (s *SplitEngine) Split() []*Stage {
 	// 遍历所有没有后续计算的Instruction
@@ -95,6 +99,8 @@ func (s *SplitEngine) ClearStack() {
 	s.stack = make([]*Stage, 0)
 }
 func (s *SplitEngine) Examine() ExamineResult {
+	log := logger.Logger()
+	log.Debug().Int("total instruction number", s.GetTotalInstructionNumber()).Msg("YZM DEBUG")
 	// 检验是否有stage被漏记录
 	testIdMap := make(map[int]bool)
 	for _, stage := range s.Stages {
@@ -151,21 +157,27 @@ func (s *SplitEngine) Examine() ExamineResult {
 		for _, subStage := range stage.GetSubStages() {
 			_, exist := testLinkMap[subStage.GetID()]
 			if !exist {
-				testLinkMap[subStage.GetID()] = 0
-			} else {
-				if testLinkMap[subStage.GetID()] == 0 {
+				if len(subStage.GetParentIDs()) == 0 {
+					testLinkMap[subStage.GetID()] = 0
+				} else {
 					testLinkMap[subStage.GetID()] = 1
 				}
+			} else {
 				testLinkMap[subStage.GetID()] += 1
 			}
 		}
 	}
 	for _, stage := range s.Stages {
 		if len(stage.GetParentIDs()) != testLinkMap[stage.GetID()] {
+			fmt.Println(stage.GetID(), stage.GetParentIDs())
+			for _, parent := range stage.GetParentIDs() {
+				fmt.Println(s.getStageById(parent).GetChildIDs())
+			}
+			fmt.Println(len(stage.GetParentIDs()), testLinkMap[stage.GetID()])
 			return LinkError
 		}
-		if testLinkMap[stage.GetID()] != s.backward.SizeOf(stage.GetID()) {
-			fmt.Println(testLinkMap[stage.GetID()], s.backward.SizeOf(stage.GetID()))
+		if testLinkMap[stage.GetID()] != s.backward.SizeOf(stage.GetInstructions()[0]) {
+			fmt.Println(testLinkMap[stage.GetID()], s.backward.SizeOf(stage.GetInstructions()[0]))
 			return LinkError
 		}
 	}
@@ -220,7 +232,7 @@ func (s *SplitEngine) processStage(iID int, stage *Stage) {
 				s.processStage(id, ParentStage)
 			} else {
 				// 如果有父Stage
-				ParentStage := s.getStage(id) // 获取父Stage
+				ParentStage := s.getStageByInstruction(id) // 获取父Stage
 				// 添加依赖关系
 				ParentStage.AddChild(stage)
 				stage.AddParent(ParentStage)
@@ -307,4 +319,11 @@ func (s *SplitEngine) PrintStages() {
 		t.AppendRow(table.Row{stage.id, shortOutput(stage.GetParentIDs()), shortOutput(stage.GetChildIDs()), shortOutput(stage.GetInstructions()), stage.count, flag})
 	}
 	fmt.Println(t.Render())
+}
+func (s *SplitEngine) GetTotalInstructionNumber() int {
+	number := 0
+	for _, stage := range s.Stages {
+		number += len(stage.GetInstructions())
+	}
+	return number
 }
