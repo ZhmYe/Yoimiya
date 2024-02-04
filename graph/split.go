@@ -1,11 +1,13 @@
 package graph
 
 import (
+	"S-gnark/Record"
 	"S-gnark/logger"
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
 	"strconv"
+	"time"
 )
 
 type SplitEngine struct {
@@ -17,6 +19,7 @@ type SplitEngine struct {
 	Instruction2Stage map[int]int  // 查询Instruction在哪个Stage中
 	stack             []*Stage     // 用于输出
 	HasStore          map[int]bool // 用于输出
+	InstructionNumber int
 }
 
 func NewSplitEngine(forward *DAG, backward *DAG, level []int) *SplitEngine {
@@ -28,10 +31,11 @@ func NewSplitEngine(forward *DAG, backward *DAG, level []int) *SplitEngine {
 	s.RootStages = make([]*Stage, 0)
 	s.Instruction2Stage = make(map[int]int)
 	s.HasStore = make(map[int]bool)
+	s.InstructionNumber = 0
 	return s
 }
 func (s *SplitEngine) NewStage(Instruction []int) *Stage {
-	stage := NewStage(len(s.Stages), Instruction)
+	stage := NewStage(len(s.Stages), Instruction...)
 	s.Stages = append(s.Stages, stage)
 	for _, id := range Instruction {
 		s.Instruction2Stage[id] = stage.id
@@ -76,10 +80,18 @@ func (s *SplitEngine) getStageById(id int) *Stage {
 }
 func (s *SplitEngine) Split() []*Stage {
 	// 遍历所有没有后续计算的Instruction
+	startTime := time.Now()
 	for _, iID := range s.LastLevel {
 		stage := s.NewStage([]int{iID}) // 新建一个Stage
 		s.processStage(iID, stage)
 	}
+	number := 0
+	for _, stage := range s.Stages {
+		number += len(stage.GetInstructions())
+	}
+	s.InstructionNumber = number
+	//fmt.Println("Split Time: ", time.Since(startTime))
+	Record.GlobalRecord.AddSplitTime(time.Since(startTime))
 	return s.RootStages
 }
 
@@ -169,6 +181,7 @@ func (s *SplitEngine) Examine() ExamineResult {
 	}
 	for _, stage := range s.Stages {
 		if len(stage.GetParentIDs()) != testLinkMap[stage.GetID()] {
+			fmt.Println(111)
 			fmt.Println(stage.GetID(), stage.GetParentIDs())
 			for _, parent := range stage.GetParentIDs() {
 				fmt.Println(s.getStageById(parent).GetChildIDs())
@@ -321,9 +334,12 @@ func (s *SplitEngine) PrintStages() {
 	fmt.Println(t.Render())
 }
 func (s *SplitEngine) GetTotalInstructionNumber() int {
-	number := 0
+	return s.InstructionNumber
+}
+func (s *SplitEngine) GetEdges() int {
+	total := 0
 	for _, stage := range s.Stages {
-		number += len(stage.GetInstructions())
+		total += len(stage.GetSubStages())
 	}
-	return number
+	return total
 }

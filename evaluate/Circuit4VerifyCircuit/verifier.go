@@ -11,7 +11,6 @@ import (
 	"S-gnark/std/algebra/emulated/sw_bn254"
 	"S-gnark/std/math/emulated"
 	"S-gnark/std/math/emulated/emparams"
-	"S-gnark/test"
 	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"
 	"github.com/consensys/gnark-crypto/ecc/bn254"
@@ -83,8 +82,7 @@ func (v *Verifier[FR, G1El, G2El, GtEl]) AssertProof(vk VerifyingKey[G1El, G2El,
 	return nil
 }
 
-func getCircuitVkWitnessPublic(
-	assert *test.Assert,
+func GetCircuitVkWitnessPublic(
 	innerCcsArray [LENGTH]constraint.ConstraintSystem,
 	innerVKArray [LENGTH]groth16.VerifyingKey,
 	innerWitnessArray [LENGTH]witness.Witness,
@@ -112,7 +110,9 @@ func getCircuitVkWitnessPublic(
 		gammaNeg.Neg(&tVk.G2.Gamma)
 		circuitVk[j].G2.DeltaNeg = sw_bn254.NewG2Affine(deltaNeg)
 		circuitVk[j].G2.GammaNeg = sw_bn254.NewG2Affine(gammaNeg)
-		assert.NoError(err)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	// ScalarField is the [emulated.FieldParams] impelementation of the curve scalar field.
@@ -166,7 +166,9 @@ func getCircuitVkWitnessPublic(
 	}
 
 	outerCcs, err := frontend.Compile(ecc.BN254.ScalarField(), r1cs.NewBuilder, outerCircuit)
-	assert.NoError(err)
+	if err != nil {
+		panic(err)
+	}
 	outerPK, outerVK, err := groth16.Setup(outerCcs)
 
 	full, err := frontend.NewWitness(outerAssignment, ecc.BN254.ScalarField())

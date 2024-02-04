@@ -4,13 +4,11 @@ import (
 	"S-gnark/backend/groth16"
 	"S-gnark/backend/witness"
 	"S-gnark/constraint"
-	"S-gnark/test"
 	"github.com/consensys/gnark-crypto/ecc"
 	"testing"
 )
 
 func Test4VerifyCircuit(t *testing.T) {
-	assert := test.NewAssert(t)
 
 	var innerCcsArray [LENGTH]constraint.ConstraintSystem
 	var innerVKArray [LENGTH]groth16.VerifyingKey
@@ -18,7 +16,7 @@ func Test4VerifyCircuit(t *testing.T) {
 	var innerProofArray [LENGTH]groth16.Proof
 
 	for i := 0; i < LENGTH; i++ {
-		innerCcs, innerVK, innerWitness, innerProof := getInner(assert, ecc.BN254.ScalarField())
+		innerCcs, innerVK, innerWitness, innerProof := GetInner(ecc.BN254.ScalarField())
 		innerCcsArray[i] = innerCcs
 		innerVKArray[i] = innerVK
 		innerWitnessArray[i] = innerWitness
@@ -28,7 +26,7 @@ func Test4VerifyCircuit(t *testing.T) {
 	// outer proof
 	//outerCcs, outerPK, outerVK, full, public := getCircuitVkWitnessPublic(assert, innerCcsArray, innerVKArray, innerWitnessArray, innerProofArray)
 
-	middleCcs, middlePK, middleVK, middleFull, middlePublic := getCircuitVkWitnessPublic(assert, innerCcsArray, innerVKArray, innerWitnessArray, innerProofArray)
+	middleCcs, middlePK, middleVK, middleFull, middlePublic := GetCircuitVkWitnessPublic(innerCcsArray, innerVKArray, innerWitnessArray, innerProofArray)
 
 	middleProof, _ := groth16.Prove(middleCcs, middlePK.(groth16.ProvingKey), middleFull)
 

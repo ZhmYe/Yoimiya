@@ -17,9 +17,10 @@
 package cs
 
 import (
+	"S-gnark/Config"
+	"S-gnark/Record"
 	"S-gnark/constraint"
 	csolver "S-gnark/constraint/solver"
-	"S-gnark/evaluate"
 	"S-gnark/graph"
 	"S-gnark/logger"
 	"errors"
@@ -50,7 +51,6 @@ type solver struct {
 
 	// maps hintID to hint function
 	mHintsFunctions map[csolver.HintID]csolver.Hint
-
 	// used to out api.Println
 	logger zerolog.Logger
 
@@ -456,59 +456,147 @@ func (solver *solver) processInstruction(pi constraint.PackedInstruction, scratc
 
 **
 */
-func (solver *solver) runStage(stage *graph.Stage, wg *sync.WaitGroup, total *int) {
+func (solver *solver) runStage(stage *graph.Stage, wg *sync.WaitGroup, chTasks *chan []*graph.Stage) {
 	if !stage.WakeUp() {
 		return
 	}
 	var scratch scratch
-	*total += len(stage.GetInstructions())
+	//*total += len(stage.GetInstructions())
 	for _, i := range stage.GetInstructions() {
 		err := solver.processInstruction(solver.Instructions[i], &scratch)
 		if err != nil {
 			fmt.Errorf("error")
 		}
+		wg.Done()
 	}
-	for _, subStage := range stage.GetSubStages() {
-		tmp := subStage
-		go func() {
-			solver.runStage(tmp, wg, total)
-		}()
+	MaxCPU := float64(len(stage.GetSubStages())) / float64(Config.Config.MinWorkPerCPU)
+	// 串行
+	if MaxCPU <= 1.0 {
+		for _, stage := range stage.GetSubStages() {
+			solver.runStage(stage, wg, chTasks)
+		}
+	} else {
+		subStages := stage.GetSubStages()
+		nbTasks := int(math.Min(float64(runtime.NumCPU()), math.Ceil(MaxCPU)))
+		//maxTasks := int(math.Ceil(MaxCPU))
+		//if nbTasks > maxTasks {
+		//	nbTasks = maxTasks
+		//}
+		nbIterationsPerCpus := len(subStages) / nbTasks
+		// more CPUs than tasks: a CPU will work on exactly one iteration
+		// note: this depends on minWorkPerCPU constant
+		if nbIterationsPerCpus < 1 {
+			nbIterationsPerCpus = 1
+			nbTasks = len(subStages)
+		}
+
+		extraTasks := len(subStages) - (nbTasks * nbIterationsPerCpus)
+		extraTasksOffset := 0
+
+		for i := 0; i < nbTasks; i++ {
+			//wg.Add(1)
+			_start := i*nbIterationsPerCpus + extraTasksOffset
+			_end := _start + nbIterationsPerCpus
+			if extraTasks > 0 {
+				_end++
+				extraTasks--
+				extraTasksOffset++
+			}
+			// since we're never pushing more than num CPU tasks
+			// we will never be blocked here
+			*chTasks <- subStages[_start:_end]
+		}
+
 	}
-	wg.Done()
+	//fmt.Println(len(stage.GetSubStages()))
+
+	//for i := 0; i < len(stage.GetSubStages())/evaluate.Config.MaxParallelingNumber+1; i++ {
+	//	_start := i * evaluate.Config.MaxParallelingNumber
+	//	_end := int(math.Min(float64((i+1)*evaluate.Config.MaxParallelingNumber), float64(len(stage.GetSubStages()))))
+	//	for _, stage := range stage.GetSubStages()[_start:_end] {
+	//		tmp := stage
+	//		go func() {
+	//			solver.runStage(tmp, wg)
+	//		}()
+	//	}
+	//}
+	//wg.Done()
 }
 func (solver *solver) runInStage() error {
 	var wg sync.WaitGroup
-	finalInstruction := solver.GetZeroDegree() // 没有后续依赖的instruction
-	log := logger.Logger()
-	forward, backward := solver.GetDAGs()
-	splitEngine := graph.NewSplitEngine(forward, backward, finalInstruction)
-	rootStages := splitEngine.Split()
-	switch splitEngine.Examine() {
-	case graph.Pass:
-		log.Debug().Str("Examine Split Result", "Pass").Msg("YZM DEBUG")
-	case graph.RootStageHasParent:
-		log.Debug().Str("Examine Split Result", "RootStageHasParent").Msg("YZM DEBUG")
-	case graph.InstructionRepeat:
-		log.Debug().Str("Examine Split Result", "InstructionRepeat").Msg("YZM DEBUG")
-	case graph.LinkError:
-		log.Debug().Str("Examine Split Result", "LinkError").Msg("YZM DEBUG")
-	case graph.StageLoss:
-		log.Debug().Str("Examine Split Result", "StageLoss").Msg("YZM DEBUG")
-	case graph.StageRepeat:
-		log.Debug().Str("Examine Split Result", "StageRepeat").Msg("YZM DEBUG")
-	case graph.StageOverFlow:
-		log.Debug().Str("Examine Split Result", "StageOverFlow").Msg("YZM DEBUG")
+	//solver.Sit.Examine()
+	//fmt.Println(solver.Sit.GetTotalInstructionNumber(), solver.Sit.GetStageNumber(), len(solver.Sit.GetRootStages()), solver.Sit.GetEdges())
+	//finalInstruction := solver.GetZeroDegree() // 没有后续依赖的instruction
+	//log := logger.Logger()
+	//forward, backward := solver.GetDAGs()
+	//splitEngine := graph.NewSplitEngine(forward, backward, finalInstruction)
+	//splitEngine.Split()
+	rootStages := solver.Sit.GetRootStages()
+	//fmt.Println(splitEngine.GetTotalInstructionNumber(), splitEngine.GetStageNumber(), len(splitEngine.GetRootStages()), splitEngine.GetEdges())
+	//if Config.Config.Mode == Config.DEBUG {
+	//	//solver.Sit.Examine()
+	//	switch splitEngine.Examine() {
+	//	case graph.Pass:
+	//		log.Debug().Str("Examine Split Result", "Pass").Msg("YZM DEBUG")
+	//	case graph.RootStageHasParent:
+	//		log.Debug().Str("Examine Split Result", "RootStageHasParent").Msg("YZM DEBUG")
+	//	case graph.InstructionRepeat:
+	//		log.Debug().Str("Examine Split Result", "InstructionRepeat").Msg("YZM DEBUG")
+	//	case graph.LinkError:
+	//		log.Debug().Str("Examine Split Result", "LinkError").Msg("YZM DEBUG")
+	//	case graph.StageLoss:
+	//		log.Debug().Str("Examine Split Result", "StageLoss").Msg("YZM DEBUG")
+	//	case graph.StageRepeat:
+	//		log.Debug().Str("Examine Split Result", "StageRepeat").Msg("YZM DEBUG")
+	//	case graph.StageOverFlow:
+	//		log.Debug().Str("Examine Split Result", "StageOverFlow").Msg("YZM DEBUG")
+	//	}
+	//}
+	wg.Add(solver.Sit.GetTotalInstructionNumber())
+	//total := 0
+	chTasks := make(chan []*graph.Stage, runtime.NumCPU())
+
+	// start a worker pool
+	// each worker wait on chTasks
+	// a task is a slice of constraint indexes to be solved
+	for i := 0; i < runtime.NumCPU(); i++ {
+		go func() {
+			//var scratch scratch
+			for t := range chTasks {
+				for _, stage := range t {
+					//if err := solver.processInstruction(solver.Instructions[i], &scratch); err != nil {
+					//	wg.Done()
+					//	return
+					//}
+					solver.runStage(stage, &wg, &chTasks)
+				}
+				//wg.Done()
+			}
+		}()
 	}
-	wg.Add(splitEngine.GetStageNumber())
-	total := 0
+	// clean up pool go routines
+	defer func() {
+		close(chTasks)
+		//close(chError)
+	}()
 	for _, stage := range rootStages {
 		tmp := stage
 		go func() {
-			solver.runStage(tmp, &wg, &total)
+			solver.runStage(tmp, &wg, &chTasks)
 		}()
 	}
+	//for i := 0; i < len(rootStages)/evaluate.Config.MaxParallelingNumber+1; i++ {
+	//	_start := i * evaluate.Config.MaxParallelingNumber
+	//	_end := int(math.Min(float64((i+1)*evaluate.Config.MaxParallelingNumber), float64(len(rootStages))))
+	//	for _, stage := range rootStages[_start:_end] {
+	//		tmp := stage
+	//		go func() {
+	//			solver.runStage(tmp, &wg)
+	//		}()
+	//	}
+	//}
 	wg.Wait()
-	log.Debug().Int("total run number", total).Msg("YZM DEBUG")
+	//log.Debug().Int("total run number", total).Msg("YZM DEBUG")
 	return nil
 }
 func (solver *solver) runInLevels() error {
@@ -523,7 +611,7 @@ func (solver *solver) runInLevels() error {
 	// first we solve the unsolved wire (if any)
 	// then we check that the constraint is valid
 	// if a[i] * b[i] != c[i]; it means the constraint is not satisfied
-	const minWorkPerCPU = 50.0 // TODO @gbotrel revisit that with blocks.
+	var minWorkPerCPU = Config.Config.MinWorkPerCPU // TODO @gbotrel revisit that with blocks.
 	var wg sync.WaitGroup
 	chTasks := make(chan []int, runtime.NumCPU())
 	chError := make(chan error, runtime.NumCPU())
@@ -554,7 +642,7 @@ func (solver *solver) runInLevels() error {
 	for _, level := range solver.Levels {
 		var scratch scratch
 		// max CPU to use
-		maxCPU := float64(len(level)) / minWorkPerCPU
+		maxCPU := float64(len(level)) / float64(minWorkPerCPU)
 
 		if maxCPU <= 1.0 {
 			// we do it sequentially
@@ -616,14 +704,14 @@ func (solver *solver) run() error {
 	logger := logger.Logger()
 	logger.Debug().Msg("Start Run...")
 	startTime := time.Now()
-	switch evaluate.Config.Split {
-	case evaluate.SPLIT_STAGES:
+	switch Config.Config.Split {
+	case Config.SPLIT_STAGES:
 		logger.Debug().Str("Run Mode", "SPLIT_STAGES").Msg("YZM DEBUG")
 		err := solver.runInStage()
 		if err != nil {
 			return err
 		}
-	case evaluate.SPLIT_LEVELS:
+	case Config.SPLIT_LEVELS:
 		logger.Debug().Str("Run Mode", "SPLIT_LEVELS").Msg("YZM DEBUG")
 		err := solver.runInLevels()
 		if err != nil {
@@ -631,11 +719,13 @@ func (solver *solver) run() error {
 		}
 
 	}
-	fmt.Println(int(solver.nbSolved), len(solver.values))
+	//fmt.Println(int(solver.nbSolved), len(solver.values))
 	if int(solver.nbSolved) != len(solver.values) {
 		return errors.New("solver didn't assign a value to all wires")
 	}
 	logger.Info().Str("Run Function Time", time.Since(startTime).String()).Msg("YZM TEST")
+	fmt.Println("Run Function Time: ", time.Since(startTime))
+	Record.GlobalRecord.AddRunTime(time.Since(startTime))
 	return nil
 }
 

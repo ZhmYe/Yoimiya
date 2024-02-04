@@ -23,7 +23,7 @@ type Blueprint interface {
 	// the instruction tree with the level of the (new) wires.
 
 	// NewUpdateInstructionTree add by ZhmYe
-	NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System) Level
+	NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System)
 	UpdateInstructionTree(inst Instruction, tree InstructionTree) Level
 }
 

@@ -1,6 +1,7 @@
 package graph
 
 import (
+	"fmt"
 	"sync"
 )
 
@@ -16,6 +17,9 @@ type Stage struct {
 
 func (s *Stage) GetID() int {
 	return s.id
+}
+func (s *Stage) SetID(id int) {
+	s.id = id
 }
 
 // WakeUp 父stage在并行执行各个子stage时尝试call这些子stage，调用这些stage的wakeup函数，使得其count++
@@ -80,6 +84,19 @@ func (s *Stage) AddInstruction(id int, reverse bool) {
 	} else {
 		s.Instructions = append(s.Instructions, id)
 	}
+	if s.GetID() == 1571 {
+		fmt.Println(s.Instructions)
+	}
+}
+func (s *Stage) BatchAddInstruction(ids []int, reverse bool) {
+	if reverse {
+		s.Instructions = append(ids, s.Instructions...)
+	} else {
+		s.Instructions = append(s.Instructions, ids...)
+	}
+}
+func (s *Stage) CutInstruction(index int) {
+	s.Instructions = s.Instructions[:index]
 }
 
 // GetParentIDs 返回所有父Stage的ID
@@ -109,13 +126,28 @@ func (s *Stage) GetCount() int {
 func (s *Stage) GetSubStages() []*Stage {
 	return s.child
 }
-func NewStage(id int, instructions []int) *Stage {
+func NewStage(id int, instructions ...int) *Stage {
 	stage := new(Stage)
 	stage.id = id
 	stage.count = 0
-	stage.Instructions = instructions
+	stage.Instructions = make([]int, 0)
+	for _, id := range instructions {
+		stage.Instructions = append(stage.Instructions, id)
+	}
+	//stage.Instructions = instructions
 	stage.child = make([]*Stage, 0)
 	stage.parent = make([]*Stage, 0)
 	stage.finished = false
 	return stage
+}
+func (s *Stage) GetLastInstruction() int {
+	return s.Instructions[len(s.Instructions)-1]
+}
+func (s *Stage) RemoveAllChild() {
+	s.child = make([]*Stage, 0)
+}
+func (s *Stage) InheritChild(child []*Stage) {
+	for _, child := range child {
+		s.child = append(s.child, child)
+	}
 }

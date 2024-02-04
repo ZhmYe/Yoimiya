@@ -34,7 +34,9 @@ func (system *System) HasWire(wireID uint32) bool {
 		return false
 	}
 	// if wireID == maxUint32, it's a constant.
-	return (wireID - offset) < uint32(len(system.lbWireLevel))
+	//fmt.Println(len(system.lbWireLevel), system.NbInternalVariables)
+	//return (wireID - offset) < uint32(system.NbInternalVariables)
+	return (wireID - offset) < uint32(system.NbInternalVariables) // modify by ZhmYe, to delete lbWireLevel
 }
 
 func (system *System) GetWireLevel(wireID uint32) Level {

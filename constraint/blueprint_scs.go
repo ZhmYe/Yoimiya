@@ -34,8 +34,8 @@ func (b *BlueprintGenericSparseR1C) UpdateInstructionTree(inst Instruction, tree
 
 // NewUpdateInstructionTree add by ZhmYe
 // to fix error(interface)
-func (b *BlueprintGenericSparseR1C) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System) Level {
-	return NewupdateInstructionTree(inst.Calldata[0:3], tree, iID, cs)
+func (b *BlueprintGenericSparseR1C) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System) {
+	NewupdateInstructionTree(inst.Calldata[0:3], tree, iID, cs)
 }
 func (b *BlueprintGenericSparseR1C) CompressSparseR1C(c *SparseR1C, to *[]uint32) {
 	*to = append(*to, c.XA, c.XB, c.XC, c.QL, c.QR, c.QO, c.QM, c.QC, uint32(c.Commitment))
@@ -176,8 +176,8 @@ func (b *BlueprintSparseR1CMul) NbOutputs(inst Instruction) int {
 func (b *BlueprintSparseR1CMul) UpdateInstructionTree(inst Instruction, tree InstructionTree) Level {
 	return updateInstructionTree(inst.Calldata[0:3], tree)
 }
-func (b *BlueprintSparseR1CMul) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System) Level {
-	return NewupdateInstructionTree(inst.Calldata[0:3], tree, iID, cs)
+func (b *BlueprintSparseR1CMul) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System) {
+	NewupdateInstructionTree(inst.Calldata[0:3], tree, iID, cs)
 }
 func (b *BlueprintSparseR1CMul) CompressSparseR1C(c *SparseR1C, to *[]uint32) {
 	*to = append(*to, c.XA, c.XB, c.XC, c.QM)
@@ -222,8 +222,8 @@ func (b *BlueprintSparseR1CAdd) NbOutputs(inst Instruction) int {
 func (b *BlueprintSparseR1CAdd) UpdateInstructionTree(inst Instruction, tree InstructionTree) Level {
 	return updateInstructionTree(inst.Calldata[0:3], tree)
 }
-func (b *BlueprintSparseR1CAdd) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System) Level {
-	return NewupdateInstructionTree(inst.Calldata[0:3], tree, iID, cs)
+func (b *BlueprintSparseR1CAdd) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System) {
+	NewupdateInstructionTree(inst.Calldata[0:3], tree, iID, cs)
 }
 func (b *BlueprintSparseR1CAdd) CompressSparseR1C(c *SparseR1C, to *[]uint32) {
 	*to = append(*to, c.XA, c.XB, c.XC, c.QL, c.QR, c.QC)
@@ -273,8 +273,8 @@ func (b *BlueprintSparseR1CBool) NbOutputs(inst Instruction) int {
 func (b *BlueprintSparseR1CBool) UpdateInstructionTree(inst Instruction, tree InstructionTree) Level {
 	return updateInstructionTree(inst.Calldata[0:1], tree)
 }
-func (b *BlueprintSparseR1CBool) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System) Level {
-	return NewupdateInstructionTree(inst.Calldata[0:1], tree, iID, cs)
+func (b *BlueprintSparseR1CBool) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System) {
+	NewupdateInstructionTree(inst.Calldata[0:1], tree, iID, cs)
 }
 func (b *BlueprintSparseR1CBool) CompressSparseR1C(c *SparseR1C, to *[]uint32) {
 	*to = append(*to, c.XA, c.QL, c.QM)
@@ -300,7 +300,7 @@ func (b *BlueprintSparseR1CBool) DecompressSparseR1C(c *SparseR1C, inst Instruct
 	c.QL = inst.Calldata[1]
 	c.QM = inst.Calldata[2]
 }
-func NewupdateInstructionTree(wires []uint32, tree InstructionTree, iID int, cs *System) Level {
+func NewupdateInstructionTree(wires []uint32, tree InstructionTree, iID int, cs *System) {
 	// constraint has at most one unsolved wire.
 	var outputWire uint32
 	found := false
@@ -315,19 +315,19 @@ func NewupdateInstructionTree(wires []uint32, tree InstructionTree, iID int, cs 
 			found = true
 		} else if level > maxLevel {
 			maxLevel = level
-			for _, previousInstructionID := range cs.Wires2Instruction[wireID] {
-				cs.InstructionForwardDAG.Update(previousInstructionID, iID)
-				cs.InstructionBackwardDAG.Update(iID, previousInstructionID)
-				cs.UpdateDegree(false, previousInstructionID) // 更新degree,这里用于更新Backward的degree
-			} // 更新degree,这里用于更新Backward的degree
+			previousInstructionID := cs.Wires2Instruction[wireID]
+			cs.InstructionForwardDAG.Update(previousInstructionID, iID)
+			cs.InstructionBackwardDAG.Update(iID, previousInstructionID)
+			cs.UpdateDegree(false, previousInstructionID) // 更新degree,这里用于更新Backward的degree
+			// 更新degree,这里用于更新Backward的degree
 		} else {
 			// add by ZhmYe
 			// 即使level没有超过最大level，只要有level就要遍历
-			for _, previousInstructionID := range cs.Wires2Instruction[wireID] {
-				cs.InstructionForwardDAG.Update(previousInstructionID, iID)
-				cs.InstructionBackwardDAG.Update(iID, previousInstructionID)
-				cs.UpdateDegree(false, previousInstructionID) // 更新degree,这里用于更新Backward的degree
-			}
+			previousInstructionID := cs.Wires2Instruction[wireID]
+			cs.InstructionForwardDAG.Update(previousInstructionID, iID)
+			cs.InstructionBackwardDAG.Update(iID, previousInstructionID)
+			cs.UpdateDegree(false, previousInstructionID) // 更新degree,这里用于更新Backward的degree
+
 		}
 	}
 
@@ -337,7 +337,6 @@ func NewupdateInstructionTree(wires []uint32, tree InstructionTree, iID int, cs 
 		tree.InsertWire(outputWire, maxLevel)
 	}
 
-	return maxLevel
 }
 func updateInstructionTree(wires []uint32, tree InstructionTree) Level {
 	// constraint has at most one unsolved wire.

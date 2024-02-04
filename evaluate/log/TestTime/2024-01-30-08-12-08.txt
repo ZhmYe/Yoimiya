@@ -1,0 +1,4 @@
+Method=SPLIT_LEVELS
+	Split Time=0s	Run Time=3.290638791s
+Method=SPLIT_STAGES
+	Split Time=4.718495208s	Run Time=3.584006823s

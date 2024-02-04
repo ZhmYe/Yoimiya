@@ -6,7 +6,6 @@ import (
 	"S-gnark/constraint"
 	"S-gnark/frontend"
 	"S-gnark/frontend/cs/r1cs"
-	"S-gnark/test"
 	"math/big"
 )
 
@@ -21,14 +20,18 @@ func (c *InnerCircuit) Define(api frontend.API) error {
 	return nil
 }
 
-func getInner(assert *test.Assert, field *big.Int) (constraint.ConstraintSystem, groth16.VerifyingKey, witness.Witness, groth16.Proof) {
+func GetInner(field *big.Int) (constraint.ConstraintSystem, groth16.VerifyingKey, witness.Witness, groth16.Proof) {
 	// compiles our circuit into a R1CS
 	innerCcs, err := frontend.Compile(field, r1cs.NewBuilder, &InnerCircuit{})
-	assert.NoError(err)
+	if err != nil {
+		panic(err)
+	}
 
 	// groth16 zkSNARK: Setup
 	innerPK, innerVK, err := groth16.Setup(innerCcs)
-	assert.NoError(err)
+	if err != nil {
+		panic(err)
+	}
 
 	// inner witness definition
 	innerAssignment := InnerCircuit{
@@ -37,14 +40,22 @@ func getInner(assert *test.Assert, field *big.Int) (constraint.ConstraintSystem,
 		N: 15,
 	}
 	innerWitness, err := frontend.NewWitness(&innerAssignment, field)
-	assert.NoError(err)
+	if err != nil {
+		panic(err)
+	}
 	innerPubWitness, err := innerWitness.Public()
-	assert.NoError(err)
+	if err != nil {
+		panic(err)
+	}
 
 	// inner groth16: Prove & Verify
 	innerProof, err := groth16.Prove(innerCcs, innerPK, innerWitness)
-	assert.NoError(err)
+	if err != nil {
+		panic(err)
+	}
 	err = groth16.Verify(innerProof, innerVK, innerPubWitness)
-	assert.NoError(err)
+	if err != nil {
+		panic(err)
+	}
 	return innerCcs, innerVK, innerPubWitness, innerProof
 }

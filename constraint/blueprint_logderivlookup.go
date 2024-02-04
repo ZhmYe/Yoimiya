@@ -158,7 +158,7 @@ func (b *BlueprintLookupHint) UpdateInstructionTree(inst Instruction, tree Instr
 
 // NewUpdateInstructionTree add by ZhmYe
 // to fix error(interface)
-func (b *BlueprintLookupHint) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System) Level {
+func (b *BlueprintLookupHint) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System) {
 	// depend on the table UP to the number of entries at time of instruction creation.
 	nbEntries := int(inst.Calldata[1])
 	cs.initDegree(iID)
@@ -202,19 +202,19 @@ func (b *BlueprintLookupHint) NewUpdateInstructionTree(inst Instruction, tree In
 			}
 			if level := tree.GetWireLevel(wireID); level > maxLevel {
 				maxLevel = level
-				for _, previousInstructionID := range cs.Wires2Instruction[wireID] {
-					cs.InstructionForwardDAG.Update(previousInstructionID, iID)
-					cs.InstructionBackwardDAG.Update(iID, previousInstructionID)
-					cs.UpdateDegree(false, previousInstructionID) // 更新degree,这里用于更新Backward的degree
-				} // 更新degree,这里用于更新Backward的degree
+				previousInstructionID := cs.Wires2Instruction[wireID]
+				cs.InstructionForwardDAG.Update(previousInstructionID, iID)
+				cs.InstructionBackwardDAG.Update(iID, previousInstructionID)
+				cs.UpdateDegree(false, previousInstructionID) // 更新degree,这里用于更新Backward的degree
+				// 更新degree,这里用于更新Backward的degree
 			} else {
 				// add by ZhmYe
 				// 即使level没有超过最大level，只要有level就要遍历
-				for _, previousInstructionID := range cs.Wires2Instruction[wireID] {
-					cs.InstructionForwardDAG.Update(previousInstructionID, iID)
-					cs.InstructionBackwardDAG.Update(iID, previousInstructionID)
-					cs.UpdateDegree(false, previousInstructionID) // 更新degree,这里用于更新Backward的degree
-				}
+				previousInstructionID := cs.Wires2Instruction[wireID]
+				cs.InstructionForwardDAG.Update(previousInstructionID, iID)
+				cs.InstructionBackwardDAG.Update(iID, previousInstructionID)
+				cs.UpdateDegree(false, previousInstructionID) // 更新degree,这里用于更新Backward的degree
+
 			}
 		}
 	}
@@ -227,5 +227,5 @@ func (b *BlueprintLookupHint) NewUpdateInstructionTree(inst Instruction, tree In
 		tree.InsertWire(uint32(i+int(inst.WireOffset)), maxLevel)
 	}
 
-	return maxLevel
+	//return maxLevel
 }
