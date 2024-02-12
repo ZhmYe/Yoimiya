@@ -15,6 +15,7 @@ import (
 	"github.com/consensys/gnark-crypto/ecc"
 	"github.com/consensys/gnark-crypto/ecc/bn254"
 	fr_bn254 "github.com/consensys/gnark-crypto/ecc/bn254/fr"
+	"time"
 )
 
 // Proof is a typed Groth16 proof of SNARK. Use [ValueOfProof] to initialize the
@@ -164,13 +165,15 @@ func GetCircuitVkWitnessPublic(
 		Proof:        circuitProof,
 		VerifyingKey: circuitVk,
 	}
-
+	startTime := time.Now()
 	outerCcs, err := frontend.Compile(ecc.BN254.ScalarField(), r1cs.NewBuilder, outerCircuit)
+	fmt.Println("Compile Time:", time.Since(startTime))
 	if err != nil {
 		panic(err)
 	}
+	startTime = time.Now()
 	outerPK, outerVK, err := groth16.Setup(outerCcs)
-
+	fmt.Println("SetUp Time:", time.Since(startTime))
 	full, err := frontend.NewWitness(outerAssignment, ecc.BN254.ScalarField())
 	public, err := frontend.NewWitness(outerAssignment, ecc.BN254.ScalarField(), frontend.PublicOnly())
 	return outerCcs, outerPK, outerVK, full, public

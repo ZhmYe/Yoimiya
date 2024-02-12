@@ -25,7 +25,6 @@ func Test4VerifyCircuit(t *testing.T) {
 
 	// outer proof
 	//outerCcs, outerPK, outerVK, full, public := getCircuitVkWitnessPublic(assert, innerCcsArray, innerVKArray, innerWitnessArray, innerProofArray)
-
 	middleCcs, middlePK, middleVK, middleFull, middlePublic := GetCircuitVkWitnessPublic(innerCcsArray, innerVKArray, innerWitnessArray, innerProofArray)
 
 	middleProof, _ := groth16.Prove(middleCcs, middlePK.(groth16.ProvingKey), middleFull)

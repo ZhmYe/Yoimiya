@@ -1,16 +1,15 @@
 package frontend
 
 import (
-	"errors"
-	"fmt"
-	"math/big"
-	"reflect"
-
 	"S-gnark/constraint"
 	"S-gnark/debug"
 	"S-gnark/frontend/schema"
 	"S-gnark/internal/circuitdefer"
 	"S-gnark/logger"
+	"errors"
+	"fmt"
+	"math/big"
+	"reflect"
 )
 
 // Compile will generate a ConstraintSystem from the given circuit

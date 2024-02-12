@@ -501,7 +501,7 @@ func (cs *System) AddSparseR1C(c SparseR1C, bID BlueprintID) int {
 
 /***
 	Hints: ZhmYe
-	todo Here get the Levels
+	todo
 	1. 现在的代码是怎么划分level的，目前level内部独立，level之间可能相连
 	2. 如何修改？
 ***/

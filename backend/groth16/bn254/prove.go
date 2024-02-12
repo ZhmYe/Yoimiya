@@ -61,6 +61,7 @@ func (proof *Proof) CurveID() ecc.ID {
 
 // Prove generates the proof of knowledge of a r1cs with full witness (secret + public part).
 func Prove(r1cs *cs.R1CS, pk *ProvingKey, fullWitness witness.Witness, opts ...backend.ProverOption) (*Proof, error) {
+	//startTime := time.Now()
 	opt, err := backend.NewProverConfig(opts...)
 	if err != nil {
 		return nil, fmt.Errorf("new prover config: %w", err)
@@ -114,7 +115,7 @@ func Prove(r1cs *cs.R1CS, pk *ProvingKey, fullWitness witness.Witness, opts ...b
 			solver.OverrideHint(r1cs.GkrInfo.SolveHintID, cs.GkrSolveHint(r1cs.GkrInfo, &gkrData)),
 			solver.OverrideHint(r1cs.GkrInfo.ProveHintID, cs.GkrProveHint(r1cs.GkrInfo.HashName, &gkrData)))
 	}
-
+	//fmt.Println("Before Solve: ", time.Since(startTime))
 	_solution, err := r1cs.Solve(fullWitness, solverOpts...)
 	if err != nil {
 		return nil, err

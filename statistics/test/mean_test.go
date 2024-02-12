@@ -7,8 +7,10 @@ import (
 	"S-gnark/logger"
 	Circuit "S-gnark/statistics/circuit"
 	"S-gnark/statistics/utils"
+	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"
 	"testing"
+	"time"
 )
 
 // TestMean test for mean of samples
@@ -35,7 +37,9 @@ func (t *TestMean) init() {
 	var circuit Circuit.MeanCircuit
 	ccs, _ := frontend.Compile(ecc.BN254.ScalarField(), r1cs.NewBuilder, &circuit)
 	// groth16 zkSNARK: Setup
+	startTime := time.Now()
 	pk, vk, _ := groth16.Setup(ccs)
+	fmt.Println("Set Up Time:", time.Since(startTime))
 	// witness definition
 	assignment := Circuit.MeanCircuit{X: t.X, Y: t.Y, N: t.N}
 	witness, _ := frontend.NewWitness(&assignment, ecc.BN254.ScalarField())

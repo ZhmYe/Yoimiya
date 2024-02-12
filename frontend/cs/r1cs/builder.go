@@ -311,13 +311,13 @@ func (builder *builder) Compile() (constraint.ConstraintSystem, error) {
 	/*** Hints : ZhmYe
 		Here we can get R1cs, and store its string into r1cs.R1csStrs
 	***/
-	r1cs := builder.cs.GetR1Cs()
-	tmp := make([]string, 0)
-	for _, r1c := range r1cs {
-		//fmt.Println(r1c.String(builder.cs))
-		tmp = append(tmp, r1c.String(builder.cs))
-	}
-	R1csStrs = tmp
+	//r1cs := builder.cs.GetR1Cs()
+	//tmp := make([]string, 0)
+	//for _, r1c := range r1cs {
+	//	//fmt.Println(r1c.String(builder.cs))
+	//	tmp = append(tmp, r1c.String(builder.cs))
+	//}
+	//R1csStrs = tmp
 	return builder.cs, nil
 }
 
