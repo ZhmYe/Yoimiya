@@ -2,7 +2,6 @@ package graph
 
 import (
 	"S-gnark/Record"
-	"S-gnark/logger"
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
@@ -110,113 +109,115 @@ const (
 func (s *SplitEngine) ClearStack() {
 	s.stack = make([]*Stage, 0)
 }
-func (s *SplitEngine) Examine() ExamineResult {
-	log := logger.Logger()
-	log.Debug().Int("total instruction number", s.GetTotalInstructionNumber()).Msg("YZM DEBUG")
-	// 检验是否有stage被漏记录
-	testIdMap := make(map[int]bool)
-	for _, stage := range s.Stages {
-		if stage.id > len(s.Stages)-1 {
-			return StageOverFlow
-		}
-		_, exist := testIdMap[stage.id]
-		if exist {
-			return StageRepeat
-		} else {
-			testIdMap[stage.id] = true
-		}
-	}
-	for _, stage := range s.RootStages {
-		s.appendToStack(stage)
-	}
-	if len(s.stack) != len(s.Stages) {
-		fmt.Println(len(s.stack), len(s.Stages))
-		testStackMap := make(map[int]bool)
-		for _, stage := range s.stack {
-			testStackMap[stage.GetID()] = true
-		}
-		for _, stage := range s.Stages {
-			_, exist := testStackMap[stage.GetID()]
-			if !exist {
-				fmt.Println(stage.GetID(), stage.child, stage.parent)
-			}
-		}
-		return StageLoss
-	}
-	s.ClearStack()
 
-	// 检验所有RootStage是否确实没有前置依赖
-	for _, stage := range s.RootStages {
-		if s.backward.Exist(stage.GetInstructions()[0]) {
-			return RootStageHasParent
-		}
-	}
-	// 检验所有Stage的Instruction是否有重复，使用map
-	testMap := make(map[int]bool)
-	for _, stage := range s.Stages {
-		for _, i := range stage.GetInstructions() {
-			_, exist := testMap[i]
-			if !exist {
-				testMap[i] = true
-			} else {
-				return InstructionRepeat
-			}
-		}
-	}
-	// 检验所有stage的父stage个数和实际包含的是否一致
-	testLinkMap := make(map[int]int)
-	for _, stage := range s.Stages {
-		for _, subStage := range stage.GetSubStages() {
-			_, exist := testLinkMap[subStage.GetID()]
-			if !exist {
-				if len(subStage.GetParentIDs()) == 0 {
-					testLinkMap[subStage.GetID()] = 0
-				} else {
-					testLinkMap[subStage.GetID()] = 1
-				}
-			} else {
-				testLinkMap[subStage.GetID()] += 1
-			}
-		}
-	}
-	for _, stage := range s.Stages {
-		if len(stage.GetParentIDs()) != testLinkMap[stage.GetID()] {
-			fmt.Println(111)
-			fmt.Println(stage.GetID(), stage.GetParentIDs())
-			for _, parent := range stage.GetParentIDs() {
-				fmt.Println(s.getStageById(parent).GetChildIDs())
-			}
-			fmt.Println(len(stage.GetParentIDs()), testLinkMap[stage.GetID()])
-			return LinkError
-		}
-		if testLinkMap[stage.GetID()] != s.backward.SizeOf(stage.GetInstructions()[0]) {
-			fmt.Println(testLinkMap[stage.GetID()], s.backward.SizeOf(stage.GetInstructions()[0]))
-			return LinkError
-		}
-	}
-
-	return Pass
-
-}
-func (s *SplitEngine) dfs(stage *Stage, testMap map[int]int, number *int) {
-	_, exist := testMap[stage.id]
-	if exist {
-		//fmt.Println("error")
-		testMap[stage.id] += 1
-		if testMap[stage.id] != len(stage.GetParentIDs()) {
-			return
-		}
-	} else {
-		testMap[stage.id] = 1
-		if len(stage.GetParentIDs()) > 1 {
-			return
-		}
-	}
-	*number++
-	for _, sub := range stage.GetSubStages() {
-		s.dfs(sub, testMap, number)
-	}
-}
+//	func (s *SplitEngine) Examine() ExamineResult {
+//		log := logger.Logger()
+//		log.Debug().Int("total instruction number", s.GetTotalInstructionNumber()).Msg("YZM DEBUG")
+//		// 检验是否有stage被漏记录
+//		testIdMap := make(map[int]bool)
+//		for _, stage := range s.Stages {
+//			if stage.id > len(s.Stages)-1 {
+//				return StageOverFlow
+//			}
+//			_, exist := testIdMap[stage.id]
+//			if exist {
+//				return StageRepeat
+//			} else {
+//				testIdMap[stage.id] = true
+//			}
+//		}
+//		for _, stage := range s.RootStages {
+//			s.appendToStack(stage)
+//		}
+//		if len(s.stack) != len(s.Stages) {
+//			fmt.Println(len(s.stack), len(s.Stages))
+//			testStackMap := make(map[int]bool)
+//			for _, stage := range s.stack {
+//				testStackMap[stage.GetID()] = true
+//			}
+//			for _, stage := range s.Stages {
+//				_, exist := testStackMap[stage.GetID()]
+//				if !exist {
+//					fmt.Println(stage.GetID(), stage.child, stage.parent)
+//				}
+//			}
+//			return StageLoss
+//		}
+//		s.ClearStack()
+//
+//		// 检验所有RootStage是否确实没有前置依赖
+//		for _, stage := range s.RootStages {
+//			if s.backward.Exist(stage.GetInstructions()[0]) {
+//				return RootStageHasParent
+//			}
+//		}
+//		// 检验所有Stage的Instruction是否有重复，使用map
+//		testMap := make(map[int]bool)
+//		for _, stage := range s.Stages {
+//			for _, i := range stage.GetInstructions() {
+//				_, exist := testMap[i]
+//				if !exist {
+//					testMap[i] = true
+//				} else {
+//					return InstructionRepeat
+//				}
+//			}
+//		}
+//		// 检验所有stage的父stage个数和实际包含的是否一致
+//		testLinkMap := make(map[int]int)
+//		for _, stage := range s.Stages {
+//			for _, subStage := range stage.GetSubStages() {
+//				_, exist := testLinkMap[subStage.GetID()]
+//				if !exist {
+//					if len(subStage.GetParentIDs()) == 0 {
+//						testLinkMap[subStage.GetID()] = 0
+//					} else {
+//						testLinkMap[subStage.GetID()] = 1
+//					}
+//				} else {
+//					testLinkMap[subStage.GetID()] += 1
+//				}
+//			}
+//		}
+//		for _, stage := range s.Stages {
+//			if len(stage.GetParentIDs()) != testLinkMap[stage.GetID()] {
+//				fmt.Println(111)
+//				fmt.Println(stage.GetID(), stage.GetParentIDs())
+//				for _, parent := range stage.GetParentIDs() {
+//					fmt.Println(s.getStageById(parent).GetChildIDs())
+//				}
+//				fmt.Println(len(stage.GetParentIDs()), testLinkMap[stage.GetID()])
+//				return LinkError
+//			}
+//			if testLinkMap[stage.GetID()] != s.backward.SizeOf(stage.GetInstructions()[0]) {
+//				fmt.Println(testLinkMap[stage.GetID()], s.backward.SizeOf(stage.GetInstructions()[0]))
+//				return LinkError
+//			}
+//		}
+//
+//		return Pass
+//
+// }
+//
+//	func (s *SplitEngine) dfs(stage *Stage, testMap map[int]int, number *int) {
+//		_, exist := testMap[stage.id]
+//		if exist {
+//			//fmt.Println("error")
+//			testMap[stage.id] += 1
+//			if testMap[stage.id] != len(stage.GetParentIDs()) {
+//				return
+//			}
+//		} else {
+//			testMap[stage.id] = 1
+//			if len(stage.GetParentIDs()) > 1 {
+//				return
+//			}
+//		}
+//		*number++
+//		for _, sub := range stage.GetSubStages() {
+//			s.dfs(sub, testMap, number)
+//		}
+//	}
 func (s *SplitEngine) GetRootStages() []*Stage {
 	return s.RootStages
 }
@@ -328,8 +329,8 @@ func (s *SplitEngine) PrintStages() {
 			continue
 		}
 		HasPrint[stage.id] = true
-		flag := stage.GetCount() == len(stage.GetParentIDs())
-		t.AppendRow(table.Row{stage.id, shortOutput(stage.GetParentIDs()), shortOutput(stage.GetChildIDs()), shortOutput(stage.GetInstructions()), stage.count, flag})
+		//flag := stage.GetCount() == len(stage.GetParentIDs())
+		t.AppendRow(table.Row{stage.id, shortOutput([]int{}), shortOutput(stage.GetChildIDs()), shortOutput(stage.GetInstructions()), stage.GetCount(), true})
 	}
 	fmt.Println(t.Render())
 }

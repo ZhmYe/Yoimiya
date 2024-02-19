@@ -1,18 +1,16 @@
 package graph
 
 import (
-	"fmt"
 	"sync"
 )
 
 type Stage struct {
-	id           int        // 用于标识stage, 存储父stage、子stage时需要
-	Instructions []int      // 每个stage分为两阶段执行，首先执行一系列串行的Instruction，然后出现宽依赖后并行执行子stage
-	child        []*Stage   // 子Stage,并行执行
-	parent       []*Stage   // 父Stage，可能不止一个
-	count        int        // 计数器，用于计算当前stage是否可以执行
-	mutex        sync.Mutex // 锁count，可能会有并行的父stage修改当前stage
-	finished     bool       //表示是否已经执行完成
+	id           int      // 用于标识stage, 存储父stage、子stage时需要
+	Instructions []int    // 每个stage分为两阶段执行，首先执行一系列串行的Instruction，然后出现宽依赖后并行执行子stage
+	child        []*Stage // 子Stage,并行执行
+	parent       int      // 用于代替count
+	//count        int        // 计数器，用于计算当前stage是否可以执行
+	mutex sync.Mutex // 锁count，可能会有并行的父stage修改当前stage
 }
 
 func (s *Stage) GetID() int {
@@ -28,42 +26,15 @@ func (s *Stage) WakeUp() bool {
 	defer s.mutex.Unlock()
 	//fmt.Println(s.id)
 	// RootStage
-	if len(s.parent) == 0 {
+	if s.parent == 0 {
 		return true
 	} else {
-		s.count++
-		if s.count == len(s.parent) {
+		s.parent--
+		if s.parent == 0 {
 			return true
 		}
 	}
 	return false
-}
-
-func (s *Stage) Check() bool {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
-	if len(s.parent) == 0 {
-		return true
-	}
-	if s.count == len(s.parent) {
-		if !s.finished {
-			s.finished = true
-			return true
-		} else {
-			return false
-		}
-	}
-	return false
-}
-
-// Call 尝试执行子Stage
-func (s *Stage) Call() {
-	for _, subStage := range s.child {
-		subStage.WakeUp()
-	}
-}
-func (s *Stage) Run() {
-	return
 }
 
 // AddChild 添加子Stage
@@ -73,7 +44,7 @@ func (s *Stage) AddChild(child *Stage) {
 
 // AddParent 添加父Stage
 func (s *Stage) AddParent(parent *Stage) {
-	s.parent = append(s.parent, parent)
+	s.parent++
 }
 
 // AddInstruction 添加Instruction
@@ -83,9 +54,6 @@ func (s *Stage) AddInstruction(id int, reverse bool) {
 		s.Instructions = append([]int{id}, s.Instructions...)
 	} else {
 		s.Instructions = append(s.Instructions, id)
-	}
-	if s.GetID() == 1571 {
-		fmt.Println(s.Instructions)
 	}
 }
 func (s *Stage) BatchAddInstruction(ids []int, reverse bool) {
@@ -99,13 +67,13 @@ func (s *Stage) CutInstruction(index int) {
 	s.Instructions = s.Instructions[:index]
 }
 
-// GetParentIDs 返回所有父Stage的ID
-func (s *Stage) GetParentIDs() (ids []int) {
-	for _, stage := range s.parent {
-		ids = append(ids, stage.id)
-	}
-	return ids
-}
+//// GetParentIDs 返回所有父Stage的ID
+//func (s *Stage) GetParentIDs() (ids []int) {
+//	for _, stage := range s.parent {
+//		ids = append(ids, stage.id)
+//	}
+//	return ids
+//}
 
 // GetChildIDs 返回所有子Stage的ID
 func (s *Stage) GetChildIDs() (ids []int) {
@@ -120,7 +88,7 @@ func (s *Stage) GetInstructions() []int {
 	return s.Instructions
 }
 func (s *Stage) GetCount() int {
-	return s.count
+	return s.parent
 }
 
 func (s *Stage) GetSubStages() []*Stage {
@@ -128,16 +96,15 @@ func (s *Stage) GetSubStages() []*Stage {
 }
 func NewStage(id int, instructions ...int) *Stage {
 	stage := new(Stage)
-	stage.id = id
-	stage.count = 0
+
+	//stage.count = 0
 	stage.Instructions = make([]int, 0)
 	for _, id := range instructions {
 		stage.Instructions = append(stage.Instructions, id)
 	}
 	//stage.Instructions = instructions
 	stage.child = make([]*Stage, 0)
-	stage.parent = make([]*Stage, 0)
-	stage.finished = false
+	stage.parent = 0
 	return stage
 }
 func (s *Stage) GetLastInstruction() int {
