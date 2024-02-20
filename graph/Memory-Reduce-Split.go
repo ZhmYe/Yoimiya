@@ -1,5 +1,9 @@
 package graph
 
+import (
+	"fmt"
+)
+
 // 这里写切割电路的测试版本
 // 电路是一个有向无环图，由一定数量的变量(variables)组成，这些variable的值需要被计算并保存
 // 所有的variable的值最终会作为proof的一部分(*)
@@ -29,3 +33,132 @@ package graph
 // 这边不要用邻接矩阵表示图，我这里会有176w个wire。如果用邻接矩阵176w * 176w直接爆炸
 // 尽量就按照这样的形式：我这个图，有多个根节点*root, 然后每个节点（Node）,是一个结构体， 有一个成员变量child（不止一个），就是类似链表的结构
 // 可以参考stage.go的stage定义
+
+func HeuristicSplit(t *SITree) []*Stage {
+	ret := make([]*Stage, 0)
+	computeSITStagesWeight(t)
+	weightMap, fatherMap := computeSITStagesWeight(t)
+	for k, v := range weightMap {
+		fmt.Println(k, v)
+	}
+	for len(weightMap) != 0 {
+		sampleNum := 10
+		fPos := -1
+		sPos := -1
+		fScore := -1.0
+		sScore := -1.0
+		if sampleNum > len(weightMap) {
+			sampleNum = len(weightMap)
+		}
+		for k, v := range weightMap {
+			if fScore <= v {
+				fPos = k
+				fScore = v
+			} else if sScore < v {
+				sPos = k
+				sScore = v
+			}
+			sampleNum--
+			if sampleNum == 0 {
+				break
+			}
+		}
+		if sPos == -1 {
+			sPos = fPos
+		}
+		sPos = fPos
+		ret = append(ret, t.GetStageByInstruction(sPos))
+		for _, stage := range t.GetStageByInstruction(sPos).GetSubStages() {
+			weightMapFixChild(t, weightMap, fatherMap, stage.GetLastInstruction())
+		}
+		weightMapFixFather(weightMap, fatherMap, sPos)
+	}
+	return ret
+}
+
+func computeSITStagesWeight(t *SITree) (weightMap map[int]float64, fatherMap map[int]map[int]bool) {
+	weightMap = make(map[int]float64)
+	fatherMap = make(map[int]map[int]bool)
+	leafMap := make(map[int]bool)
+	for _, stage := range t.root {
+		dfsSITStages1(stage, weightMap, fatherMap, leafMap, 0)
+	}
+	for key := range leafMap {
+		dfsSITStages2(key, weightMap, fatherMap, 0)
+	}
+	return
+}
+func weightMapFixChild(t *SITree, weightMap map[int]float64, fatherMap map[int]map[int]bool, idx int) {
+	curStage := t.GetStageByInstruction(idx)
+	childrenStage := curStage.GetSubStages()
+	if len(childrenStage) == 0 {
+		delete(weightMap, idx)
+		delete(fatherMap, idx)
+		return
+	}
+	for _, stage := range childrenStage {
+		weightMapFixChild(t, weightMap, fatherMap, stage.GetLastInstruction())
+	}
+	delete(weightMap, idx)
+	delete(fatherMap, idx)
+}
+
+func weightMapFixFather(weightMap map[int]float64, fatherMap map[int]map[int]bool, idx int) {
+	if _, ok := fatherMap[idx]; !ok {
+		delete(weightMap, idx)
+		return
+	}
+	fm := fatherMap[idx]
+	for key := range fm {
+		if fm[key] {
+			weightMapFixFather(weightMap, fatherMap, key)
+		}
+	}
+	delete(weightMap, idx)
+	delete(fatherMap, idx)
+}
+
+func dfsSITStages1(stage *Stage, weightMap map[int]float64, fatherMap map[int]map[int]bool, leafMap map[int]bool, depth int) (score int) {
+	if len(stage.GetSubStages()) == 0 {
+		leafMap[stage.GetLastInstruction()] = true
+		return depth
+	}
+	maxScore := -1
+	fatherIdx := stage.GetLastInstruction()
+	for _, child := range stage.GetSubStages() {
+		score = dfsSITStages1(child, weightMap, fatherMap, leafMap, depth+1)
+		if maxScore < score {
+			maxScore = score
+		}
+		weightMap[fatherIdx] += float64(score) / float64(depth+1)
+		idx := child.GetLastInstruction()
+		if _, ok := fatherMap[idx]; !ok {
+			fatherMap[idx] = make(map[int]bool)
+		}
+		fatherMap[idx][fatherIdx] = true
+	}
+	if (depth >> 1) > maxScore {
+		return 2 * (maxScore - depth)
+	} else {
+		return 2 * depth
+	}
+}
+
+func dfsSITStages2(fatherIdx int, weightMap map[int]float64, childMap map[int]map[int]bool, depth int) (score int) {
+	if _, ok := childMap[fatherIdx]; !ok {
+		return depth
+	}
+	minScore := int(^uint(0) >> 1)
+	for childIdx := range childMap[fatherIdx] {
+		score = dfsSITStages2(childIdx, weightMap, childMap, depth+1)
+		if minScore > score {
+			minScore = score
+		}
+		weightMap[fatherIdx] += float64(score) / float64(depth+1)
+	}
+	if (depth >> 1) > minScore {
+		return minScore - depth
+	} else {
+		return depth
+	}
+}
