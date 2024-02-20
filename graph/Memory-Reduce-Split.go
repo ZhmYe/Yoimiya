@@ -43,35 +43,26 @@ func HeuristicSplit(t *SITree) []*Stage {
 	}
 	for len(weightMap) != 0 {
 		sampleNum := 10
-		fPos := -1
-		sPos := -1
-		fScore := -1.0
-		sScore := -1.0
+		Pos := -1
+		Score := -1.0
 		if sampleNum > len(weightMap) {
 			sampleNum = len(weightMap)
 		}
 		for k, v := range weightMap {
-			if fScore <= v {
-				fPos = k
-				fScore = v
-			} else if sScore < v {
-				sPos = k
-				sScore = v
+			if Score < v {
+				Pos = k
+				Score = v
 			}
 			sampleNum--
 			if sampleNum == 0 {
 				break
 			}
 		}
-		if sPos == -1 {
-			sPos = fPos
-		}
-		sPos = fPos
-		ret = append(ret, t.GetStageByInstruction(sPos))
-		for _, stage := range t.GetStageByInstruction(sPos).GetSubStages() {
+		ret = append(ret, t.GetStageByInstruction(Pos))
+		for _, stage := range t.GetStageByInstruction(Pos).GetSubStages() {
 			weightMapFixChild(t, weightMap, fatherMap, stage.GetLastInstruction())
 		}
-		weightMapFixFather(weightMap, fatherMap, sPos)
+		weightMapFixFather(weightMap, fatherMap, Pos)
 	}
 	return ret
 }
