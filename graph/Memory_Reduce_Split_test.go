@@ -73,7 +73,7 @@ func GenerateSIT(option int) *SITree {
 }
 
 func TestMemoryReduceSplit(t *testing.T) {
-	options := []int{1, 2, 3, 4}
+	options := []int{5}
 	for _, opt := range options {
 		t.Log("Test SITree", opt)
 		sit := GenerateSIT(opt)
