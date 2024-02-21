@@ -4,7 +4,6 @@ import (
 	"S-gnark/constraint"
 	cs_bn254 "S-gnark/constraint/bn254"
 	"S-gnark/graph"
-	"fmt"
 )
 
 /***
@@ -64,7 +63,6 @@ func (r *DataRecord) GetCallData(index int) uint32 {
 
 // Split 将传入的电路(constraintSystem)切分为多份，返回所有切出的子电路
 func Split(cs constraint.ConstraintSystem) ([]constraint.ConstraintSystem, error) {
-	fmt.Println("Enter Split Function...")
 	split := make([]constraint.ConstraintSystem, 0)
 	switch _r1cs := cs.(type) {
 	case *cs_bn254.R1CS:
@@ -91,15 +89,15 @@ func Split(cs constraint.ConstraintSystem) ([]constraint.ConstraintSystem, error
 
 // 将传入的cs转化为新的多个电路内部对应的sit，同时返回所有的instruction
 func trySplit(cs *cs_bn254.R1CS) ([]*graph.SITree, error) {
-	fmt.Println("Enter trySplit Function...")
 	result := make([]*graph.SITree, 0)
 	// todo 这里等待实现
-	top, bottom := cs.Sit.HeuristicSplit()
+	splitEngine := graph.NewSplitEngine(cs.Sit)
+	//splitEngine.Split(1)
+	top, bottom := splitEngine.Split(1)
 	result = append(result, top)
 	if bottom != nil {
 		result = append(result, bottom)
 	}
-	fmt.Println(len(result))
 	return result, nil
 }
 
@@ -118,7 +116,6 @@ func buildConstraintSystemFromSit(sit *graph.SITree, record *DataRecord) (constr
 	// 这里根据切割返回出来的结果sit，得到新的电路cs
 	// record中记录了CallData、Blueprint、Instruction的map
 	// CallData、Instruction应该是一一对应的关系，map取出后可删除
-	fmt.Println("Enter build Function...")
 	opt := defaultCompileConfig()
 	cs := cs_bn254.NewR1CS(opt.Capacity)
 	for i, stage := range sit.GetStages() {

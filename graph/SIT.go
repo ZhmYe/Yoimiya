@@ -2,7 +2,6 @@ package graph
 
 import (
 	"fmt"
-	"sync"
 )
 
 // SITree Stage-Instruction Tree
@@ -11,6 +10,10 @@ type SITree struct {
 	instructions []int          // 只记录instruction id
 	index        map[int]*Stage // 索引，iID -> Stage
 	root         []*Stage       // 所有没有父stage的stage
+	maxDepth     int            // 最大深度
+	// todo 考虑合并depth和score
+	depth map[int]int     // 深度
+	score map[int]float64 // 每个stage的score
 }
 
 func NewSITree() *SITree {
@@ -19,30 +22,67 @@ func NewSITree() *SITree {
 	t.instructions = make([]int, 0)
 	t.index = make(map[int]*Stage)
 	t.root = make([]*Stage, 0)
+	t.maxDepth = 0
+	t.depth = make(map[int]int)
+	t.score = make(map[int]float64)
 	return t
 }
+
+// appendStage 正式将stage添加到stage列表中
 func (t *SITree) appendStage(stage *Stage) {
 	stage.SetID(len(t.stages)) // 只有当真正append的时候才会添加id，确保id和index对应
 	t.stages = append(t.stages, stage)
 	t.batchUpdateIndex(stage.GetInstructions(), stage)
+	t.ComputeDepth(stage)
 	//for _, iID := range stage.GetInstructions() {
 	//	t.index[iID] = stage.GetID()
 	//}
 }
+
+// appendRoot 某个stage没有父节点，是整个sit的根节点（可能不止一个）
 func (t *SITree) appendRoot(stage *Stage) {
 	t.root = append(t.root, stage)
+}
+
+// ComputeDepth 计算某个stage的深度，由其所有父节点的深度最大值+1
+func (t *SITree) ComputeDepth(stage *Stage) {
+	if stage.GetCount() == 0 {
+		// 是rootStage，深度初始化为1
+		t.depth[stage.GetID()] = 1
+	} else {
+		// 遍历其所有父节点
+		// todo 这里事实上可以在每次Addparent的时候计算，这样省去额外的一次遍历
+		maxD := -1
+		for _, parent := range stage.GetParentIDs() {
+			if t.depth[parent] > maxD {
+				maxD = t.depth[parent]
+			}
+		}
+		t.depth[stage.GetID()] = maxD + 1
+		if maxD+1 > t.maxDepth {
+			t.maxDepth = maxD + 1
+		}
+	}
+}
+func (t *SITree) GetStageScore() map[int]float64 {
+	for id, depth := range t.depth {
+		t.score[id] = float64(t.maxDepth-depth) * float64(depth-1)
+	}
+	return t.score
 }
 
 // Insert 插入一个instruction时会伴有它的所有前置一阶instruction(previousId)
 // 首先将当前instruction放在一个新的stage中
 // 然后首先判断当前instruction是否有多个父节点
 // 如果是，为宽依赖，将新建的stage作为child连接到所有父stage之后
+//
 //	case1: 父stage的最后一个instruction就是父instruction，那么直接append
 //	case2: 父stage的最后一个instruction不是父instruction，那么在此之前，已有instruction被认为是窄依赖添加到了
 //	父instruction之后,此时需要进行分裂(split)，将父instruction之后的所有instruction放在一个新的stage中，然后
 //	和当前stage一起作为child连接到父stage中
+//
 // 如果不是，那么判断父节点是否有多个子节点，同上述case1,case2，区别在如果是窄依赖直接combine
-
+// todo 这里的注释需要更新
 func (t *SITree) Insert(iID int, previousIds []int) {
 	stage := NewStage(-1, iID) // id统一都默认初始化为-1，在append时处理
 	// 如果没有父节点
@@ -71,8 +111,6 @@ func (t *SITree) Insert(iID int, previousIds []int) {
 		}
 	} else {
 		// 如果不止有一个父节点，一定是宽依赖
-		// 首先把stage append
-		t.appendStage(stage)
 		hasBeenChild := make(map[int]bool) // 可能会出现多个previousId在同一个stage里面，那么无需后续重新添加child
 		//parentStages := make(map[int]map[int]bool)
 		//for _, previousId := range previousIds {
@@ -113,8 +151,11 @@ func (t *SITree) Insert(iID int, previousIds []int) {
 			stage.AddParent(parentStage)
 
 		}
+		// 把stage append
+		t.appendStage(stage)
 	}
 	t.instructions = append(t.instructions, iID)
+
 }
 
 // checkSplit 判断是否需要分裂
@@ -144,19 +185,7 @@ func (t *SITree) Split(stage *Stage, cut int) *Stage {
 			beacon = i + 1
 			break
 		}
-		//_, exist := cut[stage.GetInstructions()[i]]
-		//if exist {
-		//	beacon = i + 1
-		//	break
-		//}
 	}
-	//for i, id := range stage.GetInstructions() {
-	//	_, exist := cut[id]
-	//	if exist {
-	//		beacon = i + 1 // 最后面的一个
-	//		//break
-	//	}
-	//}
 	if beacon == -1 {
 		panic("Don't have such cut!!!")
 	}
@@ -235,50 +264,21 @@ func (t *SITree) GetEdges() int {
 	return total
 }
 
-func (t *SITree) HeuristicSplit() (*SITree, *SITree) {
-	ret := make([]*Stage, 0)
-	fmt.Println("Try compute weight.")
-	weightMap, fatherMap := computeSITStagesWeight(t)
-	childList := make(map[int]bool)
-	//for k, v := range weightMap {
-	//	fmt.Println(k, v)
-	//}
-	for len(weightMap) != 0 {
-		sampleNum := 10
-		Pos := -1
-		Score := -1.0
-		if sampleNum > len(weightMap) {
-			sampleNum = len(weightMap)
-		}
-		for k, v := range weightMap {
-			if Score < v {
-				Pos = k
-				Score = v
-			}
-			sampleNum--
-			if sampleNum == 0 {
-				break
-			}
-		}
-		targetStage := t.GetStageByInstruction(Pos)
-		ret = append(ret, targetStage)
-		childList[targetStage.GetLastInstruction()] = true
-		wG := sync.WaitGroup{}
-		for _, stage := range targetStage.GetSubStages() {
-			childIdx := stage.GetLastInstruction()
-			childList[childIdx] = true
-			wG.Add(1)
-			go func(childIdx int) {
-				weightMapFixChild(t, weightMap, fatherMap, childList, &sync.Map{}, childIdx)
-				wG.Done()
-			}(childIdx)
-		}
-		wG.Wait()
-		weightMapFixFather(weightMap, fatherMap, &sync.Map{}, Pos)
-	}
-	fmt.Println("Try generate new SIT.")
-	return generateNewSIT(t, fatherMap, ret, childList)
-}
 func (t *SITree) ModifyiID(stageIndex int, instructionIndex int, iID int) {
 	t.stages[stageIndex].Instructions[instructionIndex] = iID
+}
+
+func (t *SITree) GetParents(stageId int) []int {
+	return t.GetStageByIndex(stageId).GetParentIDs()
+}
+func (t *SITree) GetParentsMap(stageId int) map[int]bool {
+	parents := t.GetParents(stageId)
+	result := make(map[int]bool)
+	for _, id := range parents {
+		result[id] = true
+	}
+	return result
+}
+func (t *SITree) HasParent(stageId int) bool {
+	return len(t.GetParents(stageId)) != 0
 }

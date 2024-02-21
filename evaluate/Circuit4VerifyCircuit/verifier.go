@@ -5,6 +5,7 @@ import (
 	groth16backend_bn254 "S-gnark/backend/groth16/bn254"
 	"S-gnark/backend/witness"
 	"S-gnark/constraint"
+	cs_bn254 "S-gnark/constraint/bn254"
 	"S-gnark/frontend"
 	"S-gnark/frontend/cs/r1cs"
 	"S-gnark/std/algebra"
@@ -168,6 +169,19 @@ func GetCircuitVkWitnessPublic(
 	startTime := time.Now()
 	outerCcs, err := frontend.Compile(ecc.BN254.ScalarField(), r1cs.NewBuilder, outerCircuit)
 	fmt.Println("Compile Time:", time.Since(startTime))
+	splits, err := frontend.Split(outerCcs)
+	if err != nil {
+		panic("error")
+	}
+	fmt.Println("Split Circuit Time:", time.Since(startTime))
+	for _, split := range splits {
+		switch _split := split.(type) {
+		case *cs_bn254.R1CS:
+			fmt.Println(_split.Sit.GetTotalInstructionNumber())
+		default:
+			panic("Only Support bn254 r1cs now...")
+		}
+	}
 	if err != nil {
 		panic(err)
 	}

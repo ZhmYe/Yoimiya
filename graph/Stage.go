@@ -5,12 +5,12 @@ import (
 )
 
 type Stage struct {
-	id           int      // 用于标识stage, 存储父stage、子stage时需要
-	Instructions []int    // 每个stage分为两阶段执行，首先执行一系列串行的Instruction，然后出现宽依赖后并行执行子stage
-	child        []*Stage // 子Stage,并行执行
-	parent       int      // 用于代替count
-	//count        int        // 计数器，用于计算当前stage是否可以执行
-	mutex sync.Mutex // 锁count，可能会有并行的父stage修改当前stage
+	id           int        // 用于标识stage, 存储父stage、子stage时需要
+	Instructions []int      // 每个stage分为两阶段执行，首先执行一系列串行的Instruction，然后出现宽依赖后并行执行子stage
+	child        []*Stage   // 子Stage,并行执行
+	parent       []int      // 存储父节点id，用于后续split
+	count        int        // 计数器，用于计算当前stage是否可以执行
+	mutex        sync.Mutex // 锁count，可能会有并行的父stage修改当前stage
 }
 
 func (s *Stage) GetID() int {
@@ -26,11 +26,11 @@ func (s *Stage) WakeUp() bool {
 	defer s.mutex.Unlock()
 	//fmt.Println(s.id)
 	// RootStage
-	if s.parent == 0 {
+	if s.count == 0 {
 		return true
 	} else {
-		s.parent--
-		if s.parent == 0 {
+		s.count--
+		if s.count == 0 {
 			return true
 		}
 	}
@@ -53,7 +53,8 @@ func (s *Stage) DelChild(child *Stage) {
 
 // AddParent 添加父Stage
 func (s *Stage) AddParent(parent *Stage) {
-	s.parent++
+	s.parent = append(s.parent, parent.GetID())
+	s.count++
 }
 
 // AddInstruction 添加Instruction
@@ -76,13 +77,10 @@ func (s *Stage) CutInstruction(index int) {
 	s.Instructions = s.Instructions[:index]
 }
 
-//// GetParentIDs 返回所有父Stage的ID
-//func (s *Stage) GetParentIDs() (ids []int) {
-//	for _, stage := range s.parent {
-//		ids = append(ids, stage.id)
-//	}
-//	return ids
-//}
+// GetParentIDs 返回所有父Stage的ID
+func (s *Stage) GetParentIDs() (ids []int) {
+	return s.parent
+}
 
 // GetChildIDs 返回所有子Stage的ID
 func (s *Stage) GetChildIDs() (ids []int) {
@@ -97,7 +95,7 @@ func (s *Stage) GetInstructions() []int {
 	return s.Instructions
 }
 func (s *Stage) GetCount() int {
-	return s.parent
+	return s.count
 }
 
 func (s *Stage) GetSubStages() []*Stage {
@@ -113,7 +111,8 @@ func NewStage(id int, instructions ...int) *Stage {
 	}
 	//stage.Instructions = instructions
 	stage.child = make([]*Stage, 0)
-	stage.parent = 0
+	stage.parent = make([]int, 0)
+	stage.count = 0
 	return stage
 }
 func (s *Stage) GetLastInstruction() int {
