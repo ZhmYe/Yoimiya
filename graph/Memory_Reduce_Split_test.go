@@ -53,6 +53,18 @@ func GenerateSIT(option int) *SITree {
 		t.Insert(7, []int{6})
 		t.Insert(8, []int{6})
 		t.Insert(9, []int{7, 8})
+	case 5:
+		t.Insert(1, []int{})
+		t.Insert(2, []int{1})
+		t.Insert(3, []int{1})
+		t.Insert(4, []int{1})
+		t.Insert(5, []int{1})
+		t.Insert(6, []int{2})
+		t.Insert(7, []int{3})
+		t.Insert(8, []int{4, 5})
+		t.Insert(9, []int{5})
+		t.Insert(10, []int{6})
+		t.Insert(11, []int{7, 8})
 
 	default:
 		t.Insert(1, []int{})

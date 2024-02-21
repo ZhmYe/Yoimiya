@@ -234,7 +234,6 @@ func (t *SITree) GetEdges() int {
 
 func (t *SITree) HeuristicSplit() (*SITree, *SITree) {
 	ret := make([]*Stage, 0)
-	computeSITStagesWeight(t)
 	weightMap, fatherMap := computeSITStagesWeight(t)
 	childList := make(map[int]bool)
 	//for k, v := range weightMap {
