@@ -1,6 +1,9 @@
 package graph
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func GenerateSIT(option int) *SITree {
 	t := NewSITree()
@@ -62,9 +65,24 @@ func TestMemoryReduceSplit(t *testing.T) {
 	for _, opt := range options {
 		t.Log("Test SITree", opt)
 		sit := GenerateSIT(opt)
-		splitStages := HeuristicSplit(sit)
-		for _, stage := range splitStages {
-			t.Log(stage.GetInstructions())
+		formerSIT, latterSIT := HeuristicSplit(sit)
+		fmt.Println("Former SITree")
+		fmt.Println("Root Stages:")
+		for _, stage := range formerSIT.GetRootStages() {
+			fmt.Println(stage.GetInstructions())
+		}
+		fmt.Println("All Stages:")
+		for _, stage := range formerSIT.GetStages() {
+			fmt.Println(stage.GetInstructions())
+		}
+		fmt.Println("Latter SITree")
+		fmt.Println("Root Stages:")
+		for _, stage := range latterSIT.GetRootStages() {
+			fmt.Println(stage.GetInstructions())
+		}
+		fmt.Println("All Stages:")
+		for _, stage := range latterSIT.GetStages() {
+			fmt.Println(stage.GetInstructions())
 		}
 	}
 }

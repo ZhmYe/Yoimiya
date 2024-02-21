@@ -2,6 +2,7 @@ package graph
 
 import (
 	"fmt"
+	"sort"
 )
 
 // 这里写切割电路的测试版本
@@ -34,10 +35,11 @@ import (
 // 尽量就按照这样的形式：我这个图，有多个根节点*root, 然后每个节点（Node）,是一个结构体， 有一个成员变量child（不止一个），就是类似链表的结构
 // 可以参考stage.go的stage定义
 
-func HeuristicSplit(t *SITree) []*Stage {
+func HeuristicSplit(t *SITree) (*SITree, *SITree) {
 	ret := make([]*Stage, 0)
 	computeSITStagesWeight(t)
 	weightMap, fatherMap := computeSITStagesWeight(t)
+	childList := make(map[int]bool)
 	for k, v := range weightMap {
 		fmt.Println(k, v)
 	}
@@ -58,13 +60,95 @@ func HeuristicSplit(t *SITree) []*Stage {
 				break
 			}
 		}
-		ret = append(ret, t.GetStageByInstruction(Pos))
-		for _, stage := range t.GetStageByInstruction(Pos).GetSubStages() {
-			weightMapFixChild(t, weightMap, fatherMap, stage.GetLastInstruction())
+		targetStage := t.GetStageByInstruction(Pos)
+		ret = append(ret, targetStage)
+		childList[targetStage.GetLastInstruction()] = true
+		for _, stage := range targetStage.GetSubStages() {
+			childIdx := stage.GetLastInstruction()
+			childList[childIdx] = true
+			weightMapFixChild(t, weightMap, fatherMap, childList, childIdx)
 		}
 		weightMapFixFather(weightMap, fatherMap, Pos)
 	}
-	return ret
+	return generateNewSIT(t, fatherMap, ret, childList)
+}
+
+func generateNewSIT(t *SITree, fatherMap map[int]map[int]bool, latterRoot []*Stage, childList map[int]bool) (*SITree, *SITree) {
+	sortList := make([]int, 0)
+	dummyStage := NewStage(-1)
+	for _, stage := range t.root {
+		dummyStage.AddChild(stage)
+	}
+	dummyStage.AddInstruction(-1, true)
+	generateNewSITFoo(&sortList, make(map[int]bool), dummyStage)
+	sortList = sortList[1:]
+	idxMap := make(map[int]int)
+	for i, idx := range sortList {
+		idxMap[idx] = i
+	}
+	formerStages := make([]*Stage, 0)
+	formerRoot := t.GetRootStages()
+	latterStages := make([]*Stage, 0)
+	latterRootMap := make(map[int]bool)
+	for _, stage := range latterRoot {
+		idx := stage.GetLastInstruction()
+		stage.parent = 0
+		latterRootMap[idx] = true
+		for key := range fatherMap[idx] {
+			t.GetStageByInstruction(key).DelChild(stage)
+		}
+	}
+	for _, stage := range formerRoot {
+		if latterRootMap[stage.GetLastInstruction()] {
+			return t, nil
+		}
+	}
+	allStages := t.GetStages()
+	for _, stage := range allStages {
+		if _, ok := childList[stage.GetLastInstruction()]; !ok {
+			formerStages = append(formerStages, stage)
+		} else {
+			latterStages = append(latterStages, stage)
+		}
+	}
+	sort.Slice(formerStages, func(i, j int) bool {
+		return idxMap[formerStages[i].GetLastInstruction()] < idxMap[formerStages[j].GetLastInstruction()]
+	})
+	sort.Slice(latterStages, func(i, j int) bool {
+		return idxMap[latterStages[i].GetLastInstruction()] < idxMap[latterStages[j].GetLastInstruction()]
+	})
+	formerSIT := NewSITree()
+	latterSIT := NewSITree()
+	for _, stage := range formerStages {
+
+		if stage.GetCount() == 0 {
+			formerSIT.appendRoot(stage)
+		}
+		formerSIT.appendStage(stage)
+		formerSIT.instructions = append(formerSIT.instructions, stage.GetInstructions()...)
+	}
+	for _, stage := range latterStages {
+		if stage.GetCount() == 0 {
+			latterSIT.appendRoot(stage)
+		}
+		latterSIT.appendStage(stage)
+		latterSIT.instructions = append(latterSIT.instructions, stage.GetInstructions()...)
+	}
+	return formerSIT, latterSIT
+}
+
+func generateNewSITFoo(sortList *[]int, visited map[int]bool, curStage *Stage) {
+	if visited[curStage.GetLastInstruction()] {
+		return
+	}
+	visited[curStage.GetLastInstruction()] = true
+	for _, stage := range curStage.GetSubStages() {
+		if _, ok := visited[stage.GetLastInstruction()]; ok {
+			continue
+		}
+		generateNewSITFoo(sortList, visited, stage)
+	}
+	*sortList = append([]int{curStage.GetLastInstruction()}, *sortList...)
 }
 
 func computeSITStagesWeight(t *SITree) (weightMap map[int]float64, fatherMap map[int]map[int]bool) {
@@ -79,19 +163,22 @@ func computeSITStagesWeight(t *SITree) (weightMap map[int]float64, fatherMap map
 	}
 	return
 }
-func weightMapFixChild(t *SITree, weightMap map[int]float64, fatherMap map[int]map[int]bool, idx int) {
+func weightMapFixChild(t *SITree, weightMap map[int]float64, fatherMap map[int]map[int]bool, childList map[int]bool, idx int) {
 	curStage := t.GetStageByInstruction(idx)
 	childrenStage := curStage.GetSubStages()
 	if len(childrenStage) == 0 {
+		childList[idx] = true
 		delete(weightMap, idx)
-		delete(fatherMap, idx)
+		//delete(fatherMap, idx)
 		return
 	}
 	for _, stage := range childrenStage {
-		weightMapFixChild(t, weightMap, fatherMap, stage.GetLastInstruction())
+		childIdx := stage.GetLastInstruction()
+		childList[childIdx] = true
+		weightMapFixChild(t, weightMap, fatherMap, childList, childIdx)
 	}
 	delete(weightMap, idx)
-	delete(fatherMap, idx)
+	//delete(fatherMap, idx)
 }
 
 func weightMapFixFather(weightMap map[int]float64, fatherMap map[int]map[int]bool, idx int) {
@@ -106,7 +193,7 @@ func weightMapFixFather(weightMap map[int]float64, fatherMap map[int]map[int]boo
 		}
 	}
 	delete(weightMap, idx)
-	delete(fatherMap, idx)
+	//delete(fatherMap, idx)
 }
 
 func dfsSITStages1(stage *Stage, weightMap map[int]float64, fatherMap map[int]map[int]bool, leafMap map[int]bool, depth int) (score int) {

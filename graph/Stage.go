@@ -42,6 +42,15 @@ func (s *Stage) AddChild(child *Stage) {
 	s.child = append(s.child, child)
 }
 
+func (s *Stage) DelChild(child *Stage) {
+	for i, stage := range s.child {
+		if stage == child {
+			s.child = append(s.child[:i], s.child[i+1:]...)
+			return
+		}
+	}
+}
+
 // AddParent 添加父Stage
 func (s *Stage) AddParent(parent *Stage) {
 	s.parent++
