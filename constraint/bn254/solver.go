@@ -79,7 +79,6 @@ func newSolver(cs *system, witness fr.Vector, opts ...csolver.Option) (*solver, 
 	}
 	// total number of variables in the circuit
 	nbWires := len(cs.Public) + len(cs.Secret) + cs.NbInternalVariables
-	// todo Why in R1CS witnessOffset = 1?
 	expectedWitnessSize := len(cs.Public) - witnessOffset + len(cs.Secret)
 	log := logger.Logger()
 	log.Debug().Int("Public Variables", len(cs.Public)).Int("Private Variables", len(cs.Secret)).Int("Witness Size", len(witness)).Msg("Solver")

@@ -277,3 +277,6 @@ func (t *SITree) HeuristicSplit() (*SITree, *SITree) {
 	}
 	return generateNewSIT(t, fatherMap, ret, childList)
 }
+func (t *SITree) ModifyiID(stageIndex int, instructionIndex int, iID int) {
+	t.stages[stageIndex].Instructions[instructionIndex] = iID
+}

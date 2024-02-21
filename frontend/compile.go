@@ -113,7 +113,10 @@ func parseCircuit(builder Builder, circuit Circuit) (err error) {
 			return errors.New("can't set val " + f.FullName())
 		}
 	}
-
+	/***
+		Hints: ZhmYe
+		这里builder的public和private已经变了
+	***/
 	// add public inputs first to compute correct offsets
 	_, err = schema.Walk(circuit, tVariable, variableAdder(schema.Public))
 	if err != nil {
