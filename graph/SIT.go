@@ -231,3 +231,41 @@ func (t *SITree) GetEdges() int {
 	}
 	return total
 }
+
+func (t *SITree) HeuristicSplit() (*SITree, *SITree) {
+	ret := make([]*Stage, 0)
+	computeSITStagesWeight(t)
+	weightMap, fatherMap := computeSITStagesWeight(t)
+	childList := make(map[int]bool)
+	//for k, v := range weightMap {
+	//	fmt.Println(k, v)
+	//}
+	for len(weightMap) != 0 {
+		sampleNum := 10
+		Pos := -1
+		Score := -1.0
+		if sampleNum > len(weightMap) {
+			sampleNum = len(weightMap)
+		}
+		for k, v := range weightMap {
+			if Score < v {
+				Pos = k
+				Score = v
+			}
+			sampleNum--
+			if sampleNum == 0 {
+				break
+			}
+		}
+		targetStage := t.GetStageByInstruction(Pos)
+		ret = append(ret, targetStage)
+		childList[targetStage.GetLastInstruction()] = true
+		for _, stage := range targetStage.GetSubStages() {
+			childIdx := stage.GetLastInstruction()
+			childList[childIdx] = true
+			weightMapFixChild(t, weightMap, fatherMap, childList, childIdx)
+		}
+		weightMapFixFather(weightMap, fatherMap, Pos)
+	}
+	return generateNewSIT(t, fatherMap, ret, childList)
+}

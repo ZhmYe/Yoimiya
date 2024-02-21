@@ -65,7 +65,7 @@ func TestMemoryReduceSplit(t *testing.T) {
 	for _, opt := range options {
 		t.Log("Test SITree", opt)
 		sit := GenerateSIT(opt)
-		formerSIT, latterSIT := HeuristicSplit(sit)
+		formerSIT, latterSIT := sit.HeuristicSplit()
 		fmt.Println("Former SITree")
 		fmt.Println("Root Stages:")
 		for _, stage := range formerSIT.GetRootStages() {

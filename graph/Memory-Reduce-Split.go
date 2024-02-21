@@ -1,7 +1,6 @@
 package graph
 
 import (
-	"fmt"
 	"sort"
 )
 
@@ -34,44 +33,6 @@ import (
 // 这边不要用邻接矩阵表示图，我这里会有176w个wire。如果用邻接矩阵176w * 176w直接爆炸
 // 尽量就按照这样的形式：我这个图，有多个根节点*root, 然后每个节点（Node）,是一个结构体， 有一个成员变量child（不止一个），就是类似链表的结构
 // 可以参考stage.go的stage定义
-
-func HeuristicSplit(t *SITree) (*SITree, *SITree) {
-	ret := make([]*Stage, 0)
-	computeSITStagesWeight(t)
-	weightMap, fatherMap := computeSITStagesWeight(t)
-	childList := make(map[int]bool)
-	for k, v := range weightMap {
-		fmt.Println(k, v)
-	}
-	for len(weightMap) != 0 {
-		sampleNum := 10
-		Pos := -1
-		Score := -1.0
-		if sampleNum > len(weightMap) {
-			sampleNum = len(weightMap)
-		}
-		for k, v := range weightMap {
-			if Score < v {
-				Pos = k
-				Score = v
-			}
-			sampleNum--
-			if sampleNum == 0 {
-				break
-			}
-		}
-		targetStage := t.GetStageByInstruction(Pos)
-		ret = append(ret, targetStage)
-		childList[targetStage.GetLastInstruction()] = true
-		for _, stage := range targetStage.GetSubStages() {
-			childIdx := stage.GetLastInstruction()
-			childList[childIdx] = true
-			weightMapFixChild(t, weightMap, fatherMap, childList, childIdx)
-		}
-		weightMapFixFather(weightMap, fatherMap, Pos)
-	}
-	return generateNewSIT(t, fatherMap, ret, childList)
-}
 
 func generateNewSIT(t *SITree, fatherMap map[int]map[int]bool, latterRoot []*Stage, childList map[int]bool) (*SITree, *SITree) {
 	sortList := make([]int, 0)
