@@ -1,6 +1,7 @@
 package graph
 
 import (
+	"fmt"
 	"sort"
 	"sync"
 )
@@ -116,25 +117,34 @@ func generateNewSITFoo(sortList *[]int, visited map[int]bool, curStage *Stage) {
 func computeSITStagesWeight(t *SITree) (weightMap map[int]float64, fatherMap map[int]map[int]bool) {
 	weightMap = make(map[int]float64)
 	fatherMap = make(map[int]map[int]bool)
-	leafMap := make(map[int]bool)
+	//leafMap := make(map[int]bool)
+	leafMap := sync.Map{}
 	weightLatch := sync.Mutex{}
+	fatherLatch := sync.Mutex{}
 	wG := sync.WaitGroup{}
+	fmt.Println("Try dfs stage1.")
 	for _, stage := range t.root {
-		dfsSITStages1(stage, weightMap, fatherMap, leafMap, &weightLatch, 0)
+		wG.Add(1)
+		go func(stage *Stage) {
+			dfsSITStages1(stage, weightMap, fatherMap, &leafMap, &weightLatch, &fatherLatch, 0)
+			wG.Done()
+		}(stage)
 	}
-
-	for key := range leafMap {
+	wG.Wait()
+	fmt.Println("Try dfs stage2")
+	leafMap.Range(func(key, value interface{}) bool {
 		wG.Add(1)
 		go func(key int) {
 			dfsSITStages2(key, weightMap, fatherMap, &weightLatch, 0)
 			wG.Done()
-		}(key)
-	}
+		}(key.(int))
+		return true
+	})
 	wG.Wait()
 	return
 }
-func weightMapFixChild(t *SITree, weightMap map[int]float64, fatherMap map[int]map[int]bool, childList map[int]bool, doneMap map[int]bool, idx int) {
-	if doneMap[idx] {
+func weightMapFixChild(t *SITree, weightMap map[int]float64, fatherMap map[int]map[int]bool, childList map[int]bool, doneMap *sync.Map, idx int) {
+	if _, ok := doneMap.Load(idx); ok {
 		return
 	}
 	curStage := t.GetStageByInstruction(idx)
@@ -142,14 +152,14 @@ func weightMapFixChild(t *SITree, weightMap map[int]float64, fatherMap map[int]m
 	if len(childrenStage) == 0 {
 		childList[idx] = true
 		delete(weightMap, idx)
-		doneMap[idx] = true
+		doneMap.Store(idx, true)
 		//delete(fatherMap, idx)
 		return
 	}
 	wG := sync.WaitGroup{}
 	for _, stage := range childrenStage {
 		childIdx := stage.GetLastInstruction()
-		if doneMap[childIdx] {
+		if _, ok := doneMap.Load(childIdx); ok {
 			continue
 		}
 		childList[childIdx] = true
@@ -161,24 +171,24 @@ func weightMapFixChild(t *SITree, weightMap map[int]float64, fatherMap map[int]m
 	}
 	wG.Wait()
 	delete(weightMap, idx)
-	doneMap[idx] = true
+	doneMap.Store(idx, true)
 	//delete(fatherMap, idx)
 }
 
-func weightMapFixFather(weightMap map[int]float64, fatherMap map[int]map[int]bool, doneMap map[int]bool, idx int) {
-	if doneMap[idx] {
+func weightMapFixFather(weightMap map[int]float64, fatherMap map[int]map[int]bool, doneMap *sync.Map, idx int) {
+	if _, ok := doneMap.Load(idx); ok {
 		return
 	}
 	wG := sync.WaitGroup{}
 	if _, ok := fatherMap[idx]; !ok {
 		delete(weightMap, idx)
-		doneMap[idx] = true
+		doneMap.Store(idx, true)
 		return
 	}
 	fm := fatherMap[idx]
 	for key := range fm {
 		if fm[key] {
-			if doneMap[key] {
+			if _, ok := doneMap.Load(key); ok {
 				continue
 			}
 			wG.Add(1)
@@ -190,31 +200,42 @@ func weightMapFixFather(weightMap map[int]float64, fatherMap map[int]map[int]boo
 	}
 	wG.Wait()
 	delete(weightMap, idx)
-	doneMap[idx] = true
+	doneMap.Store(idx, true)
 	//delete(fatherMap, idx)
 }
 
-func dfsSITStages1(stage *Stage, weightMap map[int]float64, fatherMap map[int]map[int]bool, leafMap map[int]bool, weightLatch *sync.Mutex, depth int) (score int) {
+func dfsSITStages1(stage *Stage, weightMap map[int]float64, fatherMap map[int]map[int]bool, leafMap *sync.Map, weightLatch *sync.Mutex, fatherLatch *sync.Mutex, depth int) (score int) {
 	if len(stage.GetSubStages()) == 0 {
-		leafMap[stage.GetLastInstruction()] = true
+		leafMap.Store(stage.GetLastInstruction(), true)
 		return depth
 	}
 	maxScore := -1
+	scoreLatch := sync.Mutex{}
+	wG := sync.WaitGroup{}
 	fatherIdx := stage.GetLastInstruction()
 	for _, child := range stage.GetSubStages() {
-		score = dfsSITStages1(child, weightMap, fatherMap, leafMap, weightLatch, depth+1)
-		if maxScore < score {
-			maxScore = score
-		}
-		weightLatch.Lock()
-		weightMap[fatherIdx] += float64(score) / float64(depth+1)
-		weightLatch.Unlock()
-		idx := child.GetLastInstruction()
-		if _, ok := fatherMap[idx]; !ok {
-			fatherMap[idx] = make(map[int]bool)
-		}
-		fatherMap[idx][fatherIdx] = true
+		wG.Add(1)
+		go func(child *Stage) {
+			score_ := dfsSITStages1(child, weightMap, fatherMap, leafMap, weightLatch, fatherLatch, depth+1)
+			scoreLatch.Lock()
+			if maxScore < score_ {
+				maxScore = score_
+			}
+			scoreLatch.Unlock()
+			weightLatch.Lock()
+			weightMap[fatherIdx] += float64(score) / float64(depth+1)
+			weightLatch.Unlock()
+			idx := child.GetLastInstruction()
+			fatherLatch.Lock()
+			if _, ok := fatherMap[idx]; !ok {
+				fatherMap[idx] = make(map[int]bool)
+			}
+			fatherMap[idx][fatherIdx] = true
+			fatherLatch.Unlock()
+			wG.Done()
+		}(child)
 	}
+	wG.Wait()
 	if (depth >> 1) > maxScore {
 		return 2 * (maxScore - depth)
 	} else {

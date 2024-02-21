@@ -237,6 +237,7 @@ func (t *SITree) GetEdges() int {
 
 func (t *SITree) HeuristicSplit() (*SITree, *SITree) {
 	ret := make([]*Stage, 0)
+	fmt.Println("Try compute weight.")
 	weightMap, fatherMap := computeSITStagesWeight(t)
 	childList := make(map[int]bool)
 	//for k, v := range weightMap {
@@ -268,13 +269,14 @@ func (t *SITree) HeuristicSplit() (*SITree, *SITree) {
 			childList[childIdx] = true
 			wG.Add(1)
 			go func(childIdx int) {
-				weightMapFixChild(t, weightMap, fatherMap, childList, make(map[int]bool), childIdx)
+				weightMapFixChild(t, weightMap, fatherMap, childList, &sync.Map{}, childIdx)
 				wG.Done()
 			}(childIdx)
 		}
 		wG.Wait()
-		weightMapFixFather(weightMap, fatherMap, make(map[int]bool), Pos)
+		weightMapFixFather(weightMap, fatherMap, &sync.Map{}, Pos)
 	}
+	fmt.Println("Try generate new SIT.")
 	return generateNewSIT(t, fatherMap, ret, childList)
 }
 func (t *SITree) ModifyiID(stageIndex int, instructionIndex int, iID int) {
