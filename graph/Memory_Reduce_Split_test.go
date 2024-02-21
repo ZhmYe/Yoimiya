@@ -73,7 +73,7 @@ func GenerateSIT(option int) *SITree {
 }
 
 func TestMemoryReduceSplit(t *testing.T) {
-	options := []int{5}
+	options := []int{1, 2, 3, 4, 5}
 	for _, opt := range options {
 		t.Log("Test SITree", opt)
 		sit := GenerateSIT(opt)
@@ -86,6 +86,9 @@ func TestMemoryReduceSplit(t *testing.T) {
 		fmt.Println("All Stages:")
 		for _, stage := range formerSIT.GetStages() {
 			fmt.Println(stage.GetInstructions())
+		}
+		if latterSIT == nil {
+			continue
 		}
 		fmt.Println("Latter SITree")
 		fmt.Println("Root Stages:")

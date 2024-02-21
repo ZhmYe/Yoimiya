@@ -1,6 +1,9 @@
 package graph
 
-import "fmt"
+import (
+	"fmt"
+	"sync"
+)
 
 // SITree Stage-Instruction Tree
 type SITree struct {
@@ -259,12 +262,18 @@ func (t *SITree) HeuristicSplit() (*SITree, *SITree) {
 		targetStage := t.GetStageByInstruction(Pos)
 		ret = append(ret, targetStage)
 		childList[targetStage.GetLastInstruction()] = true
+		wG := sync.WaitGroup{}
 		for _, stage := range targetStage.GetSubStages() {
 			childIdx := stage.GetLastInstruction()
 			childList[childIdx] = true
-			weightMapFixChild(t, weightMap, fatherMap, childList, childIdx)
+			wG.Add(1)
+			go func(childIdx int) {
+				weightMapFixChild(t, weightMap, fatherMap, childList, make(map[int]bool), childIdx)
+				wG.Done()
+			}(childIdx)
 		}
-		weightMapFixFather(weightMap, fatherMap, Pos)
+		wG.Wait()
+		weightMapFixFather(weightMap, fatherMap, make(map[int]bool), Pos)
 	}
 	return generateNewSIT(t, fatherMap, ret, childList)
 }

@@ -2,6 +2,7 @@ package graph
 
 import (
 	"sort"
+	"sync"
 )
 
 // 这里写切割电路的测试版本
@@ -116,48 +117,84 @@ func computeSITStagesWeight(t *SITree) (weightMap map[int]float64, fatherMap map
 	weightMap = make(map[int]float64)
 	fatherMap = make(map[int]map[int]bool)
 	leafMap := make(map[int]bool)
+	weightLatch := sync.Mutex{}
+	wG := sync.WaitGroup{}
 	for _, stage := range t.root {
-		dfsSITStages1(stage, weightMap, fatherMap, leafMap, 0)
+		dfsSITStages1(stage, weightMap, fatherMap, leafMap, &weightLatch, 0)
 	}
+
 	for key := range leafMap {
-		dfsSITStages2(key, weightMap, fatherMap, 0)
+		wG.Add(1)
+		go func(key int) {
+			dfsSITStages2(key, weightMap, fatherMap, &weightLatch, 0)
+			wG.Done()
+		}(key)
 	}
+	wG.Wait()
 	return
 }
-func weightMapFixChild(t *SITree, weightMap map[int]float64, fatherMap map[int]map[int]bool, childList map[int]bool, idx int) {
+func weightMapFixChild(t *SITree, weightMap map[int]float64, fatherMap map[int]map[int]bool, childList map[int]bool, doneMap map[int]bool, idx int) {
+	if doneMap[idx] {
+		return
+	}
 	curStage := t.GetStageByInstruction(idx)
 	childrenStage := curStage.GetSubStages()
 	if len(childrenStage) == 0 {
 		childList[idx] = true
 		delete(weightMap, idx)
+		doneMap[idx] = true
 		//delete(fatherMap, idx)
 		return
 	}
+	wG := sync.WaitGroup{}
 	for _, stage := range childrenStage {
 		childIdx := stage.GetLastInstruction()
+		if doneMap[childIdx] {
+			continue
+		}
 		childList[childIdx] = true
-		weightMapFixChild(t, weightMap, fatherMap, childList, childIdx)
+		wG.Add(1)
+		go func(childIdx int) {
+			weightMapFixChild(t, weightMap, fatherMap, childList, doneMap, childIdx)
+			wG.Done()
+		}(childIdx)
 	}
+	wG.Wait()
 	delete(weightMap, idx)
+	doneMap[idx] = true
 	//delete(fatherMap, idx)
 }
 
-func weightMapFixFather(weightMap map[int]float64, fatherMap map[int]map[int]bool, idx int) {
+func weightMapFixFather(weightMap map[int]float64, fatherMap map[int]map[int]bool, doneMap map[int]bool, idx int) {
+	if doneMap[idx] {
+		return
+	}
+	wG := sync.WaitGroup{}
 	if _, ok := fatherMap[idx]; !ok {
 		delete(weightMap, idx)
+		doneMap[idx] = true
 		return
 	}
 	fm := fatherMap[idx]
 	for key := range fm {
 		if fm[key] {
-			weightMapFixFather(weightMap, fatherMap, key)
+			if doneMap[key] {
+				continue
+			}
+			wG.Add(1)
+			go func(key int) {
+				weightMapFixFather(weightMap, fatherMap, doneMap, key)
+				wG.Done()
+			}(key)
 		}
 	}
+	wG.Wait()
 	delete(weightMap, idx)
+	doneMap[idx] = true
 	//delete(fatherMap, idx)
 }
 
-func dfsSITStages1(stage *Stage, weightMap map[int]float64, fatherMap map[int]map[int]bool, leafMap map[int]bool, depth int) (score int) {
+func dfsSITStages1(stage *Stage, weightMap map[int]float64, fatherMap map[int]map[int]bool, leafMap map[int]bool, weightLatch *sync.Mutex, depth int) (score int) {
 	if len(stage.GetSubStages()) == 0 {
 		leafMap[stage.GetLastInstruction()] = true
 		return depth
@@ -165,11 +202,13 @@ func dfsSITStages1(stage *Stage, weightMap map[int]float64, fatherMap map[int]ma
 	maxScore := -1
 	fatherIdx := stage.GetLastInstruction()
 	for _, child := range stage.GetSubStages() {
-		score = dfsSITStages1(child, weightMap, fatherMap, leafMap, depth+1)
+		score = dfsSITStages1(child, weightMap, fatherMap, leafMap, weightLatch, depth+1)
 		if maxScore < score {
 			maxScore = score
 		}
+		weightLatch.Lock()
 		weightMap[fatherIdx] += float64(score) / float64(depth+1)
+		weightLatch.Unlock()
 		idx := child.GetLastInstruction()
 		if _, ok := fatherMap[idx]; !ok {
 			fatherMap[idx] = make(map[int]bool)
@@ -183,17 +222,19 @@ func dfsSITStages1(stage *Stage, weightMap map[int]float64, fatherMap map[int]ma
 	}
 }
 
-func dfsSITStages2(fatherIdx int, weightMap map[int]float64, childMap map[int]map[int]bool, depth int) (score int) {
+func dfsSITStages2(fatherIdx int, weightMap map[int]float64, childMap map[int]map[int]bool, weightLatch *sync.Mutex, depth int) (score int) {
 	if _, ok := childMap[fatherIdx]; !ok {
 		return depth
 	}
 	minScore := int(^uint(0) >> 1)
 	for childIdx := range childMap[fatherIdx] {
-		score = dfsSITStages2(childIdx, weightMap, childMap, depth+1)
+		score = dfsSITStages2(childIdx, weightMap, childMap, weightLatch, depth+1)
 		if minScore > score {
 			minScore = score
 		}
+		weightLatch.Lock()
 		weightMap[fatherIdx] += float64(score) / float64(depth+1)
+		weightLatch.Unlock()
 	}
 	if (depth >> 1) > minScore {
 		return minScore - depth

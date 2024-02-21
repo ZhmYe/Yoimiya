@@ -532,26 +532,6 @@ func (solver *solver) runInStage() error {
 	//splitEngine := graph.NewSplitEngine(forward, backward, finalInstruction)
 	//splitEngine.Split()
 	rootStages := solver.Sit.GetRootStages()
-	//fmt.Println(splitEngine.GetTotalInstructionNumber(), splitEngine.GetStageNumber(), len(splitEngine.GetRootStages()), splitEngine.GetEdges())
-	//if Config.Config.Mode == Config.DEBUG {
-	//	//solver.Sit.Examine()
-	//	switch splitEngine.Examine() {
-	//	case graph.Pass:
-	//		log.Debug().Str("Examine Split Result", "Pass").Msg("YZM DEBUG")
-	//	case graph.RootStageHasParent:
-	//		log.Debug().Str("Examine Split Result", "RootStageHasParent").Msg("YZM DEBUG")
-	//	case graph.InstructionRepeat:
-	//		log.Debug().Str("Examine Split Result", "InstructionRepeat").Msg("YZM DEBUG")
-	//	case graph.LinkError:
-	//		log.Debug().Str("Examine Split Result", "LinkError").Msg("YZM DEBUG")
-	//	case graph.StageLoss:
-	//		log.Debug().Str("Examine Split Result", "StageLoss").Msg("YZM DEBUG")
-	//	case graph.StageRepeat:
-	//		log.Debug().Str("Examine Split Result", "StageRepeat").Msg("YZM DEBUG")
-	//	case graph.StageOverFlow:
-	//		log.Debug().Str("Examine Split Result", "StageOverFlow").Msg("YZM DEBUG")
-	//	}
-	//}
 	wg.Add(solver.Sit.GetTotalInstructionNumber())
 	//total := 0
 	chTasks := make(chan []*graph.Stage, runtime.NumCPU())
