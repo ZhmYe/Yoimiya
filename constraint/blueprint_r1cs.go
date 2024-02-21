@@ -82,7 +82,6 @@ func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree In
 	lenO := int(inst.Calldata[3])
 	outputWires := make([]uint32, 0)
 	//maxLevel := LevelUnset
-	cs.initDegree(iID)
 	previousIds := make([]int, 0)
 	walkWires := func(n, idx int) {
 		for k := 0; k < n; k++ {

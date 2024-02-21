@@ -2,6 +2,7 @@ package test
 
 import (
 	"S-gnark/backend/groth16"
+	cs_bn254 "S-gnark/constraint/bn254"
 	"S-gnark/frontend"
 	"S-gnark/frontend/cs/r1cs"
 	"S-gnark/logger"
@@ -38,8 +39,20 @@ func (t *TestMean) init() {
 	ccs, _ := frontend.Compile(ecc.BN254.ScalarField(), r1cs.NewBuilder, &circuit)
 	// groth16 zkSNARK: Setup
 	startTime := time.Now()
+	splits, err := frontend.Split(ccs)
+	if err != nil {
+		return
+	}
+	fmt.Println("Split Circuit Time:", time.Since(startTime))
+	for _, split := range splits {
+		switch _split := split.(type) {
+		case *cs_bn254.R1CS:
+			fmt.Println(_split.Sit.GetTotalInstructionNumber())
+		default:
+			panic("Only Support bn254 r1cs now...")
+		}
+	}
 	pk, vk, _ := groth16.Setup(ccs)
-	fmt.Println("Set Up Time:", time.Since(startTime))
 	// witness definition
 	assignment := Circuit.MeanCircuit{X: t.X, Y: t.Y, N: t.N}
 	witness, _ := frontend.NewWitness(&assignment, ecc.BN254.ScalarField())

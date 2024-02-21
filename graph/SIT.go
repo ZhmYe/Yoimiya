@@ -234,7 +234,7 @@ func (t *SITree) GetEdges() int {
 
 func (t *SITree) HeuristicSplit() (*SITree, *SITree) {
 	ret := make([]*Stage, 0)
-	computeSITStagesWeight(t)
+	//computeSITStagesWeight(t)
 	weightMap, fatherMap := computeSITStagesWeight(t)
 	childList := make(map[int]bool)
 	//for k, v := range weightMap {
@@ -268,4 +268,7 @@ func (t *SITree) HeuristicSplit() (*SITree, *SITree) {
 		weightMapFixFather(weightMap, fatherMap, Pos)
 	}
 	return generateNewSIT(t, fatherMap, ret, childList)
+}
+func (t *SITree) ModifyiID(stageIndex int, instructionIndex int, iID int) {
+	t.stages[stageIndex].Instructions[instructionIndex] = iID
 }

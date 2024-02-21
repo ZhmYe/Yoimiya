@@ -135,34 +135,28 @@ type System struct {
 	genericHint BlueprintID
 
 	// add by ZhmYe
-	Wires2Instruction      map[uint32]int // an output wire "w" first compute in Instruction "I", then store "w" -> "i"
-	InstructionForwardDAG  *graph.DAG     // DAG constructed by Instructions, forward
-	InstructionBackwardDAG *graph.DAG     // DAG constructed by Instructions, backward
-	degree                 map[int]int    // store each node's degree(to order)
-	Sit                    *graph.SITree
+	Wires2Instruction map[uint32]int // an output wire "w" first compute in Instruction "I", then store "w" -> "i"
+	Sit               *graph.SITree
 }
 
 // NewSystem initialize the common structure among constraint system
 func NewSystem(scalarField *big.Int, capacity int, t SystemType) System {
 	system := System{
-		Type:                   t,
-		SymbolTable:            debug.NewSymbolTable(),
-		MDebug:                 map[int]int{},
-		GnarkVersion:           gnark.Version.String(),
-		ScalarField:            scalarField.Text(16),
-		MHintsDependencies:     make(map[solver.HintID]string),
-		q:                      new(big.Int).Set(scalarField),
-		bitLen:                 scalarField.BitLen(),
-		Instructions:           make([]PackedInstruction, 0, capacity),
-		CallData:               make([]uint32, 0, capacity*8),
-		lbWireLevel:            make([]Level, 0, capacity),
-		Levels:                 make([][]int, 0, capacity/2),
-		CommitmentInfo:         NewCommitments(t),
-		Wires2Instruction:      make(map[uint32]int),
-		InstructionForwardDAG:  graph.NewDAG(),
-		InstructionBackwardDAG: graph.NewDAG(),
-		degree:                 make(map[int]int),
-		Sit:                    graph.NewSITree(),
+		Type:               t,
+		SymbolTable:        debug.NewSymbolTable(),
+		MDebug:             map[int]int{},
+		GnarkVersion:       gnark.Version.String(),
+		ScalarField:        scalarField.Text(16),
+		MHintsDependencies: make(map[solver.HintID]string),
+		q:                  new(big.Int).Set(scalarField),
+		bitLen:             scalarField.BitLen(),
+		Instructions:       make([]PackedInstruction, 0, capacity),
+		CallData:           make([]uint32, 0, capacity*8),
+		lbWireLevel:        make([]Level, 0, capacity),
+		Levels:             make([][]int, 0, capacity/2),
+		CommitmentInfo:     NewCommitments(t),
+		Wires2Instruction:  make(map[uint32]int),
+		Sit:                graph.NewSITree(),
 	}
 
 	system.genericHint = system.AddBlueprint(&BlueprintGenericHint{})
@@ -181,79 +175,6 @@ func (system *System) AppendWire2Instruction(wireId uint32, iID int) {
 	//}
 	// 可以确定一个wire对应一个instruction
 	system.Wires2Instruction[wireId] = iID
-}
-
-// GetDegree add by ZhmYe
-func (system *System) GetDegree(id int) int {
-	d, exist := system.degree[id]
-	if !exist {
-		return -1
-	} else {
-		return d
-	}
-}
-func (system *System) initDegree(id int) {
-	_, exist := system.degree[id]
-	if !exist {
-		system.degree[id] = 0
-	}
-}
-
-// UpdateDegree add by ZhmYe
-func (system *System) UpdateDegree(sub bool, ids ...int) {
-	for _, id := range ids {
-		_, exist := system.degree[id]
-		if !exist && sub {
-			// 没有这个内容无法减一
-			fmt.Errorf("can't update sub operation to an undefined id")
-			return
-		}
-		if !exist && !sub {
-			system.degree[id] = 1
-		}
-		if exist {
-			if sub {
-				system.degree[id]--
-			} else {
-				system.degree[id]++
-			}
-		}
-	}
-}
-
-// GetZeroDegree add by ZhmYe
-func (system *System) GetZeroDegree() (result []int) {
-	for id, d := range system.degree {
-		if d == 0 {
-			result = append(result, id)
-		}
-	}
-	return result
-}
-
-// GetDAGs add by ZhmYe
-func (system *System) GetDAGs() (*graph.DAG, *graph.DAG) {
-	return system.InstructionForwardDAG, system.InstructionBackwardDAG
-}
-
-// GetOrder add by ZhmYe
-// 相当于对DAG进行拓扑排序
-// 这里由于后续修改，需要把degree修改回前向的degree才可以使用，这里的拓扑排序分层结果等价于源代码中的Levels
-func (system *System) GetOrder() (order [][]int) {
-	for {
-		zeroList := system.GetZeroDegree()
-		if len(zeroList) == 0 {
-			break
-		}
-		order = append(order, zeroList)
-		for _, id := range zeroList {
-			links := system.InstructionForwardDAG.GetLinks(id)
-			links = append(links, id)
-			system.UpdateDegree(true, links...)
-		}
-	}
-	//fmt.Println(len(order))
-	return order
 }
 
 // GetNbInstructions returns the number of instructions in the system

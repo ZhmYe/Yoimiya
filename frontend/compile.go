@@ -67,6 +67,15 @@ func Compile(field *big.Int, newBuilder NewBuilder, circuit Circuit, opts ...Com
 	return builder.Compile()
 }
 
+/*
+**
+
+	Hints: ZhmYe
+	todo
+	这里在切完以后要考虑offset(input的对应数量)
+
+**
+*/
 func parseCircuit(builder Builder, circuit Circuit) (err error) {
 	// ensure circuit.Define has pointer receiver
 	if reflect.ValueOf(circuit).Kind() != reflect.Ptr {
@@ -113,7 +122,10 @@ func parseCircuit(builder Builder, circuit Circuit) (err error) {
 			return errors.New("can't set val " + f.FullName())
 		}
 	}
-
+	/***
+		Hints: ZhmYe
+		这里builder的public和private已经变了
+	***/
 	// add public inputs first to compute correct offsets
 	_, err = schema.Walk(circuit, tVariable, variableAdder(schema.Public))
 	if err != nil {
