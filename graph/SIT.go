@@ -12,6 +12,7 @@ const (
 	TOP Layer = iota
 	MIDDLE
 	BOTTOM
+	UNSET
 )
 
 // SITree Stage-Instruction Tree
@@ -46,6 +47,7 @@ func (t *SITree) appendStage(stage *Stage) {
 	t.stages = append(t.stages, stage)
 	t.batchUpdateIndex(stage.GetInstructions(), stage)
 	t.ComputeDepth(stage)
+	t.layers = append(t.layers, UNSET)
 	//for _, iID := range stage.GetInstructions() {
 	//	t.index[iID] = stage.GetID()
 	//}
@@ -54,6 +56,19 @@ func (t *SITree) appendStage(stage *Stage) {
 // appendRoot 某个stage没有父节点，是整个sit的根节点（可能不止一个）
 func (t *SITree) appendRoot(stage *Stage) {
 	t.root = append(t.root, stage)
+}
+
+// SetLayer 设置某个stage的layer
+func (t *SITree) SetLayer(id int, layer Layer) {
+	t.layers[id] = layer
+}
+
+// GetLayer 获取某个stage的layer
+func (t *SITree) GetLayer(id int) Layer {
+	if id >= len(t.layers) {
+		panic("This stage Layer hasn't been set...")
+	}
+	return t.layers[id]
 }
 
 // ComputeDepth 计算某个stage的深度，由其所有父节点的深度最大值+1
@@ -98,12 +113,16 @@ func (t *SITree) GetStageScore() map[int]float64 {
 //
 // 如果不是，那么判断父节点是否有多个子节点，同上述case1,case2，区别在如果是窄依赖直接combine
 // todo 这里的注释需要更新
+// todo 加上Layer逻辑
 func (t *SITree) Insert(iID int, previousIds []int) {
 	stage := NewStage(-1, iID) // id统一都默认初始化为-1，在append时处理
 	// 如果没有父节点
 	if len(previousIds) == 0 {
 		t.appendStage(stage) // 直接append
 		t.appendRoot(stage)  // 没有父节点则一定是root Stage
+		// RootStage的Layer标记为Top
+		t.SetLayer(stage.GetID(), TOP)
+
 	} else if len(previousIds) == 1 {
 		// 如果只有一个父节点
 		// 暂时认为当前instruction和父instruction之间是窄依赖关系，合并stage
@@ -111,23 +130,64 @@ func (t *SITree) Insert(iID int, previousIds []int) {
 		parentStage := t.GetStageByInstruction(previousId) // 得到父stage
 		if t.checkSplit(parentStage, previousId) {
 			// 需要分裂，那么最终为宽依赖
-			t.Split(parentStage, previousId)
+			fission := t.Split(parentStage, previousId)
 			parentStage.AddChild(stage)
 			stage.AddParent(parentStage)
 			t.appendStage(stage)
+			// 判断父节点的layer
+			switch t.GetLayer(parentStage.GetID()) {
+			case TOP:
+				// 父节点依旧保持为TOP
+				t.SetLayer(fission.GetID(), TOP) // 将分身节点的layer也设置为TOP,这样无需处理下面的节点变更
+				// 将当前stage设置为Middle
+				t.SetLayer(stage.GetID(), MIDDLE)
+			case MIDDLE:
+				// 如果父节点是Middle，那么将分裂体设置为Bottom，当前stage也设置为Bottom
+				// 这里不会影响父节点是否可以作为Middle
+				t.SetLayer(fission.GetID(), BOTTOM)
+				t.SetLayer(stage.GetID(), BOTTOM)
+			case BOTTOM:
+				// 如果父节点是Bottom，将分裂体和当前stage设置为Bottom
+				t.SetLayer(fission.GetID(), BOTTOM)
+				t.SetLayer(stage.GetID(), BOTTOM)
+			default:
+				panic("Unset Layer Type...")
+			}
 		} else if len(parentStage.GetSubStages()) != 0 {
 			// 如果不需要分裂，但父stage有多个子stage，那么也是宽依赖
 			parentStage.AddChild(stage)
 			stage.AddParent(parentStage)
 			t.appendStage(stage)
+			// 如果不需要分裂，父节点有stage
+			switch t.GetLayer(parentStage.GetID()) {
+			case TOP:
+				// 如果父节点是TOP,那么可以将当前节点置为Middle
+				t.SetLayer(stage.GetID(), MIDDLE) // 只有一个父节点
+			case MIDDLE:
+				// 如果父节点是Middle，此时不会影响父节点作为Middle，因此只需要把当前节点置为BOTTOM
+				t.SetLayer(stage.GetID(), BOTTOM)
+			case BOTTOM:
+				// 如果父节点是BOTTOM，那么显然只需要把当前节点置为BOTTOM
+				t.SetLayer(stage.GetID(), BOTTOM)
+			default:
+				panic("Unset Layer Type...")
+			}
 		} else {
 			// 无需分裂，并且父stage当前没有子stage，那么暂时认为是窄依赖
 			t.Combine(stage, parentStage)
+			// 如果不需要分裂并且父节点没有stage，那么没有新的stage被添加，因此不需要更改layer
 		}
 	} else {
 		// 如果不止有一个父节点，一定是宽依赖
 		hasBeenChild := make(map[int]bool) // 可能会出现多个previousId在同一个stage里面，那么无需后续重新添加child
+		// Layer逻辑：
+		// 如果不止一个父节点，那么需要遍历所有父节点，此时父节点Layer内容可能变换
+		// 尝试把当前节点置为Middle，但需要对所有父节点的Layer情况进行判断
+		// 既然当前节点有多个父节点，那么要求其所有一阶父节点均为Middle或均不为Middle
+		hasBottom := false // 用于记录是否有父节点最后为Bottom，如果是，那么当前Stage是Bottom，反之为Middle
+		// 遍历所有父节点
 		for _, previousId := range previousIds {
+			// 首先针对所有父节点
 			parentStage := t.GetStageByInstruction(previousId)
 			var fission *Stage
 			hasSplit := false
@@ -136,6 +196,48 @@ func (t *SITree) Insert(iID int, previousIds []int) {
 				// 需要分裂
 				fission = t.Split(parentStage, previousId)
 				hasSplit = true
+				// 判断父节点类型，对分裂体进行标注，暂时还不对Stage本身进行标注
+				switch t.GetLayer(parentStage.GetID()) {
+				case TOP:
+					// 如果父节点为TOP，那么标注分裂体为TOP
+					t.SetLayer(fission.GetID(), TOP)
+				case BOTTOM:
+					// 如果父节点为BOTTOM，那么标注分裂体为BOTTOM
+					t.SetLayer(fission.GetID(), BOTTOM)
+					hasBottom = true // 出现了Bottom的父节点
+				case MIDDLE:
+					// 如果父节点为Middle
+					// 这里我们令父节点不再为Middle,这样避免处理判断其他父节点是否可以变成Middle的逻辑
+					// 将父节点标注为TOP
+					t.SetLayer(parentStage.GetID(), TOP)
+					// 此时分裂体继承了父节点的所有子节点，并且分裂体有且仅有一个父节点，因此我们可以将分裂体置为Middle
+					t.SetLayer(fission.GetID(), MIDDLE)
+				default:
+					panic("Unset Layer Type...")
+				}
+			} else {
+				// 如果不需要分裂
+				switch t.GetLayer(parentStage.GetID()) {
+				case TOP:
+					// 如果父节点为TOP
+					// 此时不需要做任何处理，需要等待后续处理当前stage的layer
+				case BOTTOM:
+					// 如果父节点为BOTTOM
+					hasBottom = true
+				case MIDDLE:
+					// 如果父节点为MIDDLE
+					// 首先将父节点置为TOP
+					t.SetLayer(parentStage.GetID(), TOP)
+					// 由于父节点原本是MIDDLE，那么其子节点在当前进度中，一定有且只有一个父节点
+					// 不然其子节点在插入的时候，通过上面的逻辑将父节点修改
+					// 既然所有子节点目前都只有一个父节点，那么可以简单的将他们全部置为MIDDLE
+					for _, child := range parentStage.GetChildIDs() {
+						// 遍历父节点的所有子节点，此时当前stage还未被添加
+						t.SetLayer(child, MIDDLE)
+					}
+				default:
+					panic("Unset Layer Type...")
+				}
 			}
 			_, flag := hasBeenChild[parentStage.GetID()]
 			if flag {
@@ -143,6 +245,23 @@ func (t *SITree) Insert(iID int, previousIds []int) {
 					// 分裂的两个stage都是当前stage的父stage
 					fission.AddChild(stage)
 					stage.AddParent(fission)
+					// 处理fission的layer是否需要更改
+					switch t.GetLayer(fission.GetID()) {
+					case TOP:
+						// 如果fission是TOP，那么不影响，无需处理
+					case BOTTOM:
+						// 如果fission是BOTTOM，它也会作为当前节点的父节点
+						hasBottom = true
+					case MIDDLE:
+						// 如果fission是MIDDLE，MIDDLE之间不能相互连接
+						// 之前考虑过如果有多个一阶父节点父节点，那么这些一阶父节点父节点要么都为MIDDLE
+						// 我们已经将其他非分裂体的父节点全部保证不为MIDDLE
+						// 剩下的都是分裂体，且能进入这里的那些分裂体，其父节点也是当前stage的父节点
+						// 此时我们可以通过这里的逻辑保证所有这些分裂体都是MIDDLE，因此可以将当前stage置为BOTTOM
+						hasBottom = true
+					default:
+						panic("Unset Layer Type...")
+					}
 				}
 				continue
 			}
@@ -153,6 +272,11 @@ func (t *SITree) Insert(iID int, previousIds []int) {
 		}
 		// 把stage append
 		t.appendStage(stage)
+		if hasBottom {
+			t.SetLayer(stage.GetID(), BOTTOM)
+		} else {
+			t.SetLayer(stage.GetID(), MIDDLE)
+		}
 	}
 	t.instructions = append(t.instructions, iID)
 
@@ -281,6 +405,27 @@ func (t *SITree) GetParentsMap(stageId int) map[int]bool {
 }
 func (t *SITree) HasParent(stageId int) bool {
 	return len(t.GetParents(stageId)) != 0
+}
+func (t *SITree) GetLayersInfo() (info [4]int) {
+	for i, _ := range info {
+		info[i] = 0
+	}
+	for _, layer := range t.GetLayers() {
+		switch layer {
+		case TOP:
+			info[0]++
+		case BOTTOM:
+			info[2]++
+		case MIDDLE:
+			info[1]++
+		case UNSET:
+			info[3]++
+		}
+	}
+	return info
+}
+func (t *SITree) GetLayers() []Layer {
+	return t.layers
 }
 
 //func (t *SITree) GetAncestorStages(stageId int, result *map[int]bool) {

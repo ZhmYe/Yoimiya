@@ -4,6 +4,7 @@ import (
 	"S-gnark/constraint"
 	cs_bn254 "S-gnark/constraint/bn254"
 	"S-gnark/graph"
+	"fmt"
 )
 
 /***
@@ -66,6 +67,7 @@ func Split(cs constraint.ConstraintSystem) ([]constraint.ConstraintSystem, error
 	split := make([]constraint.ConstraintSystem, 0)
 	switch _r1cs := cs.(type) {
 	case *cs_bn254.R1CS:
+		fmt.Println(_r1cs.Sit.GetLayersInfo(), _r1cs.Sit.GetStageNumber(), _r1cs.Sit.GetTotalInstructionNumber())
 		sits, err := trySplit(_r1cs)
 		if err != nil {
 			panic(err)
