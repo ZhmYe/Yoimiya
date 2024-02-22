@@ -11,5 +11,6 @@ const MAX_N int = 10
 func main() {
 	rand.Seed(time.Now().Unix())
 	//test.Debug()
-	evaluate.TestRunTimeInDifferentSplitMethod()
+	//evaluate.TestRunTimeInDifferentSplitMethod()
+	evaluate.TestMemoryReduce()
 }

@@ -4,6 +4,16 @@ import (
 	"fmt"
 )
 
+type Layer int
+
+// 用于标记每个stage处在切分后电路的位置，目前只支持二分电路
+// TOP表示在上层电路作为中间变量，MIDDLE表示作为上层电路的输出、下层电路的输入，BOTTOM表示在下层电路中作为中间变量
+const (
+	TOP Layer = iota
+	MIDDLE
+	BOTTOM
+)
+
 // SITree Stage-Instruction Tree
 type SITree struct {
 	stages       []*Stage       // SITree节点
@@ -12,8 +22,9 @@ type SITree struct {
 	root         []*Stage       // 所有没有父stage的stage
 	maxDepth     int            // 最大深度
 	// todo 考虑合并depth和score
-	depth map[int]int     // 深度
-	score map[int]float64 // 每个stage的score
+	depth  map[int]int     // 深度
+	score  map[int]float64 // 每个stage的score
+	layers []Layer         // 这里和stages的下标相对应
 }
 
 func NewSITree() *SITree {
@@ -25,6 +36,7 @@ func NewSITree() *SITree {
 	t.maxDepth = 0
 	t.depth = make(map[int]int)
 	t.score = make(map[int]float64)
+	t.layers = make([]Layer, 0)
 	return t
 }
 
@@ -65,8 +77,11 @@ func (t *SITree) ComputeDepth(stage *Stage) {
 	}
 }
 func (t *SITree) GetStageScore() map[int]float64 {
+	middle := float64(t.maxDepth)/2 + 1
+	constant := (float64(t.maxDepth) - middle) * (middle - 1)
 	for id, depth := range t.depth {
-		t.score[id] = float64(t.maxDepth-depth) * float64(depth-1)
+		//stage := t.GetStageByIndex(id)
+		t.score[id] = float64(t.maxDepth-depth) * float64(depth-1) / constant
 	}
 	return t.score
 }
@@ -112,21 +127,6 @@ func (t *SITree) Insert(iID int, previousIds []int) {
 	} else {
 		// 如果不止有一个父节点，一定是宽依赖
 		hasBeenChild := make(map[int]bool) // 可能会出现多个previousId在同一个stage里面，那么无需后续重新添加child
-		//parentStages := make(map[int]map[int]bool)
-		//for _, previousId := range previousIds {
-		//	_, exist := parentStages[t.GetStageByInstruction(previousId).GetID()]
-		//	if exist {
-		//		parentStages[t.GetStageByInstruction(previousId).GetID()][previousId] = true
-		//	} else {
-		//		parentStages[t.GetStageByInstruction(previousId).GetID()] = make(map[int]bool)
-		//	}
-		//}
-		//for parentStageId, ids := range parentStages {
-		//	parentStage := t.GetStageByIndex(parentStageId)
-		//	if t.checkSplit(parentStage, ids) {
-		//		t.Split(parentStage, ids)
-		//	}
-		//}
 		for _, previousId := range previousIds {
 			parentStage := t.GetStageByInstruction(previousId)
 			var fission *Stage
@@ -282,3 +282,26 @@ func (t *SITree) GetParentsMap(stageId int) map[int]bool {
 func (t *SITree) HasParent(stageId int) bool {
 	return len(t.GetParents(stageId)) != 0
 }
+
+//func (t *SITree) GetAncestorStages(stageId int, result *map[int]bool) {
+//	_, exist := (*result)[stageId]
+//	if exist {
+//		return
+//	}
+//	stage := t.GetStageByIndex(stageId)
+//	for _, id := range stage.GetParentIDs() {
+//		t.GetAncestorStages(id, result)
+//		(*result)[id] = true
+//	}
+//}
+//func (t *SITree) GetDescendantStages(stageId int, result *map[int]bool) {
+//	_, exist := (*result)[stageId]
+//	if exist {
+//		return
+//	}
+//	stage := t.GetStageByIndex(stageId)
+//	for _, id := range stage.GetChildIDs() {
+//		t.GetDescendantStages(id, result)
+//		(*result)[id] = true
+//	}
+//}

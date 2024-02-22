@@ -43,7 +43,6 @@ func (s *SplitEngine) Split(n int) (*SITree, *SITree) {
 	childList := make(map[int]bool)
 	weightMap := s.GetWeightMap()
 	fmt.Println("Score Compute Finished....")
-	fmt.Println(weightMap)
 	//fatherMap := s.GetParentMap()
 	for len(weightMap) != 0 {
 		Pos := -1
@@ -55,6 +54,9 @@ func (s *SplitEngine) Split(n int) (*SITree, *SITree) {
 			}
 		}
 		targetStage := s.sit.GetStageByInstruction(Pos)
+		//deleteMap := make(map[int]bool)
+		//s.sit.GetAncestorStages(Pos, &deleteMap)
+		//s.sit.GetDescendantStages(Pos, &deleteMap)
 		ret = append(ret, targetStage)
 		childList[targetStage.GetLastInstruction()] = true
 		for _, stage := range targetStage.GetSubStages() {
@@ -63,6 +65,10 @@ func (s *SplitEngine) Split(n int) (*SITree, *SITree) {
 			weightMapFixChild(s.sit, weightMap, childList, childIdx)
 		}
 		weightMapFixFather(s.sit, weightMap, &sync.Map{}, Pos)
+		//deleteMap[Pos] = true
+		//for id, _ := range deleteMap {
+		//	delete(weightMap, id)
+		//}
 	}
 	fmt.Println("Try generate new SIT.")
 	s.splitTime = time.Since(startTime)

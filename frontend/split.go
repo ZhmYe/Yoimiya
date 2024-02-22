@@ -93,7 +93,7 @@ func trySplit(cs *cs_bn254.R1CS) ([]*graph.SITree, error) {
 	// todo 这里等待实现
 	splitEngine := graph.NewSplitEngine(cs.Sit)
 	//splitEngine.Split(1)
-	top, bottom := splitEngine.Split(1)
+	top, bottom := splitEngine.Split(2)
 	result = append(result, top)
 	if bottom != nil {
 		result = append(result, bottom)

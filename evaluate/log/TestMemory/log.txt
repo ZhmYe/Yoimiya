@@ -1,0 +1,44 @@
+[90m12:04:24[0m [32mINF[0m compiling circuit
+[90m12:04:24[0m [32mINF[0m YZM TEST  [36mbuilder.cs=[0mbn254r1cs
+[90m12:04:24[0m [32mINF[0m parsed circuit inputs [36mnbPublic=[0m1 [36mnbSecret=[0m2
+[90m12:04:24[0m [32mINF[0m building constraint builder [36mnbConstraints=[0m2
+[90m12:04:24[0m [32mINF[0m YZM TEST [36mConstraints Number=[0m2 [36mInternal Variables=[0m1 [36mPrivate Variables=[0m2 [36mPublic Variables=[0m2
+[90m12:04:24[0m [33mDBG[0m Solver [36mPrivate Variables=[0m2 [36mPublic Variables=[0m2 [36mWitness Size=[0m3
+[90m12:04:24[0m [33mDBG[0m YZM R1CS Shape TEST [36mA shape=[0m[2,4]
+[90m12:04:24[0m [33mDBG[0m YZM R1CS Shape TEST [36mA shape=[0m[2,4]
+[90m12:04:24[0m [33mDBG[0m YZM R1CS Shape TEST [36mA shape=[0m[2,4]
+[90m12:04:24[0m [33mDBG[0m Start Run...
+[90m12:04:24[0m [33mDBG[0m YZM DEBUG [36mRun Mode=[0mSPLIT_STAGES
+[90m12:04:24[0m [32mINF[0m YZM TEST [36mRun Function Time=[0m"454.857µs"
+Run Function Time:  497.233µs
+[90m12:04:24[0m [33mDBG[0m constraint system solver done [36mnbConstraints=[0m2 [36mtook=[0m0.854702
+[90m12:04:24[0m [33mDBG[0m prover done [36macceleration=[0mnone [36mbackend=[0mgroth16 [36mcurve=[0mbn254 [36mnbConstraints=[0m2 [36mtook=[0m1.701761
+[90m12:04:24[0m [33mDBG[0m verifier done [36mbackend=[0mgroth16 [36mcurve=[0mbn254 [36mtook=[0m3.069333
+[90m12:04:24[0m [32mINF[0m compiling circuit
+[90m12:04:24[0m [32mINF[0m YZM TEST  [36mbuilder.cs=[0mbn254r1cs
+[90m12:04:24[0m [32mINF[0m parsed circuit inputs [36mnbPublic=[0m0 [36mnbSecret=[0m132
+[90m12:04:32[0m [32mINF[0m compiling circuit
+[90m12:04:32[0m [32mINF[0m YZM TEST  [36mbuilder.cs=[0mbn254r1cs
+[90m12:04:32[0m [32mINF[0m parsed circuit inputs [36mnbPublic=[0m1 [36mnbSecret=[0m2
+[90m12:04:32[0m [32mINF[0m building constraint builder [36mnbConstraints=[0m2
+[90m12:04:32[0m [32mINF[0m YZM TEST [36mConstraints Number=[0m2 [36mInternal Variables=[0m1 [36mPrivate Variables=[0m2 [36mPublic Variables=[0m2
+[90m12:04:32[0m [33mDBG[0m Solver [36mPrivate Variables=[0m2 [36mPublic Variables=[0m2 [36mWitness Size=[0m3
+[90m12:04:32[0m [33mDBG[0m YZM R1CS Shape TEST [36mA shape=[0m[2,4]
+[90m12:04:32[0m [33mDBG[0m YZM R1CS Shape TEST [36mA shape=[0m[2,4]
+[90m12:04:32[0m [33mDBG[0m YZM R1CS Shape TEST [36mA shape=[0m[2,4]
+[90m12:04:32[0m [33mDBG[0m Start Run...
+[90m12:04:32[0m [33mDBG[0m YZM DEBUG [36mRun Mode=[0mSPLIT_STAGES
+[90m12:04:32[0m [32mINF[0m YZM TEST [36mRun Function Time=[0m"464.504µs"
+Run Function Time:  511.761µs
+[90m12:04:32[0m [33mDBG[0m constraint system solver done [36mnbConstraints=[0m2 [36mtook=[0m0.928658
+[90m12:04:32[0m [33mDBG[0m prover done [36macceleration=[0mnone [36mbackend=[0mgroth16 [36mcurve=[0mbn254 [36mnbConstraints=[0m2 [36mtook=[0m1.8535
+[90m12:04:32[0m [33mDBG[0m verifier done [36mbackend=[0mgroth16 [36mcurve=[0mbn254 [36mtook=[0m2.433752
+[90m12:04:32[0m [32mINF[0m compiling circuit
+[90m12:04:32[0m [32mINF[0m YZM TEST  [36mbuilder.cs=[0mbn254r1cs
+[90m12:04:32[0m [32mINF[0m parsed circuit inputs [36mnbPublic=[0m0 [36mnbSecret=[0m132
+[90m12:04:46[0m [32mINF[0m building constraint builder [36mnbConstraints=[0m1785895
+Compile Time: 21.680676308s
+Score Compute Finished....
+[90m12:04:55[0m [32mINF[0m building constraint builder [36mnbConstraints=[0m1785895
+Compile Time: 22.937674313s
+Score Compute Finished....
