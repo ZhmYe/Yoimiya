@@ -428,6 +428,15 @@ func (t *SITree) GetLayers() []Layer {
 	return t.layers
 }
 
+func (t *SITree) CountLeafNode() (total int) {
+	for _, stage := range t.GetStages() {
+		if len(stage.GetSubStages()) == 0 {
+			total++
+		}
+	}
+	return
+}
+
 //func (t *SITree) GetAncestorStages(stageId int, result *map[int]bool) {
 //	_, exist := (*result)[stageId]
 //	if exist {
