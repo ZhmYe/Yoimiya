@@ -4,6 +4,7 @@ import (
 	"S-gnark/constraint"
 	cs_bn254 "S-gnark/constraint/bn254"
 	"S-gnark/graph"
+	"S-gnark/logger"
 	"fmt"
 )
 
@@ -65,28 +66,63 @@ func (r *DataRecord) GetCallData(index int) uint32 {
 // Split 将传入的电路(constraintSystem)切分为多份，返回所有切出的子电路
 func Split(cs constraint.ConstraintSystem) ([]constraint.ConstraintSystem, error) {
 	split := make([]constraint.ConstraintSystem, 0)
-	switch _r1cs := cs.(type) {
-	case *cs_bn254.R1CS:
-		fmt.Println(_r1cs.Sit.GetLayersInfo(), _r1cs.Sit.GetStageNumber(), _r1cs.Sit.GetTotalInstructionNumber())
-		sits, err := trySplit(_r1cs)
-		if err != nil {
-			panic(err)
+	toSplitCs := cs
+	flag := true
+	for {
+		if !flag {
+			fmt.Println("Recursive Split Finish...")
+			break
 		}
-		// todo 这里等待实现
-		record := NewDataRecord(_r1cs)
-		// 这里是否可以直接将_r1cs置为nil
-		for _, sit := range sits {
-			// todo 这部分可能提到外面， Split返回[][]int
-			subCs, err := buildConstraintSystemFromSit(sit, record)
+		switch _r1cs := toSplitCs.(type) {
+		case *cs_bn254.R1CS:
+			switch _r1cs.Sit.Examine() {
+			case graph.PASS:
+				log := logger.Logger()
+				log.Debug().Str("SIT LAYER EXAMINE", "PASS").Msg("YZM DEBUG")
+				fmt.Println("Examine PASS...")
+			case graph.HAS_LINK:
+				panic("Sit Layer Error: HAS_LINK...")
+			case graph.LAYER_UNSET:
+				panic("Sit Layer Error: LAYER_UNSET...")
+
+			}
+			fmt.Println(_r1cs.Sit.GetLayersInfo(), _r1cs.Sit.GetStageNumber(), _r1cs.Sit.GetTotalInstructionNumber())
+			//sits, err := trySplit(_r1cs)
+			top, bottom := _r1cs.Sit.CheckAndGetSubCircuitStageIDs()
+			//if err != nil {
+			//	panic(err)
+			//}
+			// todo 这里等待实现
+			record := NewDataRecord(_r1cs)
+			subCs, err := buildConstraintSystemFromIds(top, record)
 			if err != nil {
 				panic(err)
 			}
 			split = append(split, subCs)
+			// 这里加入prove的逻辑，这样top可以丢弃 todo
+
+			if len(bottom) == 0 {
+				flag = false
+			} else {
+				toSplitCs, err = buildConstraintSystemFromIds(bottom, record)
+				if err != nil {
+					panic(err)
+				}
+			}
+			// 这里是否可以直接将_r1cs置为nil
+			//for _, sit := range sits {
+			//	// todo 这部分可能提到外面， Split返回[][]int
+			//	subCs, err := buildConstraintSystemFromSit(sit, record)
+			//	if err != nil {
+			//		panic(err)
+			//	}
+			//	split = append(split, subCs)
+			//}
+		default:
+			panic("Only Support bn254 r1cs now...")
 		}
-		return split, nil
-	default:
-		panic("Only Support bn254 r1cs now...")
 	}
+	return split, nil
 }
 
 // 将传入的cs转化为新的多个电路内部对应的sit，同时返回所有的instruction
@@ -130,6 +166,24 @@ func buildConstraintSystemFromSit(sit *graph.SITree, record *DataRecord) (constr
 			// 由于instruction变化，所以在这里需要重新映射stage内部的iID
 			sit.ModifyiID(i, j, len(cs.Instructions)) // 这里是串行添加的，新的Instruction id就是当前的长度
 		}
+	}
+	return cs, nil
+}
+func buildConstraintSystemFromIds(iIDs []int, record *DataRecord) (constraint.ConstraintSystem, error) {
+	// todo 核心逻辑
+	// 这里根据切割返回出来的有序instruction ids，得到新的电路cs
+	// record中记录了CallData、Blueprint、Instruction的map
+	// CallData、Instruction应该是一一对应的关系，map取出后可删除
+	opt := defaultCompileConfig()
+	cs := cs_bn254.NewR1CS(opt.Capacity)
+	for _, iID := range iIDs {
+		pi := record.GetPackedInstruction(iID)
+		bID := cs.AddBlueprint(record.GetBluePrint(pi.BlueprintID))
+		// todo 这里有很多Nb，如NbConstraints，暂时不确定前面是否需要加入
+		// todo，这里会有第二次构建SIT，可以删掉？或者前面给定的结果不需要是SIT?
+		cs.AddInstruction(bID, unpack(pi, record))
+		//// 由于instruction变化，所以在这里需要重新映射stage内部的iID
+		//sit.ModifyiID(i, j, len(cs.Instructions)) // 这里是串行添加的，新的Instruction id就是当前的长度
 	}
 	return cs, nil
 }

@@ -1,7 +1,7 @@
 package graph
 
 import (
-	"fmt"
+	"strconv"
 )
 
 type Layer int
@@ -228,11 +228,17 @@ func (t *SITree) Insert(iID int, previousIds []int) {
 					// 如果父节点为MIDDLE
 					// 首先将父节点置为TOP
 					t.SetLayer(parentStage.GetID(), TOP)
-					// 由于父节点原本是MIDDLE，那么其子节点在当前进度中，一定有且只有一个父节点
+					// 由于父节点原本是MIDDLE
 					// 不然其子节点在插入的时候，通过上面的逻辑将父节点修改
 					// 既然所有子节点目前都只有一个父节点，那么可以简单的将他们全部置为MIDDLE
 					for _, child := range parentStage.GetChildIDs() {
 						// 遍历父节点的所有子节点，此时当前stage还未被添加
+						childStage := t.GetStageByIndex(child)
+						for _, parentID := range childStage.GetParentIDs() {
+							if t.GetLayer(parentID) == MIDDLE {
+								t.SetLayer(parentID, TOP)
+							}
+						}
 						t.SetLayer(child, MIDDLE)
 					}
 				default:
@@ -358,23 +364,37 @@ func (t *SITree) GetStageNumber() int {
 func (t *SITree) GetTotalInstructionNumber() int {
 	return len(t.instructions)
 }
-func (t *SITree) Examine() {
-	totalInstructionNumber := 0
-	hasStore := make(map[int]bool)
-	for index, stage := range t.stages {
-		if index != stage.GetID() {
-			fmt.Println("ID error")
+
+type ExamineResult int
+
+const (
+	PASS ExamineResult = iota
+	HAS_LINK
+	LAYER_UNSET
+)
+
+// Examine 之前已经保证SIT划分是正确的，这里就检验Layer
+func (t *SITree) Examine() ExamineResult {
+	// 首先判断每个stage是否都被赋上了Layer
+	if len(t.stages) != len(t.layers) {
+		return LAYER_UNSET
+	}
+	// 记录所有的middle
+	middleIds := make(map[int]bool, 0)
+	for id, layer := range t.layers {
+		if layer == MIDDLE {
+			middleIds[id] = true
 		}
-		for _, i := range stage.GetInstructions() {
-			_, has := hasStore[i]
-			if has {
-				fmt.Println("error")
-			} else {
-				hasStore[i] = true
+	}
+	for id, _ := range middleIds {
+		stage := t.GetStageByIndex(id)
+		for _, pid := range stage.GetParentIDs() {
+			if middleIds[pid] {
+				return HAS_LINK
 			}
 		}
-		totalInstructionNumber += len(stage.GetInstructions())
 	}
+	return PASS
 
 }
 func (t *SITree) GetStages() []*Stage {
@@ -427,7 +447,96 @@ func (t *SITree) GetLayersInfo() (info [4]int) {
 func (t *SITree) GetLayers() []Layer {
 	return t.layers
 }
+func (t *SITree) GetTopStage() []int {
+	sIDs := make([]int, 0)
+	for id, layer := range t.layers {
+		if layer == TOP {
+			sIDs = append(sIDs, id)
+		}
+	}
+	return sIDs
+}
+func (t *SITree) GetMiddleStage() []int {
+	sIDs := make([]int, 0)
+	for id, layer := range t.layers {
+		if layer == MIDDLE {
+			sIDs = append(sIDs, id)
+		}
+	}
+	return sIDs
+}
+func (t *SITree) GetBottomStage() []int {
+	sIDs := make([]int, 0)
+	for id, layer := range t.layers {
+		if layer == BOTTOM {
+			sIDs = append(sIDs, id)
+		}
+	}
+	return sIDs
+}
+func (t *SITree) checkUnset() bool {
+	for _, layer := range t.layers {
+		if layer == UNSET {
+			return true
+		}
+	}
+	return false
+}
 
+// CheckAndGetSubCircuitStageIDs 获得各种类型的Layer对应的stage id列表
+// 在SIT创建的时候，已经保证sit.stages中的结果是拓扑意义上有序的
+// 因此，现在按序遍历时也已保证有序
+func (t *SITree) CheckAndGetSubCircuitStageIDs() ([]int, []int) {
+	top := make([]int, 0) // middle的也放到top里
+	//middle := make([]int, 0)
+	bottom := make([]int, 0)
+	for sID, layer := range t.layers {
+		if layer == TOP {
+			top = append(top, sID)
+		} else if layer == MIDDLE {
+			top = append(top, sID)
+		} else if layer == BOTTOM {
+			bottom = append(bottom, sID)
+		} else {
+			panic("stage " + strconv.Itoa(sID) + " hasn't set layer!!!")
+		}
+	}
+	return top, bottom
+}
+
+// GetInstructionsFromStages 根据给定的有序Stage列表，返回有序的Instruction列表
+func (t *SITree) GetInstructionsFromStages(sIDs ...int) []int {
+	result := make([]int, 0)
+	for _, sID := range sIDs {
+		stage := t.GetStageByIndex(sID)
+		result = append(result, stage.GetInstructions()...)
+	}
+	return result
+}
+
+//	func (t *SITree) GetAncestorStages(stageId int, result *map[int]bool) {
+//		_, exist := (*result)[stageId]
+//		if exist {
+//			return
+//		}
+//		stage := t.GetStageByIndex(stageId)
+//		for _, id := range stage.GetParentIDs() {
+//			t.GetAncestorStages(id, result)
+//			(*result)[id] = true
+//		}
+//	}
+//
+//	func (t *SITree) GetDescendantStages(stageId int, result *map[int]bool) {
+//		_, exist := (*result)[stageId]
+//		if exist {
+//			return
+//		}
+//		stage := t.GetStageByIndex(stageId)
+//		for _, id := range stage.GetChildIDs() {
+//			t.GetDescendantStages(id, result)
+//			(*result)[id] = true
+//		}
+//	}
 func (t *SITree) CountLeafNode() (total int) {
 	for _, stage := range t.GetStages() {
 		if len(stage.GetSubStages()) == 0 {
@@ -436,26 +545,3 @@ func (t *SITree) CountLeafNode() (total int) {
 	}
 	return
 }
-
-//func (t *SITree) GetAncestorStages(stageId int, result *map[int]bool) {
-//	_, exist := (*result)[stageId]
-//	if exist {
-//		return
-//	}
-//	stage := t.GetStageByIndex(stageId)
-//	for _, id := range stage.GetParentIDs() {
-//		t.GetAncestorStages(id, result)
-//		(*result)[id] = true
-//	}
-//}
-//func (t *SITree) GetDescendantStages(stageId int, result *map[int]bool) {
-//	_, exist := (*result)[stageId]
-//	if exist {
-//		return
-//	}
-//	stage := t.GetStageByIndex(stageId)
-//	for _, id := range stage.GetChildIDs() {
-//		t.GetDescendantStages(id, result)
-//		(*result)[id] = true
-//	}
-//}
