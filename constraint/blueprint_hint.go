@@ -107,7 +107,7 @@ func (b *BlueprintGenericHint) UpdateInstructionTree(inst Instruction, tree Inst
 }
 
 // NewUpdateInstructionTree add by ZhmYe
-func (b *BlueprintGenericHint) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System) {
+func (b *BlueprintGenericHint) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System, split bool) {
 	// BlueprintGenericHint knows the input and output to the instruction
 	//maxLevel := LevelUnset
 	// iterate over the inputs and find the max level

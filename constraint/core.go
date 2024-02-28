@@ -500,12 +500,65 @@ func (cs *System) AddSparseR1C(c SparseR1C, bID BlueprintID) int {
 }
 
 /***
+
 	Hints: ZhmYe
 	todo
 	1. 现在的代码是怎么划分level的，目前level内部独立，level之间可能相连
 	2. 如何修改？
+
 ***/
 
+func (cs *System) AddInstructionInSpilt(bID BlueprintID, calldata []uint32) []uint32 {
+	// set the offsets
+	pi := PackedInstruction{
+		StartCallData:    uint64(len(cs.CallData)),
+		ConstraintOffset: uint32(cs.NbConstraints),
+		WireOffset:       uint32(cs.NbInternalVariables + cs.GetNbPublicVariables() + cs.GetNbSecretVariables()),
+		BlueprintID:      bID,
+	}
+
+	// append the call data
+	cs.CallData = append(cs.CallData, calldata...)
+
+	// update the total number of constraints
+	blueprint := cs.Blueprints[pi.BlueprintID]
+	cs.NbConstraints += blueprint.NbConstraints()
+
+	// add the output wires
+	inst := pi.Unpack(cs)
+	nbOutputs := blueprint.NbOutputs(inst)
+	/***
+		Hints: ZhmYe
+		blueprint.NbOutputs-> return 0
+	***/
+	var wires []uint32
+	for i := 0; i < nbOutputs; i++ {
+		wires = append(wires, uint32(cs.AddInternalVariable()))
+	}
+
+	// add the instruction
+	cs.Instructions = append(cs.Instructions, pi)
+
+	// update the instruction dependency tree
+	iID := len(cs.Instructions) - 1
+	// modify by ZhmYe
+	switch Config.Config.Split {
+	case Config.SPLIT_STAGES:
+		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, true)
+	case Config.SPLIT_LEVELS:
+		level := blueprint.UpdateInstructionTree(inst, cs)
+		// we can't skip levels, so appending is fine.
+		if int(level) >= len(cs.Levels) {
+			cs.Levels = append(cs.Levels, []int{iID})
+		} else {
+			cs.Levels[level] = append(cs.Levels[level], iID)
+		}
+	default:
+		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, true)
+	}
+	//cs.GetDegree(iID)
+	return wires
+}
 func (cs *System) AddInstruction(bID BlueprintID, calldata []uint32) []uint32 {
 	// set the offsets
 	pi := PackedInstruction{
@@ -542,7 +595,7 @@ func (cs *System) AddInstruction(bID BlueprintID, calldata []uint32) []uint32 {
 	// modify by ZhmYe
 	switch Config.Config.Split {
 	case Config.SPLIT_STAGES:
-		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs)
+		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, false)
 	case Config.SPLIT_LEVELS:
 		level := blueprint.UpdateInstructionTree(inst, cs)
 		// we can't skip levels, so appending is fine.
@@ -552,7 +605,7 @@ func (cs *System) AddInstruction(bID BlueprintID, calldata []uint32) []uint32 {
 			cs.Levels[level] = append(cs.Levels[level], iID)
 		}
 	default:
-		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs)
+		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, false)
 	}
 	//cs.GetDegree(iID)
 	return wires

@@ -65,7 +65,7 @@ func (b *BlueprintGenericR1C) DecompressR1C(c *R1C, inst Instruction) {
 ***/
 
 // NewUpdateInstructionTree modify by ZhmYe
-func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System) {
+func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System, split bool) {
 	/***
 		Hints: ZhmYe
 		callData:
@@ -91,7 +91,10 @@ func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree In
 			idx += 2 // advance the offset (coeffID + wireID)
 			// input or const
 			// 这里修改了HasWire，将lbWireLevel去掉了，具体还要看core.go中AddInternalVariable
-			if !tree.HasWire(wireID) {
+			//if !tree.HasWire(wireID) {
+			//	continue
+			//}
+			if !tree.IsInputOrConstant(wireID, split) {
 				continue
 			}
 			// outputWires中存储所有level为LevelUnset的wireID

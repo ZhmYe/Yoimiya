@@ -2,6 +2,7 @@ package constraint
 
 import (
 	"S-gnark/debug"
+	"math"
 )
 
 type Level int
@@ -22,6 +23,7 @@ type InstructionTree interface {
 	// GetWireLevel returns the level of the wire in the instruction tree.
 	// If HasWire(wire) returns false, behavior is undefined.
 	GetWireLevel(wire uint32) Level
+	IsInputOrConstant(wire uint32, split bool) bool
 }
 
 // the instruction tree is a simple array of levels.
@@ -39,6 +41,22 @@ func (system *System) HasWire(wireID uint32) bool {
 	return (wireID - offset) < uint32(system.NbInternalVariables) // modify by ZhmYe, to delete lbWireLevel
 }
 
+// IsInputOrConstant add by ZhmYe
+// 这里如果是第n次切割电路,wireId会溢出
+func (system *System) IsInputOrConstant(wireID uint32, split bool) bool {
+	offset := system.internalWireOffset()
+	if wireID < offset {
+		// it's an input.
+		return false
+	}
+	if wireID == math.MaxUint32 {
+		return false
+	}
+	// if wireID == maxUint32, it's a constant.
+	//fmt.Println(len(system.lbWireLevel), system.NbInternalVariables)
+	//return (wireID - offset) < uint32(system.NbInternalVariables)
+	return (wireID-offset) < uint32(system.NbInternalVariables) || split // modify by ZhmYe, to delete lbWir
+}
 func (system *System) GetWireLevel(wireID uint32) Level {
 	return system.lbWireLevel[wireID-system.internalWireOffset()]
 }
