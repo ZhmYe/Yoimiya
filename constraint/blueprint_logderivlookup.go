@@ -161,7 +161,7 @@ func (b *BlueprintLookupHint) UpdateInstructionTree(inst Instruction, tree Instr
 func (b *BlueprintLookupHint) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System, split bool) {
 	// depend on the table UP to the number of entries at time of instruction creation.
 	nbEntries := int(inst.Calldata[1])
-	cs.initDegree(iID)
+	//cs.initDegree(iID)
 	// check if we already cached the max level
 	if b.maxLevelPosition-1 < nbEntries { // adjust for default value of b.maxLevelPosition (0)
 
@@ -202,18 +202,18 @@ func (b *BlueprintLookupHint) NewUpdateInstructionTree(inst Instruction, tree In
 			}
 			if level := tree.GetWireLevel(wireID); level > maxLevel {
 				maxLevel = level
-				previousInstructionID := cs.Wires2Instruction[wireID]
-				cs.InstructionForwardDAG.Update(previousInstructionID, iID)
-				cs.InstructionBackwardDAG.Update(iID, previousInstructionID)
-				cs.UpdateDegree(false, previousInstructionID) // 更新degree,这里用于更新Backward的degree
+				//previousInstructionID := cs.Wires2Instruction[wireID]
+				//cs.InstructionForwardDAG.Update(previousInstructionID, iID)
+				//cs.InstructionBackwardDAG.Update(iID, previousInstructionID)
+				//cs.UpdateDegree(false, previousInstructionID) // 更新degree,这里用于更新Backward的degree
 				// 更新degree,这里用于更新Backward的degree
 			} else {
 				// add by ZhmYe
 				// 即使level没有超过最大level，只要有level就要遍历
-				previousInstructionID := cs.Wires2Instruction[wireID]
-				cs.InstructionForwardDAG.Update(previousInstructionID, iID)
-				cs.InstructionBackwardDAG.Update(iID, previousInstructionID)
-				cs.UpdateDegree(false, previousInstructionID) // 更新degree,这里用于更新Backward的degree
+				//previousInstructionID := cs.Wires2Instruction[wireID]
+				//cs.InstructionForwardDAG.Update(previousInstructionID, iID)
+				//cs.InstructionBackwardDAG.Update(iID, previousInstructionID)
+				//cs.UpdateDegree(false, previousInstructionID) // 更新degree,这里用于更新Backward的degree
 
 			}
 		}

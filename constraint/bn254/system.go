@@ -64,7 +64,6 @@ func newSystem(capacity int, t constraint.SystemType) *system {
 func (cs *system) Solve(witness witness.Witness, opts ...csolver.Option) (any, error) {
 	log := logger.Logger().With().Int("nbConstraints", cs.GetNbConstraints()).Logger()
 	start := time.Now()
-
 	v := witness.Vector().(fr.Vector)
 
 	// init the solver
@@ -96,6 +95,12 @@ func (cs *system) Solve(witness witness.Witness, opts ...csolver.Option) (any, e
 	}
 
 	log.Debug().Dur("took", time.Since(start)).Msg("constraint system solver done")
+
+	/***
+		Hints: ZhmYe
+	 	// todo 这里的values被替换为了solvedValues
+		// 尝试通过初始化values: []int, 然后插入排序，同时delete map获得values
+	***/
 
 	// format the solution
 	// TODO @gbotrel revisit post-refactor

@@ -113,7 +113,7 @@ func (b *BlueprintGenericHint) NewUpdateInstructionTree(inst Instruction, tree I
 	// iterate over the inputs and find the max level
 	lenInputs := int(inst.Calldata[2])
 	j := 3
-	cs.initDegree(iID)
+	//cs.initDegree(iID)
 	previousIds := make([]int, 0)
 	for i := 0; i < lenInputs; i++ {
 		n := int(inst.Calldata[j]) // len of linear expr

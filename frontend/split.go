@@ -189,6 +189,22 @@ func unpack(pi constraint.PackedInstruction, record *DataRecord) []uint32 {
 	}
 	return record.GetCallDatas(int(pi.StartCallData), int(pi.StartCallData+uint64(cSize)))
 }
+
+// UnpackInstruction 将PackedInstruction还原为Instruction
+func UnpackInstruction(pi constraint.PackedInstruction, record *DataRecord) constraint.Instruction {
+	blueprint := record.GetBluePrint(pi.BlueprintID)
+	cSize := blueprint.CalldataSize()
+	if cSize < 0 {
+		// by convention, we store nbInputs < 0 for non-static input length.
+		cSize = int(record.GetCallData(int(pi.StartCallData)))
+	}
+
+	return constraint.Instruction{
+		ConstraintOffset: pi.ConstraintOffset, // todo 这里不一定是原来的
+		WireOffset:       pi.WireOffset,       // todo 这里不一定是原来的
+		Calldata:         record.GetCallDatas(int(pi.StartCallData), int(pi.StartCallData+uint64(cSize))),
+	}
+}
 func buildConstraintSystemFromSit(sit *graph.SITree, record *DataRecord) (constraint.ConstraintSystem, error) {
 	// todo 核心逻辑
 	// 这里根据切割返回出来的结果sit，得到新的电路cs
@@ -201,7 +217,8 @@ func buildConstraintSystemFromSit(sit *graph.SITree, record *DataRecord) (constr
 			pi := record.GetPackedInstruction(iID)
 			bID := cs.AddBlueprint(record.GetBluePrint(pi.BlueprintID))
 			// todo 这里有很多Nb，如NbConstraints，暂时不确定前面是否需要加入
-			// todo，这里会有第二次构建SIT，可以删掉？或者前面给定的结果不需要是SIT?
+			// 这里需要重新得到WireID,不能沿用原来的WireID,因为后面的values是用WireID作为数组索引的
+			originInstruction := UnpackInstruction(pi, record) // 这里是原来的instruction，我们要尝试重新添加
 			cs.AddInstruction(bID, unpack(pi, record))
 			// 由于instruction变化，所以在这里需要重新映射stage内部的iID
 			sit.ModifyiID(i, j, len(cs.Instructions)) // 这里是串行添加的，新的Instruction id就是当前的长度

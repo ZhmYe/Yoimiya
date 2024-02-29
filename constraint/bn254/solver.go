@@ -34,7 +34,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"sync/atomic"
+	//"sync/atomic"
 	"time"
 
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr"
@@ -45,10 +45,16 @@ type solver struct {
 	*system
 
 	// values and solved are index by the wire (variable) id
-	values   []fr.Element
-	solved   []bool
-	nbSolved uint64
+	//values []fr.Element
+	//solved []bool
 
+	// add by ZhmYe
+	// 这里尝试用map来代替values + solved, 后续用到values时插入排序 + delete
+	solvedValues map[int]fr.Element
+
+	//nbSolved uint64
+	// add by ZhmYe
+	nbWires int
 	// maps hintID to hint function
 	mHintsFunctions map[csolver.HintID]csolver.Hint
 	// used to out api.Println
@@ -110,12 +116,14 @@ func newSolver(cs *system, witness fr.Vector, opts ...csolver.Option) (*solver, 
 	}
 
 	s := solver{
-		system:          cs,
-		values:          make([]fr.Element, nbWires),
-		solved:          make([]bool, nbWires),
+		system: cs,
+		//values:          make([]fr.Element, nbWires),
+		//solved:          make([]bool, nbWires),
+		nbWires:         nbWires,
 		mHintsFunctions: hintFunctions,
 		logger:          opt.Logger,
 		q:               cs.Field(),
+		solvedValues:    make(map[int]fr.Element),
 	}
 	// set the witness indexes as solved
 	if witnessOffset == 1 {
@@ -123,17 +131,33 @@ func newSolver(cs *system, witness fr.Vector, opts ...csolver.Option) (*solver, 
 			Hints: ZhmYe
 			1 in witness(1, ...) is Solved
 		 ***/
-		s.solved[0] = true // ONE_WIRE
-		s.values[0].SetOne()
+		//s.solved[0] = true // ONE_WIRE
+		//s.values[0].SetOne()
+		// add by ZhmYe
+		s.solvedValues[0] = *new(fr.Element).SetOne()
 	}
-	copy(s.values[witnessOffset:], witness)
-	for i := range witness {
-		s.solved[i+witnessOffset] = true
+	// todo 这里传入的witness需要强调middle部分的WireID
+	// 在这里我们暂时先传入了原电路的所有的public、private input，因此前面部分的witness应该是可以照旧复制的
+	nbForwardOutput := s.GetNbForwardOutput()
+	// 这里witness的后nbForwardOutput位就是middle传下来的结果
+	// 下面是原本的代码
+	//copy(s.values[witnessOffset:], witness)
+	//for i := range witness {
+	//	s.solved[i+witnessOffset] = true
+	//}
+	// add by ZhmYe
+	for i, value := range witness {
+		// 这里是原本的witness部分
+		if i < len(witness)-nbForwardOutput {
+			s.solvedValues[i+witnessOffset] = value
+		} else {
+			wireID := s.GetForwardOutput(i - len(witness) + nbForwardOutput)
+			s.solvedValues[wireID] = value
+		}
 	}
-
 	// keep track of the number of wire instantiations we do, for a post solve sanity check
 	// to ensure we instantiated all wires
-	s.nbSolved += uint64(len(witness) + witnessOffset)
+	//s.nbSolved += uint64(len(witness) + witnessOffset)
 
 	if s.Type == constraint.SystemR1CS {
 		/***
@@ -156,13 +180,20 @@ func newSolver(cs *system, witness fr.Vector, opts ...csolver.Option) (*solver, 
 }
 
 func (s *solver) set(id int, value fr.Element) {
-	if s.solved[id] {
-		fmt.Println(id)
+	//if s.solved[id] {
+	//	panic("solving the same wire twice should never happen.")
+	//}
+	//s.values[id] = value
+	//s.solved[id] = true
+	// 这里在split的电路中id依旧是原始电路的wireID
+	// add by ZhmYe
+	_, hasSolved := s.solvedValues[id]
+	if hasSolved {
 		panic("solving the same wire twice should never happen.")
 	}
-	s.values[id] = value
-	s.solved[id] = true
-	atomic.AddUint64(&s.nbSolved, 1)
+	s.solvedValues[id] = value
+	// 这里不需要nbSolved了
+	//atomic.AddUint64(&s.nbSolved, 1)
 }
 
 // computeTerm computes coeff*variable
@@ -173,26 +204,32 @@ func (s *solver) computeTerm(t constraint.Term) fr.Element {
 		return s.Coefficients[cID]
 	}
 
-	if cID != 0 && !s.solved[vID] {
+	//if cID != 0 && !s.solved[vID] {
+	//	panic("computing a term with an unsolved wire")
+	//}
+	// modify by ZhmYe
+	_, hasSolved := s.solvedValues[vID]
+	if cID != 0 && hasSolved {
 		panic("computing a term with an unsolved wire")
 	}
-
+	value := s.solvedValues[vID]
+	// value := s.values[vID]
 	switch cID {
 	case constraint.CoeffIdZero:
 		return fr.Element{}
 	case constraint.CoeffIdOne:
-		return s.values[vID]
+		return value
 	case constraint.CoeffIdTwo:
 		var res fr.Element
-		res.Double(&s.values[vID])
+		res.Double(&value)
 		return res
 	case constraint.CoeffIdMinusOne:
 		var res fr.Element
-		res.Neg(&s.values[vID])
+		res.Neg(&value)
 		return res
 	default:
 		var res fr.Element
-		res.Mul(&s.Coefficients[cID], &s.values[vID])
+		res.Mul(&s.Coefficients[cID], &value)
 		return res
 	}
 }
@@ -207,21 +244,23 @@ func (s *solver) accumulateInto(t constraint.Term, r *fr.Element) {
 		r.Add(r, &s.Coefficients[cID])
 		return
 	}
-
+	// modify by ZhmYe
+	value := s.solvedValues[vID]
+	// value := s.values[vID]
 	switch cID {
 	case constraint.CoeffIdZero:
 		return
 	case constraint.CoeffIdOne:
-		r.Add(r, &s.values[vID])
+		r.Add(r, &value)
 	case constraint.CoeffIdTwo:
 		var res fr.Element
-		res.Double(&s.values[vID])
+		res.Double(&value)
 		r.Add(r, &res)
 	case constraint.CoeffIdMinusOne:
-		r.Sub(r, &s.values[vID])
+		r.Sub(r, &value)
 	default:
 		var res fr.Element
-		res.Mul(&s.Coefficients[cID], &s.values[vID])
+		res.Mul(&s.Coefficients[cID], &value)
 		r.Add(r, &res)
 	}
 }
@@ -312,12 +351,15 @@ func (s *solver) logValue(log constraint.LogEntry) string {
 				eval.Add(&eval, &s.Coefficients[cID])
 				continue
 			}
-
-			if !s.solved[vID] {
+			_, hasSolved := s.solvedValues[vID]
+			//if !s.solved[vID] {
+			//	missingValue = true
+			//	break // stop the loop we can't evaluate.
+			//}
+			if !hasSolved {
 				missingValue = true
-				break // stop the loop we can't evaluate.
+				break
 			}
-
 			tv := s.computeTerm(t)
 			eval.Add(&eval, &tv)
 		}
@@ -384,7 +426,10 @@ func (s *solver) SetValue(vID uint32, f constraint.Element) {
 }
 
 func (s *solver) IsSolved(vID uint32) bool {
-	return s.solved[vID]
+
+	_, hasSolved := s.solvedValues[int(vID)]
+	return hasSolved
+	//return s.solved[vID]
 }
 
 // Read interprets input calldata as either a LinearExpression (if R1CS) or a Term (if Plonkish),
@@ -699,7 +744,10 @@ func (solver *solver) run() error {
 
 	}
 	//fmt.Println(int(solver.nbSolved), len(solver.values))
-	if int(solver.nbSolved) != len(solver.values) {
+	//if int(solver.nbSolved) != len(solver.values) {
+	//	return errors.New("solver didn't assign a value to all wires")
+	//}
+	if len(solver.solvedValues) != solver.nbWires {
 		return errors.New("solver didn't assign a value to all wires")
 	}
 	logger.Info().Str("Run Function Time", time.Since(startTime).String()).Msg("YZM TEST")
@@ -728,10 +776,15 @@ func (solver *solver) solveR1C(cID uint32, r *constraint.R1C) error {
 			vID := t.WireID()
 
 			// wire is already computed, we just accumulate in val
-			if solver.solved[vID] {
+			_, hasSolved := solver.solvedValues[vID]
+			if hasSolved {
 				solver.accumulateInto(t, val)
 				continue
 			}
+			//if solver.solved[vID] {
+			//	solver.accumulateInto(t, val)
+			//	continue
+			//}
 
 			if loc != 0 {
 				fmt.Println(solver.Wires2Instruction[t.GetWireID()])
