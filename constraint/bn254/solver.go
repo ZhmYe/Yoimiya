@@ -457,7 +457,7 @@ func (s *solver) Read(calldata []uint32) (constraint.Element, int) {
 
 // processInstruction decodes the instruction and execute blueprint-defined logic.
 // an instruction can encode a hint, a custom constraint or a generic constraint.
-func (solver *solver) processInstruction(pi constraint.PackedInstruction, scratch *scratch) error {
+func (solver *solver) processInstruction(pi constraint.PackedInstruction, scratch *Scratch) error {
 	// fetch the blueprint
 	blueprint := solver.Blueprints[pi.BlueprintID]
 	inst := pi.Unpack(&solver.System)
@@ -504,7 +504,7 @@ func (solver *solver) runStage(stage *graph.Stage, wg *sync.WaitGroup, chTasks *
 	if !stage.WakeUp() {
 		return
 	}
-	var scratch scratch
+	var scratch Scratch
 	//*total += len(stage.GetInstructions())
 	for _, i := range stage.GetInstructions() {
 		err := solver.processInstruction(solver.Instructions[i], &scratch)
@@ -645,7 +645,7 @@ func (solver *solver) runInLevels() error {
 	// a task is a slice of constraint indexes to be solved
 	for i := 0; i < runtime.NumCPU(); i++ {
 		go func() {
-			var scratch scratch
+			var scratch Scratch
 			for t := range chTasks {
 				for _, i := range t {
 					if err := solver.processInstruction(solver.Instructions[i], &scratch); err != nil {
@@ -664,7 +664,7 @@ func (solver *solver) runInLevels() error {
 		close(chError)
 	}()
 	for _, level := range solver.Levels {
-		var scratch scratch
+		var scratch Scratch
 		// max CPU to use
 		maxCPU := float64(len(level)) / float64(minWorkPerCPU)
 
@@ -879,8 +879,20 @@ func (solver *solver) wrapErrWithDebugInfo(cID uint32, err error) *UnsatisfiedCo
 	return &UnsatisfiedConstraintError{CID: int(cID), Err: err, DebugInfo: debugInfo}
 }
 
+// GetSolverOutput add by ZhmYe
+func (solver *solver) GetSolverOutput() (fr.Vector, fr.Vector, fr.Vector, map[int]fr.Element) {
+	return solver.a, solver.b, solver.c, solver.solvedValues
+}
+
 // temporary variables to avoid memallocs in hotloop
-type scratch struct {
+type Scratch struct {
 	tR1C  constraint.R1C
 	tHint constraint.HintMapping
+}
+
+func (s *Scratch) GettR1c() *constraint.R1C {
+	return &s.tR1C
+}
+func (s *Scratch) GettHint() *constraint.HintMapping {
+	return &s.tHint
 }

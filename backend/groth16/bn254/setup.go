@@ -22,6 +22,7 @@ import (
 	cs "S-gnark/constraint/bn254"
 	"S-gnark/logger"
 	"errors"
+	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"
 	curve "github.com/consensys/gnark-crypto/ecc/bn254"
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr"
@@ -368,7 +369,8 @@ func (vk *VerifyingKey) Precompute() error {
 func setupABC(r1cs *cs.R1CS, domain *fft.Domain, toxicWaste toxicWaste) (A []fr.Element, B []fr.Element, C []fr.Element) {
 
 	nbWires := r1cs.NbInternalVariables + r1cs.GetNbPublicVariables() + r1cs.GetNbSecretVariables()
-
+	fmt.Println("nbWires=", nbWires)
+	// todo 这里要求cs.Nb...都是正确的
 	A = make([]fr.Element, nbWires)
 	B = make([]fr.Element, nbWires)
 	C = make([]fr.Element, nbWires)
@@ -390,15 +392,16 @@ func setupABC(r1cs *cs.R1CS, domain *fft.Domain, toxicWaste toxicWaste) (A []fr.
 	var L fr.Element
 
 	// L = 1/n*(t^n-1)/(t-1), Li+1 = w*Li*(t-w^i)/(t-w^(i+1))
-
+	// todo 这里的r1cs.Coefficients缺失
 	// Setting L0
 	L.Exp(toxicWaste.t, new(big.Int).SetUint64(uint64(domain.Cardinality))).
 		Sub(&L, &one)
 	L.Mul(&L, &tInv[0]).
 		Mul(&L, &domain.CardinalityInv)
-
+	fmt.Println(r1cs.GetNbCoefficients())
 	accumulate := func(res *fr.Element, t constraint.Term, value *fr.Element) {
 		cID := t.CoeffID()
+		fmt.Println(cID)
 		switch cID {
 		case constraint.CoeffIdZero:
 			return
@@ -428,12 +431,15 @@ func setupABC(r1cs *cs.R1CS, domain *fft.Domain, toxicWaste toxicWaste) (A []fr.
 	it := r1cs.GetR1CIterator()
 	for c := it.Next(); c != nil; c = it.Next() {
 		for _, t := range c.L {
+			//fmt.Println(t.WireID())
 			accumulate(&A[t.WireID()], t, &L)
 		}
 		for _, t := range c.R {
+			//fmt.Println(t.WireID())
 			accumulate(&B[t.WireID()], t, &L)
 		}
 		for _, t := range c.O {
+			//fmt.Println(t.WireID())
 			accumulate(&C[t.WireID()], t, &L)
 		}
 

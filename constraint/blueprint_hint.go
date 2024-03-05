@@ -107,7 +107,7 @@ func (b *BlueprintGenericHint) UpdateInstructionTree(inst Instruction, tree Inst
 }
 
 // NewUpdateInstructionTree add by ZhmYe
-func (b *BlueprintGenericHint) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System, split bool) {
+func (b *BlueprintGenericHint) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System, split bool, needAppend bool) {
 	// BlueprintGenericHint knows the input and output to the instruction
 	//maxLevel := LevelUnset
 	// iterate over the inputs and find the max level
@@ -122,8 +122,12 @@ func (b *BlueprintGenericHint) NewUpdateInstructionTree(inst Instruction, tree I
 		for k := 0; k < n; k++ {
 			wireID := inst.Calldata[j+1]
 			j += 2
-			if !tree.HasWire(wireID) {
+			if !tree.IsInputOrConstant(wireID, split, needAppend) {
 				continue
+			} else {
+				if needAppend {
+					cs.AddInternalVariable()
+				}
 			}
 			// add by ZhmYe
 			// 前序Instruction

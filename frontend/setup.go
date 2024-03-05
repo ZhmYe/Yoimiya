@@ -4,12 +4,44 @@ import (
 	"S-gnark/backend/groth16"
 	"S-gnark/backend/witness"
 	"S-gnark/constraint"
+	cs_bn254 "S-gnark/constraint/bn254"
 	"S-gnark/frontend/schema"
+	"errors"
 	"fmt"
 	"math/big"
 	"reflect"
 	"time"
 )
+
+func SetNbLeaf(assignment Circuit, cs *cs_bn254.R1CS) error {
+	variableAdder := func() func(f schema.LeafInfo, tInput reflect.Value) error {
+		return func(f schema.LeafInfo, tInput reflect.Value) error {
+			if tInput.CanSet() {
+				if f.Visibility == schema.Unset {
+					return errors.New("can't set val " + f.FullName() + " visibility is unset")
+				}
+				if f.Visibility == schema.Public {
+					/*** Hints: ZhmYe
+						builder.PublicVariable() / SecretVariable()
+						eg. idx = len(builder.Public), builder.Public.append(name)
+						return new LinearExpresssion(Term{idx, builder.tone}) -> []Term
+					***/
+					(*cs).AddPublicVariable(f.FullName())
+				} else if f.Visibility == schema.Secret {
+					(*cs).AddSecretVariable(f.FullName())
+				}
+			}
+
+			return nil
+		}
+		//return errors.New("can't set val ")
+	}
+	_, err := schema.Walk(assignment, tVariable, variableAdder())
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
 // todo 如何得到extra，即如何得到MIDDLE的值
 // generateWitness 为split后的电路生成witness,extra表示Middle

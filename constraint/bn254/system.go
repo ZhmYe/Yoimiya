@@ -65,7 +65,6 @@ func (cs *system) Solve(witness witness.Witness, opts ...csolver.Option) (any, e
 	log := logger.Logger().With().Int("nbConstraints", cs.GetNbConstraints()).Logger()
 	start := time.Now()
 	v := witness.Vector().(fr.Vector)
-
 	// init the solver
 	Asolver, err := newSolver(cs, v, opts...)
 	if err != nil {
@@ -95,27 +94,47 @@ func (cs *system) Solve(witness witness.Witness, opts ...csolver.Option) (any, e
 	}
 
 	log.Debug().Dur("took", time.Since(start)).Msg("constraint system solver done")
-
+	// add by ZhmYe
+	Asolver.UpdateForwardOutput() // 这里cs.ForwardOutput或者Asolver.ForwardOutput就是middle的wireID
+	// 计算传下去的extra内容，即middle的wire结果
+	for _, wireID := range Asolver.GetForwardOutputs() {
+		Asolver.AddExtra(Asolver.solvedValues[wireID])
+	}
 	/***
 		Hints: ZhmYe
 	 	// todo 这里的values被替换为了solvedValues
-		// 尝试通过初始化values: []int, 然后插入排序，同时delete map获得values
+		// 尝试通过初始化values
 	***/
 
 	// format the solution
 	// TODO @gbotrel revisit post-refactor
 	if cs.Type == constraint.SystemR1CS {
 		var res R1CSSolution
-		res.W = Asolver.values
-		res.A = Asolver.a
-		res.B = Asolver.b
-		res.C = Asolver.c
+		a, b, c, solvedValues := Asolver.GetSolverOutput()
+		values := make([]fr.Element, 0)
+		// todo 这里遍历map是无序的，但res.W是否要求有序？对map进行排序内存消耗？
+		for key, value := range solvedValues {
+			values = append(values, value)
+			delete(solvedValues, key)
+		}
+		res.W = values
+		res.A = a
+		res.B = b
+		res.C = c
 		return &res, nil
 	} else {
 		// sparse R1CS
 		var res SparseR1CSSolution
 		// query l, r, o in Lagrange basis, not blinded
-		res.L, res.R, res.O = evaluateLROSmallDomain(cs, Asolver.values)
+		solvedValues := Asolver.solvedValues
+
+		values := make([]fr.Element, 0)
+		// todo 这里遍历map是无序的，但res.W是否要求有序？对map进行排序内存消耗？
+		for key, value := range solvedValues {
+			values = append(values, value)
+			delete(solvedValues, key)
+		}
+		res.L, res.R, res.O = evaluateLROSmallDomain(cs, values)
 
 		return &res, nil
 	}

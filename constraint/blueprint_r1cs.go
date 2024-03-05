@@ -65,7 +65,7 @@ func (b *BlueprintGenericR1C) DecompressR1C(c *R1C, inst Instruction) {
 ***/
 
 // NewUpdateInstructionTree modify by ZhmYe
-func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System, split bool) {
+func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System, split bool, needAppend bool) {
 	/***
 		Hints: ZhmYe
 		callData:
@@ -94,8 +94,12 @@ func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree In
 			//if !tree.HasWire(wireID) {
 			//	continue
 			//}
-			if !tree.IsInputOrConstant(wireID, split) {
+			if !tree.IsInputOrConstant(wireID, split, needAppend) {
 				continue
+			} else {
+				if needAppend {
+					cs.AddInternalVariable()
+				}
 			}
 			// outputWires中存储所有level为LevelUnset的wireID
 			// 原本下面通过判断level是否存在来判断，现在可以通过判断Wire2Instruction判断

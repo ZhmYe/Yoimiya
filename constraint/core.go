@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"github.com/blang/semver/v4"
 	"github.com/consensys/gnark-crypto/ecc"
+	"github.com/consensys/gnark-crypto/ecc/bn254/fr"
 	"math/big"
 	"strconv"
 	"sync"
@@ -141,7 +142,8 @@ type System struct {
 	//InstructionBackwardDAG *graph.DAG     // DAG constructed by Instructions, backward
 	//degree                 map[int]int    // store each node's degree(to order)
 	Sit           *graph.SITree
-	forwardOutput []int // 这里用来记录Middle传下来的结果，记录WireID
+	forwardOutput []int        // 这里用来记录Middle传下来或传下去的结果，记录WireID
+	extra         []fr.Element // 这里用来记录forwardOutput对应的value
 }
 
 // NewSystem initialize the common structure among constraint system
@@ -166,11 +168,16 @@ func NewSystem(scalarField *big.Int, capacity int, t SystemType) System {
 		//degree:                 make(map[int]int),
 		Sit:           graph.NewSITree(),
 		forwardOutput: make([]int, 0),
+		extra:         make([]fr.Element, 0),
 	}
 
 	system.genericHint = system.AddBlueprint(&BlueprintGenericHint{})
 	return system
 }
+
+// add by ZhmYe
+
+// SetForwardOutput 这里把上一个电路传下来的WireID记录在system.forwardOutput
 func (system *System) SetForwardOutput(output []int) {
 	system.forwardOutput = output
 }
@@ -180,25 +187,41 @@ func (system *System) GetNbForwardOutput() int {
 func (system *System) GetForwardOutput(index int) int {
 	return system.forwardOutput[index]
 }
-func (system *System) GetForwardOutputs(indexs ...int) []int {
-	result := make([]int, 0)
-	for _, index := range indexs {
-		result = append(result, system.GetForwardOutput(index))
+func (system *System) GetForwardOutputs() []int {
+	return system.forwardOutput
+}
+func (system *System) AddExtra(value fr.Element) {
+	system.extra = append(system.extra, value)
+}
+func (system *System) GetExtra() []fr.Element {
+	return system.extra
+}
+
+// add by ZhmYe
+
+// UpdateForwardOutput 这里返回传给下一个电路的 WireID: value
+// 这里的value还没有被计算出来，先赋值为默认值
+// todo 在solver计算完成后，传入这个map，然后将map内的内容修改?
+// 暂时先就记录所有wireID
+// todo 这里是不是可以把output覆盖forwardOutput
+func (system *System) UpdateForwardOutput() {
+	middleInstructions := system.Sit.GetMiddleOutputs()
+	// 这里我们要得到Instruction里的所有WireID
+	// todo 是否要所有的WireID? 还是只要output
+	// 这里暂时按照只要output来写
+	// 首先先要得到Instruction
+	system.forwardOutput = make([]int, 0)
+	// system.Wire2Instruction记录了Wire在哪一个Instruction中作为output
+	for wire, iID := range system.Wires2Instruction {
+		_, isMiddle := middleInstructions[iID]
+		if isMiddle {
+			system.forwardOutput = append(system.forwardOutput, int(wire))
+		}
 	}
-	return result
 }
 
 // AppendWire2Instruction add by ZhmYe
 func (system *System) AppendWire2Instruction(wireId uint32, iID int) {
-	//_, exist := system.Wires2Instruction[wireId]
-	//if !exist {
-	//	system.Wires2Instruction[wireId] = make([]int, 0)
-	//}
-	//system.Wires2Instruction[wireId] = append(system.Wires2Instruction[wireId], iID)
-	//if len(system.Wires2Instruction[wireId]) != 1 {
-	//	fmt.Println("not 1")
-	//}
-	// 可以确定一个wire对应一个instruction
 	system.Wires2Instruction[wireId] = iID
 }
 
@@ -351,6 +374,7 @@ func (system *System) FieldBitLen() int {
 func (system *System) AddInternalVariable() (idx int) {
 	idx = system.NbInternalVariables + system.GetNbPublicVariables() + system.GetNbSecretVariables()
 	system.NbInternalVariables++
+	//fmt.Println(system.NbInternalVariables)
 	// also grow the level slice
 	// modify by ZhmYe
 	if Config.Config.Split == Config.SPLIT_LEVELS {
@@ -527,7 +551,7 @@ func (cs *System) AddSparseR1C(c SparseR1C, bID BlueprintID) int {
 
 ***/
 
-func (cs *System) AddInstructionInSpilt(bID BlueprintID, calldata []uint32) []uint32 {
+func (cs *System) AddInstructionInSpilt(bID BlueprintID, calldata []uint32, split bool) []uint32 {
 	// set the offsets
 	pi := PackedInstruction{
 		StartCallData:    uint64(len(cs.CallData)),
@@ -563,7 +587,8 @@ func (cs *System) AddInstructionInSpilt(bID BlueprintID, calldata []uint32) []ui
 	// modify by ZhmYe
 	switch Config.Config.Split {
 	case Config.SPLIT_STAGES:
-		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, true)
+		//fmt.Println(cs.GetNbInternalVariables())
+		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, split, true)
 	case Config.SPLIT_LEVELS:
 		level := blueprint.UpdateInstructionTree(inst, cs)
 		// we can't skip levels, so appending is fine.
@@ -573,7 +598,7 @@ func (cs *System) AddInstructionInSpilt(bID BlueprintID, calldata []uint32) []ui
 			cs.Levels[level] = append(cs.Levels[level], iID)
 		}
 	default:
-		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, true)
+		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, split, true)
 	}
 	//cs.GetDegree(iID)
 	return wires
@@ -614,7 +639,7 @@ func (cs *System) AddInstruction(bID BlueprintID, calldata []uint32) []uint32 {
 	// modify by ZhmYe
 	switch Config.Config.Split {
 	case Config.SPLIT_STAGES:
-		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, false)
+		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, false, false)
 	case Config.SPLIT_LEVELS:
 		level := blueprint.UpdateInstructionTree(inst, cs)
 		// we can't skip levels, so appending is fine.
@@ -624,7 +649,7 @@ func (cs *System) AddInstruction(bID BlueprintID, calldata []uint32) []uint32 {
 			cs.Levels[level] = append(cs.Levels[level], iID)
 		}
 	default:
-		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, false)
+		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, false, false)
 	}
 	//cs.GetDegree(iID)
 	return wires

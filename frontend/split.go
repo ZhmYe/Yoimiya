@@ -9,6 +9,7 @@ import (
 	"S-gnark/logger"
 	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"
+	"github.com/consensys/gnark-crypto/ecc/bn254/fr"
 )
 
 /***
@@ -94,6 +95,8 @@ func Split(cs constraint.ConstraintSystem, assignment Circuit) ([]PackedProof, e
 	toSplitCs := cs
 	flag := true
 	hasSplit := false
+	extra := make([]any, 0)
+	forwardOutput := make([]int, 0)
 	for {
 		if !flag {
 			fmt.Println("Recursive Split Finish...")
@@ -120,7 +123,7 @@ func Split(cs constraint.ConstraintSystem, assignment Circuit) ([]PackedProof, e
 			//}
 			// todo 这里等待实现
 			record := NewDataRecord(_r1cs)
-			subCs, err := buildConstraintSystemFromIds(top, record, hasSplit)
+			subCs, err := buildConstraintSystemFromIds(top, record, hasSplit, assignment)
 			if err != nil {
 				panic(err)
 			}
@@ -128,13 +131,13 @@ func Split(cs constraint.ConstraintSystem, assignment Circuit) ([]PackedProof, e
 			// 这里加入prove的逻辑，这样top可以丢弃 todo
 			// todo 这里需要加入得到extra也就是MIDDLE的值的逻辑
 			// todo any如何转化？
-			extra := make([]any, 0)
-			proofs = append(proofs, SplitAndProve(subCs, assignment, extra))
+			proof := SplitAndProve(subCs, assignment, &extra, &forwardOutput)
+			proofs = append(proofs, proof)
 			if len(bottom) == 0 {
 				flag = false
 			} else {
 				hasSplit = true
-				toSplitCs, err = buildConstraintSystemFromIds(bottom, record, hasSplit)
+				toSplitCs, err = buildConstraintSystemFromIds(bottom, record, hasSplit, assignment)
 				if err != nil {
 					panic(err)
 				}
@@ -154,14 +157,43 @@ func Split(cs constraint.ConstraintSystem, assignment Circuit) ([]PackedProof, e
 	}
 	return proofs, nil
 }
+func GetExtra(system constraint.ConstraintSystem) ([]int, []fr.Element) {
+	switch _r1cs := system.(type) {
+	case *cs_bn254.R1CS:
+		forwardOutput := _r1cs.GetForwardOutputs() // 获得更新后的forwardOutput，即middle output wireID
+		extra := _r1cs.GetExtra()
+		return forwardOutput, extra
+	default:
+		panic("Only Support bn254 r1cs now...")
+	}
+}
+func SetForwardOutput(split constraint.ConstraintSystem, forwardOutput []int) {
+	switch _r1cs := split.(type) {
+	case *cs_bn254.R1CS:
+		_r1cs.SetForwardOutput(forwardOutput)
+	default:
+		panic("Only Support bn254 r1cs now...")
+	}
+}
 
 // SplitAndProve 传入Split后的电路，进行prove，记录Prove时间和内存使用
 // todo 内存使用记录
-func SplitAndProve(split constraint.ConstraintSystem, assignment Circuit, extra []any) PackedProof {
+func SplitAndProve(split constraint.ConstraintSystem, assignment Circuit, extra *[]any, forwardOutput *[]int) PackedProof {
+	//err := SetNbLeaf(assignment, &split)
+	//if err != nil {
+	//panic(err)
+	//}
 	pk, vk := SetUpSplit(split)
-	fullWitness, _ := generateWitness(assignment, extra, ecc.BN254.ScalarField())
-	publicWitness, _ := generateWitness(assignment, extra, ecc.BN254.ScalarField(), PublicOnly())
+	fullWitness, _ := generateWitness(assignment, *extra, ecc.BN254.ScalarField())
+	publicWitness, _ := generateWitness(assignment, *extra, ecc.BN254.ScalarField(), PublicOnly())
+	SetForwardOutput(split, *forwardOutput)
 	proof, _ := groth16.Prove(split, pk.(groth16.ProvingKey), fullWitness)
+	var nextExtra []fr.Element
+	*forwardOutput, nextExtra = GetExtra(split)
+	*extra = make([]any, 0)
+	for _, e := range nextExtra {
+		*extra = append(*extra, e)
+	}
 	return NewPackedProof(proof, vk, publicWitness)
 }
 
@@ -218,7 +250,7 @@ func buildConstraintSystemFromSit(sit *graph.SITree, record *DataRecord) (constr
 			bID := cs.AddBlueprint(record.GetBluePrint(pi.BlueprintID))
 			// todo 这里有很多Nb，如NbConstraints，暂时不确定前面是否需要加入
 			// 这里需要重新得到WireID,不能沿用原来的WireID,因为后面的values是用WireID作为数组索引的
-			originInstruction := UnpackInstruction(pi, record) // 这里是原来的instruction，我们要尝试重新添加
+			//originInstruction := UnpackInstruction(pi, record) // 这里是原来的instruction，我们要尝试重新添加
 			cs.AddInstruction(bID, unpack(pi, record))
 			// 由于instruction变化，所以在这里需要重新映射stage内部的iID
 			sit.ModifyiID(i, j, len(cs.Instructions)) // 这里是串行添加的，新的Instruction id就是当前的长度
@@ -226,25 +258,28 @@ func buildConstraintSystemFromSit(sit *graph.SITree, record *DataRecord) (constr
 	}
 	return cs, nil
 }
-func buildConstraintSystemFromIds(iIDs []int, record *DataRecord, hasSplit bool) (constraint.ConstraintSystem, error) {
+func buildConstraintSystemFromIds(iIDs []int, record *DataRecord, hasSplit bool, assignment Circuit) (constraint.ConstraintSystem, error) {
 	// todo 核心逻辑
 	// 这里根据切割返回出来的有序instruction ids，得到新的电路cs
 	// record中记录了CallData、Blueprint、Instruction的map
 	// CallData、Instruction应该是一一对应的关系，map取出后可删除
 	opt := defaultCompileConfig()
+	fmt.Println("capacity=", opt.Capacity)
 	cs := cs_bn254.NewR1CS(opt.Capacity)
+	SetNbLeaf(assignment, cs)
+	fmt.Println("nbPublic=", cs.GetNbPublicVariables(), " nbPrivate=", cs.GetNbSecretVariables())
 	for _, iID := range iIDs {
 		pi := record.GetPackedInstruction(iID)
 		bID := cs.AddBlueprint(record.GetBluePrint(pi.BlueprintID))
-		// todo 这里有很多Nb，如NbConstraints，暂时不确定前面是否需要加入
-		// todo，这里会有第二次构建SIT，可以删掉？或者前面给定的结果不需要是SIT?
+		// todo 这里的r1cs.Coefficients缺失
 		if hasSplit {
-			cs.AddInstructionInSpilt(bID, unpack(pi, record))
+			cs.AddInstructionInSpilt(bID, unpack(pi, record), true)
 		} else {
-			cs.AddInstruction(bID, unpack(pi, record))
+			cs.AddInstructionInSpilt(bID, unpack(pi, record), false)
 		}
 		//// 由于instruction变化，所以在这里需要重新映射stage内部的iID
 		//sit.ModifyiID(i, j, len(cs.Instructions)) // 这里是串行添加的，新的Instruction id就是当前的长度
 	}
+	fmt.Println(cs.GetNbPublicVariables(), cs.GetNbSecretVariables(), cs.GetNbInternalVariables())
 	return cs, nil
 }
