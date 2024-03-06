@@ -54,7 +54,7 @@ func NewSparseR1CS(capacity int) *SparseR1CS {
 func newSystem(capacity int, t constraint.SystemType) *system {
 	return &system{
 		System:     constraint.NewSystem(fr.Modulus(), capacity, t),
-		CoeffTable: newCoeffTable(capacity / 10),
+		CoeffTable: NewCoeffTable(capacity / 10),
 	}
 }
 
@@ -112,9 +112,26 @@ func (cs *system) Solve(witness witness.Witness, opts ...csolver.Option) (any, e
 		var res R1CSSolution
 		a, b, c, solvedValues := Asolver.GetSolverOutput()
 		values := make([]fr.Element, 0)
-		// todo 这里遍历map是无序的，但res.W是否要求有序？对map进行排序内存消耗？
-		for key, value := range solvedValues {
-			values = append(values, value)
+		// todo 这里加入了对value的排序，可能消耗内存
+		/***
+			Hints: ZhmYe
+			从实际实验来看，似乎要排序，innerCircuit如果不排序会报错
+			todo
+			有没有什么既能保证有序又可以像map一样的结构或者算法？
+		***/
+		sortedKey := make([]int, 0)
+		for key, _ := range solvedValues {
+			sortedKey = append(sortedKey, key)
+		}
+		for i := 0; i < len(sortedKey); i++ {
+			for j := i + 1; j < len(sortedKey); j++ {
+				if sortedKey[i] > sortedKey[j] {
+					sortedKey[i], sortedKey[j] = sortedKey[j], sortedKey[i]
+				}
+			}
+		}
+		for _, key := range sortedKey {
+			values = append(values, solvedValues[key])
 			delete(solvedValues, key)
 		}
 		res.W = values
@@ -201,7 +218,7 @@ func (cs *system) ReadFrom(r io.Reader) (int64, error) {
 	decoder := dm.NewDecoder(r)
 
 	// initialize coeff table
-	cs.CoeffTable = newCoeffTable(0)
+	cs.CoeffTable = NewCoeffTable(0)
 
 	if err := decoder.Decode(&cs); err != nil {
 		return int64(decoder.NumBytesRead()), err

@@ -30,7 +30,7 @@ type CoeffTable struct {
 	mCoeffs      map[fr.Element]uint32 // maps coefficient to coeffID
 }
 
-func newCoeffTable(capacity int) CoeffTable {
+func NewCoeffTable(capacity int) CoeffTable {
 	r := CoeffTable{
 		Coefficients: make([]fr.Element, 5, 5+capacity),
 		mCoeffs:      make(map[fr.Element]uint32, capacity),

@@ -398,10 +398,8 @@ func setupABC(r1cs *cs.R1CS, domain *fft.Domain, toxicWaste toxicWaste) (A []fr.
 		Sub(&L, &one)
 	L.Mul(&L, &tInv[0]).
 		Mul(&L, &domain.CardinalityInv)
-	fmt.Println(r1cs.GetNbCoefficients())
 	accumulate := func(res *fr.Element, t constraint.Term, value *fr.Element) {
 		cID := t.CoeffID()
-		fmt.Println(cID)
 		switch cID {
 		case constraint.CoeffIdZero:
 			return

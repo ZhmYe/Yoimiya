@@ -28,6 +28,7 @@ type DataRecord struct {
 	Instructions map[int]constraint.PackedInstruction
 	CallData     map[int]uint32
 	Blueprints   map[constraint.BlueprintID]constraint.Blueprint
+	CoeffTable   cs_bn254.CoeffTable
 }
 
 func NewDataRecord(cs *cs_bn254.R1CS) *DataRecord {
@@ -35,6 +36,7 @@ func NewDataRecord(cs *cs_bn254.R1CS) *DataRecord {
 		CallData:     make(map[int]uint32),
 		Instructions: make(map[int]constraint.PackedInstruction),
 		Blueprints:   make(map[constraint.BlueprintID]constraint.Blueprint),
+		CoeffTable:   cs_bn254.NewCoeffTable(0),
 	}
 	for i, data := range cs.CallData {
 		record.CallData[i] = data
@@ -45,6 +47,7 @@ func NewDataRecord(cs *cs_bn254.R1CS) *DataRecord {
 	for i, blueprint := range cs.Blueprints {
 		record.Blueprints[constraint.BlueprintID(i)] = blueprint
 	}
+	record.CoeffTable = cs.CoeffTable
 	return &record
 }
 
@@ -65,6 +68,9 @@ func (r *DataRecord) GetCallDatas(start int, end int) []uint32 {
 }
 func (r *DataRecord) GetCallData(index int) uint32 {
 	return r.CallData[index]
+}
+func (r *DataRecord) GetCoeffTable() cs_bn254.CoeffTable {
+	return r.CoeffTable
 }
 
 // PackedProof 包含prove得到proof，以及验证需要的publicWitness、verifyingKey
@@ -104,6 +110,7 @@ func Split(cs constraint.ConstraintSystem, assignment Circuit) ([]PackedProof, e
 		}
 		switch _r1cs := toSplitCs.(type) {
 		case *cs_bn254.R1CS:
+
 			switch _r1cs.Sit.Examine() {
 			case graph.PASS:
 				log := logger.Logger()
@@ -136,6 +143,7 @@ func Split(cs constraint.ConstraintSystem, assignment Circuit) ([]PackedProof, e
 			if len(bottom) == 0 {
 				flag = false
 			} else {
+				fmt.Println("bottom=", len(bottom))
 				hasSplit = true
 				toSplitCs, err = buildConstraintSystemFromIds(bottom, record, hasSplit, assignment)
 				if err != nil {
@@ -264,10 +272,10 @@ func buildConstraintSystemFromIds(iIDs []int, record *DataRecord, hasSplit bool,
 	// record中记录了CallData、Blueprint、Instruction的map
 	// CallData、Instruction应该是一一对应的关系，map取出后可删除
 	opt := defaultCompileConfig()
-	fmt.Println("capacity=", opt.Capacity)
+	//fmt.Println("capacity=", opt.Capacity)
 	cs := cs_bn254.NewR1CS(opt.Capacity)
 	SetNbLeaf(assignment, cs)
-	fmt.Println("nbPublic=", cs.GetNbPublicVariables(), " nbPrivate=", cs.GetNbSecretVariables())
+	//fmt.Println("nbPublic=", cs.GetNbPublicVariables(), " nbPrivate=", cs.GetNbSecretVariables())
 	for _, iID := range iIDs {
 		pi := record.GetPackedInstruction(iID)
 		bID := cs.AddBlueprint(record.GetBluePrint(pi.BlueprintID))
@@ -280,6 +288,8 @@ func buildConstraintSystemFromIds(iIDs []int, record *DataRecord, hasSplit bool,
 		//// 由于instruction变化，所以在这里需要重新映射stage内部的iID
 		//sit.ModifyiID(i, j, len(cs.Instructions)) // 这里是串行添加的，新的Instruction id就是当前的长度
 	}
+	cs.CoeffTable = record.GetCoeffTable()
 	fmt.Println(cs.GetNbPublicVariables(), cs.GetNbSecretVariables(), cs.GetNbInternalVariables())
+	fmt.Println(cs.GetNbCoefficients())
 	return cs, nil
 }

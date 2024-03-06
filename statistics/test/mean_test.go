@@ -26,7 +26,7 @@ type TestMean struct {
 
 func NewTestMean() *TestMean {
 	t := new(TestMean)
-	t.success, t.N = false, 10000
+	t.success, t.N = true, 10000
 	SampleVariable, SampleInt := generateSamples(t.N)
 	t.X = SampleVariable
 	t.Y = utils.Mean(SampleInt...)
@@ -45,6 +45,18 @@ func (t *TestMean) init() {
 	}
 	fmt.Println(len(proofs))
 	fmt.Println("Split Circuit Time:", time.Since(startTime))
+	for _, packedProof := range proofs {
+		proof := packedProof.GetProof()
+		verifyKey := packedProof.GetVerifyingKey()
+		publicWitness := packedProof.GetPublicWitness()
+		verifier := Verifier{
+			vk:            verifyKey,
+			publicWitness: publicWitness,
+		}
+		if !verifier.verify(proof) {
+			t.success = false
+		}
+	}
 	//for _, split := range splits {
 	//	switch _split := split.(type) {
 	//	case *cs_bn254.R1CS:
@@ -53,13 +65,13 @@ func (t *TestMean) init() {
 	//		panic("Only Support bn254 r1cs now...")
 	//	}
 	//}
-	pk, vk, _ := groth16.Setup(ccs)
-	fmt.Println("Set Up Time:", time.Since(startTime))
+	//pk, vk, _ := groth16.Setup(ccs)
+	//fmt.Println("Set Up Time:", time.Since(startTime))
 	// witness definition
-	witness, _ := frontend.NewWitness(&assignment, ecc.BN254.ScalarField())
-	publicWitness, _ := witness.Public()
-	t.prover = Prover{ccs: ccs, pk: pk, witness: witness}
-	t.verifier = Verifier{vk: vk, publicWitness: publicWitness}
+	//witness, _ := frontend.NewWitness(&assignment, ecc.BN254.ScalarField())
+	//publicWitness, _ := witness.Public()
+	//t.prover = Prover{ccs: ccs, pk: pk, witness: witness}
+	//t.verifier = Verifier{vk: vk, publicWitness: publicWitness}
 }
 func (t *TestMean) test() {
 	// prover Prove
@@ -74,7 +86,7 @@ func Test4Mean(t *testing.T) {
 	log := logger.Logger()
 	test := NewTestMean()
 	test.init()
-	test.test()
+	//test.test()
 	flag := "false"
 	if test.check() {
 		flag = "true"
