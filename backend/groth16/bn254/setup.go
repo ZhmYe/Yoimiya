@@ -22,7 +22,6 @@ import (
 	cs "S-gnark/constraint/bn254"
 	"S-gnark/logger"
 	"errors"
-	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"
 	curve "github.com/consensys/gnark-crypto/ecc/bn254"
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr"
@@ -369,8 +368,7 @@ func (vk *VerifyingKey) Precompute() error {
 func setupABC(r1cs *cs.R1CS, domain *fft.Domain, toxicWaste toxicWaste) (A []fr.Element, B []fr.Element, C []fr.Element) {
 
 	nbWires := r1cs.NbInternalVariables + r1cs.GetNbPublicVariables() + r1cs.GetNbSecretVariables()
-	fmt.Println("nbWires=", nbWires)
-	// todo 这里要求cs.Nb...都是正确的
+	//fmt.Println("nbWires=", nbWires)
 	A = make([]fr.Element, nbWires)
 	B = make([]fr.Element, nbWires)
 	C = make([]fr.Element, nbWires)

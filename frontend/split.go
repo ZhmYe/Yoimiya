@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr"
+	"time"
 )
 
 /***
@@ -103,11 +104,17 @@ func Split(cs constraint.ConstraintSystem, assignment Circuit) ([]PackedProof, e
 	hasSplit := false
 	extra := make([]any, 0)
 	forwardOutput := make([]int, 0)
+	startTime := time.Now()
+	round := 0
+	fmt.Println("=================Start Recursive Split=================")
 	for {
 		if !flag {
-			fmt.Println("Recursive Split Finish...")
+			fmt.Println()
+			fmt.Println("Total Time: ", time.Since(startTime))
+			fmt.Println("=================Start Recursive Finished=================")
 			break
 		}
+		round++
 		switch _r1cs := toSplitCs.(type) {
 		case *cs_bn254.R1CS:
 
@@ -115,14 +122,18 @@ func Split(cs constraint.ConstraintSystem, assignment Circuit) ([]PackedProof, e
 			case graph.PASS:
 				log := logger.Logger()
 				log.Debug().Str("SIT LAYER EXAMINE", "PASS").Msg("YZM DEBUG")
-				fmt.Println("Examine PASS...")
+				//fmt.Println("Examine PASS...")
 			case graph.HAS_LINK:
 				panic("Sit Layer Error: HAS_LINK...")
 			case graph.LAYER_UNSET:
 				panic("Sit Layer Error: LAYER_UNSET...")
 
 			}
-			fmt.Println(_r1cs.Sit.GetLayersInfo(), _r1cs.Sit.GetStageNumber(), _r1cs.Sit.GetTotalInstructionNumber())
+			fmt.Println("Round ", round)
+			fmt.Println("	Circuit Structure: ")
+			fmt.Println("		Layers Number: ", _r1cs.Sit.GetLayersInfo())
+			fmt.Println("		Stage Number:", _r1cs.Sit.GetStageNumber())
+			fmt.Println("		Instruction Number: ", _r1cs.Sit.GetTotalInstructionNumber())
 			//sits, err := trySplit(_r1cs)
 			top, bottom := _r1cs.Sit.CheckAndGetSubCircuitStageIDs()
 			//if err != nil {
@@ -130,6 +141,7 @@ func Split(cs constraint.ConstraintSystem, assignment Circuit) ([]PackedProof, e
 			//}
 			// todo 这里等待实现
 			record := NewDataRecord(_r1cs)
+			fmt.Print("	Top Circuit ")
 			subCs, err := buildConstraintSystemFromIds(top, record, hasSplit, assignment)
 			if err != nil {
 				panic(err)
@@ -143,8 +155,9 @@ func Split(cs constraint.ConstraintSystem, assignment Circuit) ([]PackedProof, e
 			if len(bottom) == 0 {
 				flag = false
 			} else {
-				fmt.Println("bottom=", len(bottom))
+				//fmt.Println("bottom=", len(bottom))
 				hasSplit = true
+				fmt.Print("	Bottom Circuit ")
 				toSplitCs, err = buildConstraintSystemFromIds(bottom, record, hasSplit, assignment)
 				if err != nil {
 					panic(err)
@@ -274,7 +287,10 @@ func buildConstraintSystemFromIds(iIDs []int, record *DataRecord, hasSplit bool,
 	opt := defaultCompileConfig()
 	//fmt.Println("capacity=", opt.Capacity)
 	cs := cs_bn254.NewR1CS(opt.Capacity)
-	SetNbLeaf(assignment, cs)
+	err := SetNbLeaf(assignment, cs)
+	if err != nil {
+		return nil, err
+	}
 	//fmt.Println("nbPublic=", cs.GetNbPublicVariables(), " nbPrivate=", cs.GetNbSecretVariables())
 	for _, iID := range iIDs {
 		pi := record.GetPackedInstruction(iID)
@@ -289,7 +305,12 @@ func buildConstraintSystemFromIds(iIDs []int, record *DataRecord, hasSplit bool,
 		//sit.ModifyiID(i, j, len(cs.Instructions)) // 这里是串行添加的，新的Instruction id就是当前的长度
 	}
 	cs.CoeffTable = record.GetCoeffTable()
-	fmt.Println(cs.GetNbPublicVariables(), cs.GetNbSecretVariables(), cs.GetNbInternalVariables())
-	fmt.Println(cs.GetNbCoefficients())
+	fmt.Println("Compile Result: ")
+	fmt.Println("		NbPublic=", cs.GetNbPublicVariables())
+	fmt.Println("		NbSecret=", cs.GetNbSecretVariables())
+	fmt.Println("		NbInternal=", cs.GetNbInternalVariables())
+	fmt.Println("		NbCoeff=", cs.GetNbConstraints())
+	fmt.Println("		NbWires=", cs.GetNbPublicVariables()+cs.GetNbSecretVariables()+cs.GetNbInternalVariables())
+	fmt.Println()
 	return cs, nil
 }

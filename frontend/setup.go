@@ -7,10 +7,8 @@ import (
 	cs_bn254 "S-gnark/constraint/bn254"
 	"S-gnark/frontend/schema"
 	"errors"
-	"fmt"
 	"math/big"
 	"reflect"
-	"time"
 )
 
 func SetNbLeaf(assignment Circuit, cs *cs_bn254.R1CS) error {
@@ -103,12 +101,12 @@ func generateWitness(assignment Circuit, extra []any, field *big.Int, opts ...Wi
 
 // SetUpSplit 给定电路 进行SetUp操作并给出ProveingKey和VerifyingKey
 func SetUpSplit(cs constraint.ConstraintSystem) (groth16.ProvingKey, groth16.VerifyingKey) {
-	startTime := time.Now()
+	//startTime := time.Now()
 	outerPK, outerVK, err := groth16.Setup(cs)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("SetUp Time:", time.Since(startTime))
+	//fmt.Println("SetUp Time:", time.Since(startTime))
 	//full, err := NewWitness(outerAssignment, ecc.BN254.ScalarField())
 	//public, err := NewWitness(outerAssignment, ecc.BN254.ScalarField(), frontend.PublicOnly())
 	return outerPK, outerVK
