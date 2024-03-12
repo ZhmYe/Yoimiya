@@ -122,38 +122,13 @@ func (b *BlueprintGenericHint) NewUpdateInstructionTree(inst Instruction, tree I
 		for k := 0; k < n; k++ {
 			wireID := inst.Calldata[j+1]
 			j += 2
-			if !tree.IsInputOrConstant(wireID, split, needAppend) {
+			if !tree.IsInputOrConstant(wireID, split) {
 				continue
-			} else {
-				if needAppend {
-					cs.AddInternalVariable()
-				}
 			}
 			// add by ZhmYe
 			// 前序Instruction
 			previousInstructionID := cs.Wires2Instruction[wireID]
 			previousIds = append(previousIds, previousInstructionID)
-			//if level := tree.GetWireLevel(wireID); level > maxLevel {
-			//	maxLevel = level
-			//	previousInstructionID := cs.Wires2Instruction[wireID]
-			//	previousIds = append(previousIds, previousInstructionID)
-			//	cs.InstructionForwardDAG.Update(previousInstructionID, iID)
-			//	cs.InstructionBackwardDAG.Update(iID, previousInstructionID)
-			//	cs.UpdateDegree(false, previousInstructionID) // 更新degree,这里用于更新Backward的degree
-			//
-			//} else {
-			//	// add by ZhmYe
-			//	// 即使level没有超过最大level，只要有level就要遍历
-			//	previousInstructionID := cs.Wires2Instruction[wireID]
-			//	previousIds = append(previousIds, previousInstructionID)
-			//	cs.InstructionForwardDAG.Update(previousInstructionID, iID)
-			//	cs.InstructionBackwardDAG.Update(iID, previousInstructionID)
-			//	cs.UpdateDegree(false, previousInstructionID) // 更新degree,这里用于更新Backward的degree
-			//
-			//}
-			//if debug.Debug && tree.GetWireLevel(wireID) == LevelUnset {
-			//	panic("wire we depend on is not in the instruction tree")
-			//}
 		}
 	}
 
@@ -161,6 +136,9 @@ func (b *BlueprintGenericHint) NewUpdateInstructionTree(inst Instruction, tree I
 	//outputLevel := maxLevel + 1
 	for k := inst.Calldata[j]; k < inst.Calldata[j+1]; k++ {
 		cs.AppendWire2Instruction(k, iID)
+		if needAppend {
+			cs.SetBias(k, cs.AddInternalVariable())
+		}
 		//tree.InsertWire(k, outputLevel)
 	}
 	cs.Sit.Insert(iID, previousIds)

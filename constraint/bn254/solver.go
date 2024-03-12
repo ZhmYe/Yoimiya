@@ -884,6 +884,10 @@ func (solver *solver) GetSolverOutput() (fr.Vector, fr.Vector, fr.Vector, map[in
 	return solver.a, solver.b, solver.c, solver.solvedValues
 }
 
+//func (solver *solver) GetBias() map[uint32]int {
+//	return solver.Bias
+//}
+
 // temporary variables to avoid memallocs in hotloop
 type Scratch struct {
 	tR1C  constraint.R1C

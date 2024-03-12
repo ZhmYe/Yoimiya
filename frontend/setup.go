@@ -9,8 +9,11 @@ import (
 	"errors"
 	"math/big"
 	"reflect"
+	"strconv"
 )
 
+// SetNbLeaf 设置nbPublic、nbSecret
+// todo 这里还需要加上extra
 func SetNbLeaf(assignment Circuit, cs *cs_bn254.R1CS) error {
 	variableAdder := func() func(f schema.LeafInfo, tInput reflect.Value) error {
 		return func(f schema.LeafInfo, tInput reflect.Value) error {
@@ -37,6 +40,12 @@ func SetNbLeaf(assignment Circuit, cs *cs_bn254.R1CS) error {
 	_, err := schema.Walk(assignment, tVariable, variableAdder())
 	if err != nil {
 		return err
+	}
+	// 这里设置了extra的偏移
+	for _, value := range cs.GetForwardOutputs() {
+		(*cs).AddSecretVariable("ForwardOutput_" + strconv.Itoa(value))
+		idx := (*cs).GetNbWires() - 1
+		(*cs).SetBias(uint32(value), idx)
 	}
 	return nil
 }

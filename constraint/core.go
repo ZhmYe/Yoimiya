@@ -137,6 +137,7 @@ type System struct {
 
 	// add by ZhmYe
 	Wires2Instruction map[uint32]int // an output wire "w" first compute in Instruction "I", then store "w" -> "i"
+	Bias              map[uint32]int // 记录wireID在切割后的电路里对应的下标
 	// 这些是自底向上建SIT所需要的
 	//InstructionForwardDAG  *graph.DAG     // DAG constructed by Instructions, forward
 	//InstructionBackwardDAG *graph.DAG     // DAG constructed by Instructions, backward
@@ -169,6 +170,7 @@ func NewSystem(scalarField *big.Int, capacity int, t SystemType) System {
 		Sit:           graph.NewSITree(),
 		forwardOutput: make([]int, 0),
 		extra:         make([]fr.Element, 0),
+		Bias:          make(map[uint32]int),
 	}
 
 	system.genericHint = system.AddBlueprint(&BlueprintGenericHint{})
@@ -176,6 +178,25 @@ func NewSystem(scalarField *big.Int, capacity int, t SystemType) System {
 }
 
 // add by ZhmYe
+
+// SetBias 用于设置Bias, wireID -> idx
+func (system *System) SetBias(wireID uint32, idx int) {
+	bias, exist := system.Bias[wireID]
+	if exist {
+		fmt.Println("wireID = ", wireID, ", bias = ", bias, " , offset = ", system.internalWireOffset())
+		if bias < int(system.internalWireOffset()) {
+			return
+		}
+		panic("Wire Bias Has been Set")
+	}
+	system.Bias[wireID] = idx
+	if idx+1 != system.GetNbSecretVariables()+system.GetNbPublicVariables()+system.GetNbInternalVariables() {
+		fmt.Println("Set Bias Error!!!")
+	}
+}
+func (system *System) GetBias() map[uint32]int {
+	return system.Bias
+}
 
 // SetForwardOutput 这里把上一个电路传下来的WireID记录在system.forwardOutput
 func (system *System) SetForwardOutput(output []int) {
@@ -323,6 +344,9 @@ func (system *System) GetNbPublicVariables() int {
 func (system *System) GetNbInternalVariables() int {
 	return system.NbInternalVariables
 }
+func (system *System) GetNbWires() int {
+	return system.GetNbSecretVariables() + system.GetNbPublicVariables() + system.GetNbInternalVariables()
+}
 
 // CheckSerializationHeader parses the scalar field and gnark version headers
 //
@@ -424,6 +448,8 @@ func (system *System) AddSolverHint(f solver.Hint, id solver.HintID, input []Lin
 	internalVariables = make([]int, nbOutput)
 	for i := 0; i < len(internalVariables); i++ {
 		internalVariables[i] = system.AddInternalVariable()
+		//// todo 这里似乎wireID就是下标？
+		//system.SetBias(uint32(internalVariables[i]), internalVariables[i])
 	}
 
 	// associate these wires with the solver hint
@@ -551,7 +577,7 @@ func (cs *System) AddSparseR1C(c SparseR1C, bID BlueprintID) int {
 
 ***/
 
-func (cs *System) AddInstructionInSpilt(bID BlueprintID, calldata []uint32, split bool) []uint32 {
+func (cs *System) AddInstructionInSpilt(bID BlueprintID, calldata []uint32) []uint32 {
 	// set the offsets
 	pi := PackedInstruction{
 		StartCallData:    uint64(len(cs.CallData)),
@@ -588,7 +614,7 @@ func (cs *System) AddInstructionInSpilt(bID BlueprintID, calldata []uint32, spli
 	switch Config.Config.Split {
 	case Config.SPLIT_STAGES:
 		//fmt.Println(cs.GetNbInternalVariables())
-		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, split, true)
+		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, true, true)
 	case Config.SPLIT_LEVELS:
 		level := blueprint.UpdateInstructionTree(inst, cs)
 		// we can't skip levels, so appending is fine.
@@ -598,7 +624,7 @@ func (cs *System) AddInstructionInSpilt(bID BlueprintID, calldata []uint32, spli
 			cs.Levels[level] = append(cs.Levels[level], iID)
 		}
 	default:
-		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, split, true)
+		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, true, true)
 	}
 	//cs.GetDegree(iID)
 	return wires

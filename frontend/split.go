@@ -101,7 +101,6 @@ func Split(cs constraint.ConstraintSystem, assignment Circuit) ([]PackedProof, e
 	proofs := make([]PackedProof, 0)
 	toSplitCs := cs
 	flag := true
-	hasSplit := false
 	extra := make([]any, 0)
 	forwardOutput := make([]int, 0)
 	startTime := time.Now()
@@ -134,38 +133,35 @@ func Split(cs constraint.ConstraintSystem, assignment Circuit) ([]PackedProof, e
 			fmt.Println("		Layers Number: ", _r1cs.Sit.GetLayersInfo())
 			fmt.Println("		Stage Number:", _r1cs.Sit.GetStageNumber())
 			fmt.Println("		Instruction Number: ", _r1cs.Sit.GetTotalInstructionNumber())
+			fmt.Println("		Wire Number: ", _r1cs.GetNbPublicVariables()+_r1cs.GetNbSecretVariables()+_r1cs.GetNbInternalVariables())
 			//sits, err := trySplit(_r1cs)
 			top, bottom := _r1cs.Sit.CheckAndGetSubCircuitStageIDs()
 			//if err != nil {
 			//	panic(err)
 			//}
-			// todo 这里等待实现
 			record := NewDataRecord(_r1cs)
 			fmt.Print("	Top Circuit ")
-			subCs, err := buildConstraintSystemFromIds(top, record, hasSplit, assignment)
+			subCs, err := buildConstraintSystemFromIds(top, record, assignment)
 			if err != nil {
 				panic(err)
 			}
 
-			// 这里加入prove的逻辑，这样top可以丢弃 todo
-			// todo 这里需要加入得到extra也就是MIDDLE的值的逻辑
-			// todo any如何转化？
+			// 这里加入prove的逻辑，这样top可以丢弃
+			// 同时包含加入extra的逻辑
 			proof := SplitAndProve(subCs, assignment, &extra, &forwardOutput)
 			proofs = append(proofs, proof)
 			if len(bottom) == 0 {
 				flag = false
 			} else {
 				//fmt.Println("bottom=", len(bottom))
-				hasSplit = true
 				fmt.Print("	Bottom Circuit ")
-				toSplitCs, err = buildConstraintSystemFromIds(bottom, record, hasSplit, assignment)
+				toSplitCs, err = buildConstraintSystemFromIds(bottom, record, assignment)
 				if err != nil {
 					panic(err)
 				}
 			}
 			// 这里是否可以直接将_r1cs置为nil
 			//for _, sit := range sits {
-			//	// todo 这部分可能提到外面， Split返回[][]int
 			//	subCs, err := buildConstraintSystemFromSit(sit, record)
 			//	if err != nil {
 			//		panic(err)
@@ -279,7 +275,7 @@ func buildConstraintSystemFromSit(sit *graph.SITree, record *DataRecord) (constr
 	}
 	return cs, nil
 }
-func buildConstraintSystemFromIds(iIDs []int, record *DataRecord, hasSplit bool, assignment Circuit) (constraint.ConstraintSystem, error) {
+func buildConstraintSystemFromIds(iIDs []int, record *DataRecord, assignment Circuit) (constraint.ConstraintSystem, error) {
 	// todo 核心逻辑
 	// 这里根据切割返回出来的有序instruction ids，得到新的电路cs
 	// record中记录了CallData、Blueprint、Instruction的map
@@ -295,20 +291,13 @@ func buildConstraintSystemFromIds(iIDs []int, record *DataRecord, hasSplit bool,
 	for _, iID := range iIDs {
 		pi := record.GetPackedInstruction(iID)
 		bID := cs.AddBlueprint(record.GetBluePrint(pi.BlueprintID))
-		// todo 这里的r1cs.Coefficients缺失
-		if hasSplit {
-			cs.AddInstructionInSpilt(bID, unpack(pi, record), true)
-		} else {
-			cs.AddInstructionInSpilt(bID, unpack(pi, record), false)
-		}
+		cs.AddInstructionInSpilt(bID, unpack(pi, record))
 		//// 由于instruction变化，所以在这里需要重新映射stage内部的iID
 		//sit.ModifyiID(i, j, len(cs.Instructions)) // 这里是串行添加的，新的Instruction id就是当前的长度
 	}
 	cs.CoeffTable = record.GetCoeffTable()
 	fmt.Println("Compile Result: ")
-	fmt.Println("		NbPublic=", cs.GetNbPublicVariables())
-	fmt.Println("		NbSecret=", cs.GetNbSecretVariables())
-	fmt.Println("		NbInternal=", cs.GetNbInternalVariables())
+	fmt.Println("		NbPublic=", cs.GetNbPublicVariables(), " NbSecret=", cs.GetNbSecretVariables(), " NbInternal=", cs.GetNbInternalVariables())
 	fmt.Println("		NbCoeff=", cs.GetNbConstraints())
 	fmt.Println("		NbWires=", cs.GetNbPublicVariables()+cs.GetNbSecretVariables()+cs.GetNbInternalVariables())
 	fmt.Println()

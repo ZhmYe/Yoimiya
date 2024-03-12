@@ -111,7 +111,18 @@ func (cs *system) Solve(witness witness.Witness, opts ...csolver.Option) (any, e
 	if cs.Type == constraint.SystemR1CS {
 		var res R1CSSolution
 		a, b, c, solvedValues := Asolver.GetSolverOutput()
-		values := make([]fr.Element, 0)
+		bias := Asolver.GetBias()
+		values := make([]fr.Element, len(solvedValues))
+		// todo 这里因为加入了Bias，所以可以得到values具体的位置
+		for wireID, value := range solvedValues {
+			idx, exist := bias[uint32(wireID)]
+			if !exist {
+				//panic("No such Solved Wire!!!")
+				idx = wireID
+			}
+			values[idx] = value
+		}
+
 		// todo 这里加入了对value的排序，可能消耗内存
 		/***
 			Hints: ZhmYe
@@ -119,21 +130,21 @@ func (cs *system) Solve(witness witness.Witness, opts ...csolver.Option) (any, e
 			todo
 			有没有什么既能保证有序又可以像map一样的结构或者算法？
 		***/
-		sortedKey := make([]int, 0)
-		for key, _ := range solvedValues {
-			sortedKey = append(sortedKey, key)
-		}
-		for i := 0; i < len(sortedKey); i++ {
-			for j := i + 1; j < len(sortedKey); j++ {
-				if sortedKey[i] > sortedKey[j] {
-					sortedKey[i], sortedKey[j] = sortedKey[j], sortedKey[i]
-				}
-			}
-		}
-		for _, key := range sortedKey {
-			values = append(values, solvedValues[key])
-			delete(solvedValues, key)
-		}
+		//sortedKey := make([]int, 0)
+		//for key, _ := range solvedValues {
+		//	sortedKey = append(sortedKey, key)
+		//}
+		//for i := 0; i < len(sortedKey); i++ {
+		//	for j := i + 1; j < len(sortedKey); j++ {
+		//		if sortedKey[i] > sortedKey[j] {
+		//			sortedKey[i], sortedKey[j] = sortedKey[j], sortedKey[i]
+		//		}
+		//	}
+		//}
+		//for _, key := range sortedKey {
+		//	values = append(values, solvedValues[key])
+		//	delete(solvedValues, key)
+		//}
 		res.W = values
 		res.A = a
 		res.B = b
