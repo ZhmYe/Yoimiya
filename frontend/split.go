@@ -6,10 +6,8 @@ import (
 	"S-gnark/constraint"
 	cs_bn254 "S-gnark/constraint/bn254"
 	"S-gnark/graph"
-	"S-gnark/logger"
 	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"
-	"github.com/consensys/gnark-crypto/ecc/bn254/fr"
 	"time"
 )
 
@@ -101,8 +99,9 @@ func Split(cs constraint.ConstraintSystem, assignment Circuit) ([]PackedProof, e
 	proofs := make([]PackedProof, 0)
 	toSplitCs := cs
 	flag := true
-	extra := make([]any, 0)
-	forwardOutput := make([]int, 0)
+	//extra := make([]any, 0)
+	//forwardOutput := make([]int, 0)
+	extras := make([]constraint.ExtraValue, 0)
 	startTime := time.Now()
 	round := 0
 	fmt.Println("=================Start Recursive Split=================")
@@ -117,45 +116,49 @@ func Split(cs constraint.ConstraintSystem, assignment Circuit) ([]PackedProof, e
 		switch _r1cs := toSplitCs.(type) {
 		case *cs_bn254.R1CS:
 
-			switch _r1cs.Sit.Examine() {
-			case graph.PASS:
-				log := logger.Logger()
-				log.Debug().Str("SIT LAYER EXAMINE", "PASS").Msg("YZM DEBUG")
-				//fmt.Println("Examine PASS...")
-			case graph.HAS_LINK:
-				panic("Sit Layer Error: HAS_LINK...")
-			case graph.LAYER_UNSET:
-				panic("Sit Layer Error: LAYER_UNSET...")
-
-			}
+			//switch _r1cs.Sit.Examine() {
+			//case graph.PASS:
+			//	log := logger.Logger()
+			//	log.Debug().Str("SIT LAYER EXAMINE", "PASS").Msg("YZM DEBUG")
+			//	//fmt.Println("Examine PASS...")
+			//case graph.HAS_LINK:
+			//	panic("Sit Layer Error: HAS_LINK...")
+			//case graph.LAYER_UNSET:
+			//	panic("Sit Layer Error: LAYER_UNSET...")
+			//case graph.SPLIT_ERROR:
+			//	panic("Sit Layer Error: SPLIT_ERROR...")
+			//}
 			fmt.Println("Round ", round)
 			fmt.Println("	Circuit Structure: ")
 			fmt.Println("		Layers Number: ", _r1cs.Sit.GetLayersInfo())
 			fmt.Println("		Stage Number:", _r1cs.Sit.GetStageNumber())
 			fmt.Println("		Instruction Number: ", _r1cs.Sit.GetTotalInstructionNumber())
+			fmt.Println("		NbPublic=", _r1cs.GetNbPublicVariables(), " NbSecret=", _r1cs.GetNbSecretVariables(), " NbInternal=", _r1cs.GetNbInternalVariables())
 			fmt.Println("		Wire Number: ", _r1cs.GetNbPublicVariables()+_r1cs.GetNbSecretVariables()+_r1cs.GetNbInternalVariables())
 			//sits, err := trySplit(_r1cs)
 			top, bottom := _r1cs.Sit.CheckAndGetSubCircuitStageIDs()
+			_r1cs.UpdateForwardOutput() // 这里从原电路中获得middle对应的wireIDs
+			forwardOutput := _r1cs.GetForwardOutputIds()
 			//if err != nil {
 			//	panic(err)
 			//}
 			record := NewDataRecord(_r1cs)
 			fmt.Print("	Top Circuit ")
-			subCs, err := buildConstraintSystemFromIds(top, record, assignment)
+			subCs, err := buildConstraintSystemFromIds(_r1cs.Sit.GetInstructionIdsFromStageIDs(top), record, assignment, forwardOutput, extras, true)
 			if err != nil {
 				panic(err)
 			}
 
 			// 这里加入prove的逻辑，这样top可以丢弃
 			// 同时包含加入extra的逻辑
-			proof := SplitAndProve(subCs, assignment, &extra, &forwardOutput)
+			proof := SplitAndProve(subCs, assignment, &extras)
 			proofs = append(proofs, proof)
 			if len(bottom) == 0 {
 				flag = false
 			} else {
 				//fmt.Println("bottom=", len(bottom))
 				fmt.Print("	Bottom Circuit ")
-				toSplitCs, err = buildConstraintSystemFromIds(bottom, record, assignment)
+				toSplitCs, err = buildConstraintSystemFromIds(_r1cs.Sit.GetInstructionIdsFromStageIDs(bottom), record, assignment, forwardOutput, extras, false)
 				if err != nil {
 					panic(err)
 				}
@@ -174,12 +177,12 @@ func Split(cs constraint.ConstraintSystem, assignment Circuit) ([]PackedProof, e
 	}
 	return proofs, nil
 }
-func GetExtra(system constraint.ConstraintSystem) ([]int, []fr.Element) {
+func GetExtra(system constraint.ConstraintSystem) []constraint.ExtraValue {
 	switch _r1cs := system.(type) {
 	case *cs_bn254.R1CS:
-		forwardOutput := _r1cs.GetForwardOutputs() // 获得更新后的forwardOutput，即middle output wireID
-		extra := _r1cs.GetExtra()
-		return forwardOutput, extra
+		//forwardOutput := _r1cs.GetForwardOutputs() // 获得更新后的forwardOutput，即middle output wireID
+		//extra := _r1cs.GetForwardOutputs()
+		return _r1cs.GetForwardOutputs()
 	default:
 		panic("Only Support bn254 r1cs now...")
 	}
@@ -195,7 +198,7 @@ func SetForwardOutput(split constraint.ConstraintSystem, forwardOutput []int) {
 
 // SplitAndProve 传入Split后的电路，进行prove，记录Prove时间和内存使用
 // todo 内存使用记录
-func SplitAndProve(split constraint.ConstraintSystem, assignment Circuit, extra *[]any, forwardOutput *[]int) PackedProof {
+func SplitAndProve(split constraint.ConstraintSystem, assignment Circuit, extra *[]constraint.ExtraValue) PackedProof {
 	//err := SetNbLeaf(assignment, &split)
 	//if err != nil {
 	//panic(err)
@@ -203,14 +206,17 @@ func SplitAndProve(split constraint.ConstraintSystem, assignment Circuit, extra 
 	pk, vk := SetUpSplit(split)
 	fullWitness, _ := generateWitness(assignment, *extra, ecc.BN254.ScalarField())
 	publicWitness, _ := generateWitness(assignment, *extra, ecc.BN254.ScalarField(), PublicOnly())
-	SetForwardOutput(split, *forwardOutput)
 	proof, _ := groth16.Prove(split, pk.(groth16.ProvingKey), fullWitness)
-	var nextExtra []fr.Element
-	*forwardOutput, nextExtra = GetExtra(split)
-	*extra = make([]any, 0)
-	for _, e := range nextExtra {
+	//var nextExtra []fr.Element
+	//nextForwardOutput, nextExtra := GetExtra(split)
+	newExtra := GetExtra(split)
+	//*extra = make([]any, 0)
+	for _, e := range newExtra {
 		*extra = append(*extra, e)
 	}
+	//for _, f := range nextForwardOutput {
+	//	*forwardOutput = append(*forwardOutput, f)
+	//}
 	return NewPackedProof(proof, vk, publicWitness)
 }
 
@@ -275,7 +281,7 @@ func buildConstraintSystemFromSit(sit *graph.SITree, record *DataRecord) (constr
 	}
 	return cs, nil
 }
-func buildConstraintSystemFromIds(iIDs []int, record *DataRecord, assignment Circuit) (constraint.ConstraintSystem, error) {
+func buildConstraintSystemFromIds(iIDs []int, record *DataRecord, assignment Circuit, forwardOutput []int, extra []constraint.ExtraValue, isTop bool) (constraint.ConstraintSystem, error) {
 	// todo 核心逻辑
 	// 这里根据切割返回出来的有序instruction ids，得到新的电路cs
 	// record中记录了CallData、Blueprint、Instruction的map
@@ -283,7 +289,10 @@ func buildConstraintSystemFromIds(iIDs []int, record *DataRecord, assignment Cir
 	opt := defaultCompileConfig()
 	//fmt.Println("capacity=", opt.Capacity)
 	cs := cs_bn254.NewR1CS(opt.Capacity)
-	err := SetNbLeaf(assignment, cs)
+	if isTop {
+		SetForwardOutput(cs, forwardOutput) // 设置应该传到bottom的wireID
+	}
+	err := SetNbLeaf(assignment, cs, extra)
 	if err != nil {
 		return nil, err
 	}
@@ -300,6 +309,6 @@ func buildConstraintSystemFromIds(iIDs []int, record *DataRecord, assignment Cir
 	fmt.Println("		NbPublic=", cs.GetNbPublicVariables(), " NbSecret=", cs.GetNbSecretVariables(), " NbInternal=", cs.GetNbInternalVariables())
 	fmt.Println("		NbCoeff=", cs.GetNbConstraints())
 	fmt.Println("		NbWires=", cs.GetNbPublicVariables()+cs.GetNbSecretVariables()+cs.GetNbInternalVariables())
-	fmt.Println()
+	//fmt.Println(cs.Sit.GetStageNumber())
 	return cs, nil
 }

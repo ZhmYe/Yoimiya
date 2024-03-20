@@ -80,6 +80,36 @@ type Instruction struct {
 	todo: modify
 ***/
 
+// add by ZhmYe
+
+// ExtraValue 用来表示由前置电路的输出作为后置电路的输入的所有wire
+type ExtraValue struct {
+	wireID int
+	value  fr.Element
+	isSet  bool
+}
+
+func NewExtraValue(wireID int) ExtraValue {
+	return ExtraValue{
+		wireID: wireID,
+		value:  fr.Element{},
+		isSet:  false,
+	}
+}
+func (v *ExtraValue) SetValue(value fr.Element) {
+	v.value = value
+	v.isSet = true
+}
+func (v *ExtraValue) GetWireID() int {
+	return v.wireID
+}
+func (v *ExtraValue) GetValue() fr.Element {
+	if !v.isSet {
+		panic("value not set...")
+	}
+	return v.value
+}
+
 // System contains core elements for a constraint System
 type System struct {
 	// serialization header
@@ -143,8 +173,8 @@ type System struct {
 	//InstructionBackwardDAG *graph.DAG     // DAG constructed by Instructions, backward
 	//degree                 map[int]int    // store each node's degree(to order)
 	Sit           *graph.SITree
-	forwardOutput []int        // 这里用来记录Middle传下来或传下去的结果，记录WireID
-	extra         []fr.Element // 这里用来记录forwardOutput对应的value
+	forwardOutput []ExtraValue // 这里用来需要传下去的wireID
+	//extra         []fr.Element // 这里用来记录
 }
 
 // NewSystem initialize the common structure among constraint system
@@ -168,9 +198,9 @@ func NewSystem(scalarField *big.Int, capacity int, t SystemType) System {
 		//InstructionBackwardDAG: graph.NewDAG(),
 		//degree:                 make(map[int]int),
 		Sit:           graph.NewSITree(),
-		forwardOutput: make([]int, 0),
-		extra:         make([]fr.Element, 0),
-		Bias:          make(map[uint32]int),
+		forwardOutput: make([]ExtraValue, 0),
+		//extra:         make([]fr.Element, 0),
+		Bias: make(map[uint32]int),
 	}
 
 	system.genericHint = system.AddBlueprint(&BlueprintGenericHint{})
@@ -179,11 +209,15 @@ func NewSystem(scalarField *big.Int, capacity int, t SystemType) System {
 
 // add by ZhmYe
 
+func (system *System) SetExtraValue(idx int, value fr.Element) {
+	system.forwardOutput[idx].SetValue(value)
+}
+
 // SetBias 用于设置Bias, wireID -> idx
 func (system *System) SetBias(wireID uint32, idx int) {
 	bias, exist := system.Bias[wireID]
 	if exist {
-		fmt.Println("wireID = ", wireID, ", bias = ", bias, " , offset = ", system.internalWireOffset())
+		//fmt.Println("wireID = ", wireID, ", bias = ", bias, " , offset = ", system.internalWireOffset())
 		if bias < int(system.internalWireOffset()) {
 			return
 		}
@@ -197,48 +231,66 @@ func (system *System) SetBias(wireID uint32, idx int) {
 func (system *System) GetBias() map[uint32]int {
 	return system.Bias
 }
+func (system *System) GetWireBias(wireID int) int {
+	bias, exist := system.Bias[uint32(wireID)]
+	if exist {
+		return bias
+	}
+	return wireID
+}
 
 // SetForwardOutput 这里把上一个电路传下来的WireID记录在system.forwardOutput
 func (system *System) SetForwardOutput(output []int) {
-	system.forwardOutput = output
+	for _, wireID := range output {
+		system.forwardOutput = append(system.forwardOutput, NewExtraValue(wireID))
+	}
 }
 func (system *System) GetNbForwardOutput() int {
 	return len(system.forwardOutput)
 }
-func (system *System) GetForwardOutput(index int) int {
-	return system.forwardOutput[index]
-}
-func (system *System) GetForwardOutputs() []int {
+
+//	func (system *System) GetForwardOutput(wireID int) int {
+//		return system.forwardOutput[index]
+//	}
+
+func (system *System) GetForwardOutputs() []ExtraValue {
 	return system.forwardOutput
 }
-func (system *System) AddExtra(value fr.Element) {
-	system.extra = append(system.extra, value)
+func (system *System) GetForwardOutputIds() []int {
+	result := make([]int, 0)
+	for _, e := range system.forwardOutput {
+		result = append(result, e.GetWireID())
+	}
+	return result
 }
-func (system *System) GetExtra() []fr.Element {
-	return system.extra
-}
+
+//func (system *System) AddExtra(value fr.Element) {
+//	system.extra = append(system.extra, value)
+//}
+//func (system *System) GetExtra() []fr.Element {
+//	return system.extra
+//}
 
 // add by ZhmYe
 
-// UpdateForwardOutput 这里返回传给下一个电路的 WireID: value
-// 这里的value还没有被计算出来，先赋值为默认值
-// todo 在solver计算完成后，传入这个map，然后将map内的内容修改?
-// 暂时先就记录所有wireID
-// todo 这里是不是可以把output覆盖forwardOutput
+// UpdateForwardOutput 这里返回传给下一个电路的 WireID
 func (system *System) UpdateForwardOutput() {
 	middleInstructions := system.Sit.GetMiddleOutputs()
 	// 这里我们要得到Instruction里的所有WireID
 	// todo 是否要所有的WireID? 还是只要output
 	// 这里暂时按照只要output来写
 	// 首先先要得到Instruction
-	system.forwardOutput = make([]int, 0)
+	//system.forwardOutput = make([]frontend.ExtraValue, 0)
 	// system.Wire2Instruction记录了Wire在哪一个Instruction中作为output
 	for wire, iID := range system.Wires2Instruction {
 		_, isMiddle := middleInstructions[iID]
 		if isMiddle {
-			system.forwardOutput = append(system.forwardOutput, int(wire))
+			system.forwardOutput = append(system.forwardOutput, NewExtraValue(int(wire)))
 		}
 	}
+	//for _, wireID := range system.GetForwardOutputs() {
+	//	system.AddExtra(Asolver.GetWireValue(wireID))
+	//}
 }
 
 // AppendWire2Instruction add by ZhmYe

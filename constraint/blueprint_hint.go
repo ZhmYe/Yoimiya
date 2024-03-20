@@ -127,13 +127,16 @@ func (b *BlueprintGenericHint) NewUpdateInstructionTree(inst Instruction, tree I
 			}
 			// add by ZhmYe
 			// 前序Instruction
-			previousInstructionID := cs.Wires2Instruction[wireID]
+			previousInstructionID, exist := cs.Wires2Instruction[wireID]
+			if !exist {
+				panic("error in hint")
+			}
+			//fmt.Println(wireID, len(cs.Wires2Instruction), previousInstructionID, iID)
 			previousIds = append(previousIds, previousInstructionID)
 		}
 	}
 
 	// iterate over the outputs and insert them at maxLevel + 1
-	//outputLevel := maxLevel + 1
 	for k := inst.Calldata[j]; k < inst.Calldata[j+1]; k++ {
 		cs.AppendWire2Instruction(k, iID)
 		if needAppend {

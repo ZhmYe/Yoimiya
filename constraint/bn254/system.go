@@ -95,10 +95,12 @@ func (cs *system) Solve(witness witness.Witness, opts ...csolver.Option) (any, e
 
 	log.Debug().Dur("took", time.Since(start)).Msg("constraint system solver done")
 	// add by ZhmYe
-	Asolver.UpdateForwardOutput() // 这里cs.ForwardOutput或者Asolver.ForwardOutput就是middle的wireID
-	// 计算传下去的extra内容，即middle的wire结果
-	for _, wireID := range Asolver.GetForwardOutputs() {
-		Asolver.AddExtra(Asolver.solvedValues[wireID])
+	//Asolver.UpdateForwardOutput() // 这里cs.ForwardOutput或者Asolver.ForwardOutput就是middle的wireID
+	//// 计算传下去的extra内容，即middle的wire结果
+	for i, e := range Asolver.GetForwardOutputs() {
+		wireID := e.GetWireID()
+		Asolver.SetExtraValue(i, Asolver.GetWireValue(wireID))
+		//Asolver.AddExtra(Asolver.GetWireValue(wireID))
 	}
 	/***
 		Hints: ZhmYe
@@ -154,14 +156,14 @@ func (cs *system) Solve(witness witness.Witness, opts ...csolver.Option) (any, e
 		// sparse R1CS
 		var res SparseR1CSSolution
 		// query l, r, o in Lagrange basis, not blinded
-		solvedValues := Asolver.solvedValues
+		//solvedValues := Asolver.solvedValues
 
-		values := make([]fr.Element, 0)
+		values := Asolver.values
 		// todo 这里遍历map是无序的，但res.W是否要求有序？对map进行排序内存消耗？
-		for key, value := range solvedValues {
-			values = append(values, value)
-			delete(solvedValues, key)
-		}
+		//for key, value := range solvedValues {
+		//	values = append(values, value)
+		//	delete(solvedValues, key)
+		//}
 		res.L, res.R, res.O = evaluateLROSmallDomain(cs, values)
 
 		return &res, nil

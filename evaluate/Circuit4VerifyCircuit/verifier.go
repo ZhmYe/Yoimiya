@@ -168,8 +168,6 @@ func GetCircuitVkWitnessPublic(
 	startTime := time.Now()
 	outerCcs, err := frontend.Compile(ecc.BN254.ScalarField(), r1cs.NewBuilder, outerCircuit)
 	fmt.Println("Compile Time:", time.Since(startTime))
-	proofs, err := frontend.Split(outerCcs, outerAssignment)
-	fmt.Println(len(proofs))
 	if err != nil {
 		panic("error")
 	}

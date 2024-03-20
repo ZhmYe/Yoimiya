@@ -14,7 +14,8 @@ import (
 
 // SetNbLeaf 设置nbPublic、nbSecret
 // todo 这里还需要加上extra
-func SetNbLeaf(assignment Circuit, cs *cs_bn254.R1CS) error {
+func SetNbLeaf(assignment Circuit, cs *cs_bn254.R1CS, extra []constraint.ExtraValue) error {
+	(*cs).AddPublicVariable("1")
 	variableAdder := func() func(f schema.LeafInfo, tInput reflect.Value) error {
 		return func(f schema.LeafInfo, tInput reflect.Value) error {
 			if tInput.CanSet() {
@@ -22,11 +23,6 @@ func SetNbLeaf(assignment Circuit, cs *cs_bn254.R1CS) error {
 					return errors.New("can't set val " + f.FullName() + " visibility is unset")
 				}
 				if f.Visibility == schema.Public {
-					/*** Hints: ZhmYe
-						builder.PublicVariable() / SecretVariable()
-						eg. idx = len(builder.Public), builder.Public.append(name)
-						return new LinearExpresssion(Term{idx, builder.tone}) -> []Term
-					***/
 					(*cs).AddPublicVariable(f.FullName())
 				} else if f.Visibility == schema.Secret {
 					(*cs).AddSecretVariable(f.FullName())
@@ -42,17 +38,18 @@ func SetNbLeaf(assignment Circuit, cs *cs_bn254.R1CS) error {
 		return err
 	}
 	// 这里设置了extra的偏移
-	for _, value := range cs.GetForwardOutputs() {
-		(*cs).AddSecretVariable("ForwardOutput_" + strconv.Itoa(value))
+	//fmt.Println("len ForwardOutput", len(cs.GetForwardOutputs()))
+	for _, e := range extra {
+		(*cs).AddSecretVariable("ForwardOutput_" + strconv.Itoa(e.GetWireID()))
 		idx := (*cs).GetNbWires() - 1
-		(*cs).SetBias(uint32(value), idx)
+		(*cs).SetBias(uint32(e.GetWireID()), idx)
 	}
 	return nil
 }
 
 // todo 如何得到extra，即如何得到MIDDLE的值
 // generateWitness 为split后的电路生成witness,extra表示Middle
-func generateWitness(assignment Circuit, extra []any, field *big.Int, opts ...WitnessOption) (witness.Witness, error) {
+func generateWitness(assignment Circuit, extra []constraint.ExtraValue, field *big.Int, opts ...WitnessOption) (witness.Witness, error) {
 	opt, err := options(opts...)
 	if err != nil {
 		return nil, err
@@ -97,11 +94,11 @@ func generateWitness(assignment Circuit, extra []any, field *big.Int, opts ...Wi
 		}
 		// todo 这里不确定是否这样写
 		// 传入MIDDLE的值作为Input
-		for _, value := range extra {
-			chValues <- value
+		for _, e := range extra {
+			chValues <- e.GetValue()
 		}
 	}()
-	if err := w.Fill(s.Public, s.Secret, chValues); err != nil {
+	if err := w.Fill(s.Public, s.Secret+len(extra), chValues); err != nil {
 		return nil, err
 	}
 

@@ -47,16 +47,18 @@ func (system *System) HasWire(wireID uint32) bool {
 // 所以还是可以按照offset判断是否为input
 func (system *System) IsInputOrConstant(wireID uint32, split bool) bool {
 	offset := system.internalWireOffset()
-	// 这里是给extra留的
-	bias, exist := system.Bias[wireID]
-	if exist {
-		return bias-int(offset) < system.NbInternalVariables
-	}
-	if wireID < offset {
+	bias := system.GetWireBias(int(wireID)) // 得到wireID在values中的位置
+
+	//bias, exist := system.Bias[wireID]
+	//if exist {
+	//	return bias-int(offset) < system.NbInternalVariables
+	//}
+	if bias < int(offset) {
 		// it's an input.
 		return false
 	}
 	if wireID == math.MaxUint32 {
+		// const
 		return false
 	}
 	// todo 这里的逻辑可能要修改
@@ -66,11 +68,8 @@ func (system *System) IsInputOrConstant(wireID uint32, split bool) bool {
 	if split {
 		return true
 	}
-	//bias, exist := system.Bias[wireID]
-	//if !exist {
-	//	return (wireID - offset) < uint32(system.NbInternalVariables)
-	//}
-	return (wireID - offset) < uint32(system.NbInternalVariables)
+	//bias := system.GetWireBias(int(wireID))
+	return bias-int(offset) < system.NbInternalVariables
 	//return (wireID-offset) < uint32(system.NbInternalVariables) || !split // modify by ZhmYe, to delete lbWir
 }
 func (system *System) GetWireLevel(wireID uint32) Level {

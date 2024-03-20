@@ -1,6 +1,7 @@
 package graph
 
 import (
+	"fmt"
 	"strconv"
 )
 
@@ -184,7 +185,9 @@ func (t *SITree) Insert(iID int, previousIds []int) {
 		// 如果不止一个父节点，那么需要遍历所有父节点，此时父节点Layer内容可能变换
 		// 尝试把当前节点置为Middle，但需要对所有父节点的Layer情况进行判断
 		// 既然当前节点有多个父节点，那么要求其所有一阶父节点均为Middle或均不为Middle
-		hasBottom := false // 用于记录是否有父节点最后为Bottom，如果是，那么当前Stage是Bottom，反之为Middle
+		hasBottom := false
+		hasTop := false
+		hasMiddle := false
 		// 遍历所有父节点
 		for _, previousId := range previousIds {
 			// 首先针对所有父节点
@@ -201,6 +204,7 @@ func (t *SITree) Insert(iID int, previousIds []int) {
 				case TOP:
 					// 如果父节点为TOP，那么标注分裂体为TOP
 					t.SetLayer(fission.GetID(), TOP)
+					hasTop = true
 				case BOTTOM:
 					// 如果父节点为BOTTOM，那么标注分裂体为BOTTOM
 					t.SetLayer(fission.GetID(), BOTTOM)
@@ -212,6 +216,8 @@ func (t *SITree) Insert(iID int, previousIds []int) {
 					t.SetLayer(parentStage.GetID(), TOP)
 					// 此时分裂体继承了父节点的所有子节点，并且分裂体有且仅有一个父节点，因此我们可以将分裂体置为Middle
 					t.SetLayer(fission.GetID(), MIDDLE)
+					//hasMiddle = true
+					hasTop = true
 				default:
 					panic("Unset Layer Type...")
 				}
@@ -221,26 +227,32 @@ func (t *SITree) Insert(iID int, previousIds []int) {
 				case TOP:
 					// 如果父节点为TOP
 					// 此时不需要做任何处理，需要等待后续处理当前stage的layer
+					hasTop = true
 				case BOTTOM:
 					// 如果父节点为BOTTOM
 					hasBottom = true
 				case MIDDLE:
+					hasMiddle = true
 					// 如果父节点为MIDDLE
 					// 首先将父节点置为TOP
-					t.SetLayer(parentStage.GetID(), TOP)
+					//t.SetLayer(parentStage.GetID(), TOP)
 					// 由于父节点原本是MIDDLE
 					// 不然其子节点在插入的时候，通过上面的逻辑将父节点修改
 					// 既然所有子节点目前都只有一个父节点，那么可以简单的将他们全部置为MIDDLE
-					for _, child := range parentStage.GetChildIDs() {
-						// 遍历父节点的所有子节点，此时当前stage还未被添加
-						childStage := t.GetStageByIndex(child)
-						for _, parentID := range childStage.GetParentIDs() {
-							if t.GetLayer(parentID) == MIDDLE {
-								t.SetLayer(parentID, TOP)
-							}
-						}
-						t.SetLayer(child, MIDDLE)
-					}
+					//bottomFlag := false
+					//for _, child := range parentStage.GetChildIDs() {
+					//	// 遍历父节点的所有子节点，此时当前stage还未被添加
+					//	childStage := t.GetStageByIndex(child)
+					//	for _, parentID := range childStage.GetParentIDs() {
+					//		if t.GetLayer(parentID) == MIDDLE {
+					//			t.SetLayer(parentID, TOP)
+					//		}
+					//		if t.GetLayer(parentID) == BOTTOM {
+					//
+					//		}
+					//	}
+					//	t.SetLayer(child, MIDDLE)
+					//}
 				default:
 					panic("Unset Layer Type...")
 				}
@@ -254,6 +266,7 @@ func (t *SITree) Insert(iID int, previousIds []int) {
 					// 处理fission的layer是否需要更改
 					switch t.GetLayer(fission.GetID()) {
 					case TOP:
+						hasTop = true
 						// 如果fission是TOP，那么不影响，无需处理
 					case BOTTOM:
 						// 如果fission是BOTTOM，它也会作为当前节点的父节点
@@ -264,7 +277,7 @@ func (t *SITree) Insert(iID int, previousIds []int) {
 						// 我们已经将其他非分裂体的父节点全部保证不为MIDDLE
 						// 剩下的都是分裂体，且能进入这里的那些分裂体，其父节点也是当前stage的父节点
 						// 此时我们可以通过这里的逻辑保证所有这些分裂体都是MIDDLE，因此可以将当前stage置为BOTTOM
-						hasBottom = true
+						hasMiddle = true
 					default:
 						panic("Unset Layer Type...")
 					}
@@ -278,11 +291,34 @@ func (t *SITree) Insert(iID int, previousIds []int) {
 		}
 		// 把stage append
 		t.appendStage(stage)
-		if hasBottom {
+		// 遍历完所有的父节点后，根据父节点的类型判断
+		if hasTop && !hasMiddle && !hasBottom {
+			// 如果只有top的父节点, 那么将当前节点置为middle
+			t.SetLayer(stage.GetID(), MIDDLE)
+		} else if !hasTop && hasMiddle && !hasBottom {
+			// 如果只有middle的父节点，那么将当前节点置为bottom
+			t.SetLayer(stage.GetID(), BOTTOM)
+		} else if !hasTop && !hasMiddle && hasBottom {
+			// 如果只有bottom的父节点，那么将当前节点置为bottom
+			t.SetLayer(stage.GetID(), BOTTOM)
+		} else if !hasTop {
+			// 如果没有top的父节点，那么将当前节点置为bottom
 			t.SetLayer(stage.GetID(), BOTTOM)
 		} else {
-			t.SetLayer(stage.GetID(), MIDDLE)
+			// 如果有top的父节点，那么当前节点置为Bottom，并且递归修改为top的父节点
+			t.SetLayer(stage.GetID(), BOTTOM)
+			for _, pid := range stage.GetParentIDs() {
+				pLayer := t.GetLayer(pid)
+				if pLayer == TOP {
+					t.switchTop(pid, MIDDLE)
+				}
+			}
 		}
+		//if hasBottom {
+		//	t.SetLayer(stage.GetID(), BOTTOM)
+		//} else {
+		//	t.SetLayer(stage.GetID(), MIDDLE)
+		//}
 	}
 	t.instructions = append(t.instructions, iID)
 
@@ -338,7 +374,8 @@ func (t *SITree) GetStageByIndex(index int) *Stage {
 func (t *SITree) GetStageByInstruction(iId int) *Stage {
 	_, exist := t.index[iId]
 	if !exist {
-		panic("Don't have such Instruction!!!")
+		fmt.Println(len(t.index))
+		panic("Don't have such Instruction!!!" + strconv.Itoa(iId))
 	}
 	return t.index[iId]
 }
@@ -371,9 +408,11 @@ const (
 	PASS ExamineResult = iota
 	HAS_LINK
 	LAYER_UNSET
+	SPLIT_ERROR
 )
 
 // Examine 之前已经保证SIT划分是正确的，这里就检验Layer
+// todo MIDDLE之间是否一定不能相连？放宽条件到可以，因为middle是在上半电路中被计算完传下去的
 func (t *SITree) Examine() ExamineResult {
 	// 首先判断每个stage是否都被赋上了Layer
 	if len(t.stages) != len(t.layers) {
@@ -391,6 +430,30 @@ func (t *SITree) Examine() ExamineResult {
 		for _, pid := range stage.GetParentIDs() {
 			if middleIds[pid] {
 				return HAS_LINK
+			}
+		}
+	}
+	for id, layer := range t.layers {
+		if layer == TOP || layer == MIDDLE {
+			// top和middle的父节点必须是top
+			stage := t.GetStageByIndex(id)
+			for _, pid := range stage.GetParentIDs() {
+				pLayer := t.GetLayer(pid)
+				if pLayer != TOP {
+					fmt.Println(layer, pLayer)
+					return SPLIT_ERROR
+				}
+			}
+		}
+		if layer == BOTTOM {
+			// bottom的父节点必须是bottom和middle
+			stage := t.GetStageByIndex(id)
+			for _, pid := range stage.GetParentIDs() {
+				pLayer := t.GetLayer(pid)
+				if pLayer == TOP {
+					fmt.Println(layer, pLayer, len(stage.GetParentIDs()))
+					return SPLIT_ERROR
+				}
 			}
 		}
 	}
@@ -484,7 +547,7 @@ func (t *SITree) checkUnset() bool {
 }
 
 // CheckAndGetSubCircuitStageIDs 获得各种类型的Layer对应的stage id列表
-// 在SIT创建的时候，已经保证sit.stages中的结果是拓扑意义上有序的
+// 在SIT创建的时候，已经保证sit.stages中的结果是拓扑意义上有序的 todo ?
 // 因此，现在按序遍历时也已保证有序
 func (t *SITree) CheckAndGetSubCircuitStageIDs() ([]int, []int) {
 	top := make([]int, 0) // middle的也放到top里
