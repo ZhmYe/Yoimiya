@@ -34,6 +34,8 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
+
 	//"sync/atomic"
 	"time"
 
@@ -45,14 +47,14 @@ type solver struct {
 	*system
 
 	// values and solved are index by the wire (variable) id
-	//values []fr.Element
-	//solved []bool
+	values []fr.Element
+	solved []bool
 
 	// add by ZhmYe
 	// 这里尝试用map来代替values + solved, 后续用到values时插入排序 + delete
-	solvedValues map[int]fr.Element
+	//solvedValues map[int]fr.Element
 
-	//nbSolved uint64
+	nbSolved uint64
 	// add by ZhmYe
 	nbWires int
 	// maps hintID to hint function
@@ -97,6 +99,8 @@ func newSolver(cs *system, witness fr.Vector, opts ...csolver.Option) (*solver, 
 	 ***/
 
 	if len(witness) != expectedWitnessSize {
+		fmt.Println(len(witness), len(cs.Public), len(cs.Secret), witnessOffset)
+		panic("Error Witness ")
 		return nil, fmt.Errorf("invalid witness size, got %d, expected %d", len(witness), expectedWitnessSize)
 	}
 
@@ -116,14 +120,14 @@ func newSolver(cs *system, witness fr.Vector, opts ...csolver.Option) (*solver, 
 	}
 
 	s := solver{
-		system: cs,
-		//values:          make([]fr.Element, nbWires),
-		//solved:          make([]bool, nbWires),
+		system:          cs,
+		values:          make([]fr.Element, nbWires),
+		solved:          make([]bool, nbWires),
 		nbWires:         nbWires,
 		mHintsFunctions: hintFunctions,
 		logger:          opt.Logger,
 		q:               cs.Field(),
-		solvedValues:    make(map[int]fr.Element),
+		//solvedValues:    make(map[int]fr.Element),
 	}
 	// set the witness indexes as solved
 	if witnessOffset == 1 {
@@ -131,33 +135,34 @@ func newSolver(cs *system, witness fr.Vector, opts ...csolver.Option) (*solver, 
 			Hints: ZhmYe
 			1 in witness(1, ...) is Solved
 		 ***/
-		//s.solved[0] = true // ONE_WIRE
-		//s.values[0].SetOne()
+		s.solved[0] = true // ONE_WIRE
+		s.values[0].SetOne()
 		// add by ZhmYe
-		s.solvedValues[0] = *new(fr.Element).SetOne()
+		//s.solvedValues[0] = *new(fr.Element).SetOne()
 	}
 	// todo 这里传入的witness需要强调middle部分的WireID
 	// 在这里我们暂时先传入了原电路的所有的public、private input，因此前面部分的witness应该是可以照旧复制的
-	nbForwardOutput := s.GetNbForwardOutput()
+	//nbForwardOutput := s.GetNbForwardOutput()
 	// 这里witness的后nbForwardOutput位就是middle传下来的结果
 	// 下面是原本的代码
-	//copy(s.values[witnessOffset:], witness)
-	//for i := range witness {
-	//	s.solved[i+witnessOffset] = true
-	//}
-	// add by ZhmYe
-	for i, value := range witness {
-		// 这里是原本的witness部分
-		if i < len(witness)-nbForwardOutput {
-			s.solvedValues[i+witnessOffset] = value
-		} else {
-			wireID := s.GetForwardOutput(i - len(witness) + nbForwardOutput)
-			s.solvedValues[wireID] = value
-		}
+	copy(s.values[witnessOffset:], witness)
+	for i := range witness {
+		s.solved[i+witnessOffset] = true
 	}
+	// add by ZhmYe
+	//for i, value := range witness {
+	//	// 这里是原本的witness部分
+	//	if i < len(witness)-nbForwardOutput {
+	//		//s.solved[i+wi]
+	//		s.solvedValues[i+witnessOffset] = value
+	//	} else {
+	//		wireID := s.GetForwardOutput(i - len(witness) + nbForwardOutput)
+	//		s.solvedValues[wireID] = value
+	//	}
+	//}
 	// keep track of the number of wire instantiations we do, for a post solve sanity check
 	// to ensure we instantiated all wires
-	//s.nbSolved += uint64(len(witness) + witnessOffset)
+	s.nbSolved += uint64(len(witness) + witnessOffset)
 
 	if s.Type == constraint.SystemR1CS {
 		/***
@@ -180,40 +185,45 @@ func newSolver(cs *system, witness fr.Vector, opts ...csolver.Option) (*solver, 
 }
 
 func (s *solver) set(id int, value fr.Element) {
-	//if s.solved[id] {
-	//	panic("solving the same wire twice should never happen.")
-	//}
-	//s.values[id] = value
-	//s.solved[id] = true
-	// 这里在split的电路中id依旧是原始电路的wireID
-	// add by ZhmYe
-	_, hasSolved := s.solvedValues[id]
-	if hasSolved {
+	bias := s.GetWireBias(id)
+	if s.solved[bias] {
 		panic("solving the same wire twice should never happen.")
 	}
-	s.solvedValues[id] = value
+	s.values[bias] = value
+	s.solved[bias] = true
+	// 这里在split的电路中id依旧是原始电路的wireID
+	// add by ZhmYe
+	//_, hasSolved := s.solvedValues[id]
+	//if hasSolved {
+	//	panic("solving the same wire twice should never happen.")
+	//}
+	//s.solvedValues[id] = value
 	// 这里不需要nbSolved了
-	//atomic.AddUint64(&s.nbSolved, 1)
+	atomic.AddUint64(&s.nbSolved, 1)
+}
+func (s *solver) GetWireValue(wireID int) fr.Element {
+	bias := s.GetWireBias(wireID)
+	return s.values[bias]
 }
 
 // computeTerm computes coeff*variable
 func (s *solver) computeTerm(t constraint.Term) fr.Element {
 	cID, vID := t.CoeffID(), t.WireID()
-
+	bias := s.GetWireBias(vID)
 	if t.IsConstant() {
 		return s.Coefficients[cID]
 	}
 
-	//if cID != 0 && !s.solved[vID] {
-	//	panic("computing a term with an unsolved wire")
-	//}
-	// modify by ZhmYe
-	_, hasSolved := s.solvedValues[vID]
-	if cID != 0 && hasSolved {
+	if cID != 0 && !s.solved[bias] {
 		panic("computing a term with an unsolved wire")
 	}
-	value := s.solvedValues[vID]
-	// value := s.values[vID]
+	// modify by ZhmYe
+	//_, hasSolved := s.solvedValues[vID]
+	//if cID != 0 && !hasSolved {
+	//	panic("computing a term with an unsolved wire")
+	//}
+	//value := s.solvedValues[vID]
+	value := s.values[bias]
 	switch cID {
 	case constraint.CoeffIdZero:
 		return fr.Element{}
@@ -239,14 +249,14 @@ func (s *solver) computeTerm(t constraint.Term) fr.Element {
 func (s *solver) accumulateInto(t constraint.Term, r *fr.Element) {
 	cID := t.CoeffID()
 	vID := t.WireID()
-
+	bias := s.GetWireBias(vID)
 	if t.IsConstant() {
 		r.Add(r, &s.Coefficients[cID])
 		return
 	}
 	// modify by ZhmYe
-	value := s.solvedValues[vID]
-	// value := s.values[vID]
+	//value := s.solvedValues[vID]
+	value := s.values[bias]
 	switch cID {
 	case constraint.CoeffIdZero:
 		return
@@ -351,15 +361,16 @@ func (s *solver) logValue(log constraint.LogEntry) string {
 				eval.Add(&eval, &s.Coefficients[cID])
 				continue
 			}
-			_, hasSolved := s.solvedValues[vID]
-			//if !s.solved[vID] {
-			//	missingValue = true
-			//	break // stop the loop we can't evaluate.
-			//}
-			if !hasSolved {
+			//_, hasSolved := s.solvedValues[vID]
+			bias := s.GetWireBias(vID)
+			if !s.solved[bias] {
 				missingValue = true
-				break
+				break // stop the loop we can't evaluate.
 			}
+			//if !hasSolved {
+			//	missingValue = true
+			//	break
+			//}
 			tv := s.computeTerm(t)
 			eval.Add(&eval, &tv)
 		}
@@ -424,12 +435,12 @@ func (s *solver) GetCoeff(cID uint32) constraint.Element {
 func (s *solver) SetValue(vID uint32, f constraint.Element) {
 	s.set(int(vID), *(*fr.Element)(f[:]))
 }
-
 func (s *solver) IsSolved(vID uint32) bool {
 
-	_, hasSolved := s.solvedValues[int(vID)]
-	return hasSolved
-	//return s.solved[vID]
+	//_, hasSolved := s.solvedValues[int(vID)]
+	//return hasSolved
+	bias := s.GetWireBias(int(vID))
+	return s.solved[bias]
 }
 
 // Read interprets input calldata as either a LinearExpression (if R1CS) or a Term (if Plonkish),
@@ -457,7 +468,7 @@ func (s *solver) Read(calldata []uint32) (constraint.Element, int) {
 
 // processInstruction decodes the instruction and execute blueprint-defined logic.
 // an instruction can encode a hint, a custom constraint or a generic constraint.
-func (solver *solver) processInstruction(pi constraint.PackedInstruction, scratch *scratch) error {
+func (solver *solver) processInstruction(pi constraint.PackedInstruction, scratch *Scratch) error {
 	// fetch the blueprint
 	blueprint := solver.Blueprints[pi.BlueprintID]
 	inst := pi.Unpack(&solver.System)
@@ -504,7 +515,7 @@ func (solver *solver) runStage(stage *graph.Stage, wg *sync.WaitGroup, chTasks *
 	if !stage.WakeUp() {
 		return
 	}
-	var scratch scratch
+	var scratch Scratch
 	//*total += len(stage.GetInstructions())
 	for _, i := range stage.GetInstructions() {
 		err := solver.processInstruction(solver.Instructions[i], &scratch)
@@ -645,7 +656,7 @@ func (solver *solver) runInLevels() error {
 	// a task is a slice of constraint indexes to be solved
 	for i := 0; i < runtime.NumCPU(); i++ {
 		go func() {
-			var scratch scratch
+			var scratch Scratch
 			for t := range chTasks {
 				for _, i := range t {
 					if err := solver.processInstruction(solver.Instructions[i], &scratch); err != nil {
@@ -664,7 +675,7 @@ func (solver *solver) runInLevels() error {
 		close(chError)
 	}()
 	for _, level := range solver.Levels {
-		var scratch scratch
+		var scratch Scratch
 		// max CPU to use
 		maxCPU := float64(len(level)) / float64(minWorkPerCPU)
 
@@ -744,12 +755,12 @@ func (solver *solver) run() error {
 
 	}
 	//fmt.Println(int(solver.nbSolved), len(solver.values))
-	//if int(solver.nbSolved) != len(solver.values) {
-	//	return errors.New("solver didn't assign a value to all wires")
-	//}
-	if len(solver.solvedValues) != solver.nbWires {
+	if int(solver.nbSolved) != len(solver.values) {
 		return errors.New("solver didn't assign a value to all wires")
 	}
+	//if len(solver.solvedValues) != solver.nbWires {
+	//	return errors.New("solver didn't assign a value to all wires")
+	//}
 	logger.Info().Str("Run Function Time", time.Since(startTime).String()).Msg("YZM TEST")
 	fmt.Println("Run Function Time: ", time.Since(startTime))
 	Record.GlobalRecord.AddRunTime(time.Since(startTime))
@@ -774,20 +785,24 @@ func (solver *solver) solveR1C(cID uint32, r *constraint.R1C) error {
 	processLExp := func(l constraint.LinearExpression, val *fr.Element, locValue uint8) {
 		for _, t := range l {
 			vID := t.WireID()
-
+			bias := solver.GetWireBias(vID)
 			// wire is already computed, we just accumulate in val
-			_, hasSolved := solver.solvedValues[vID]
-			if hasSolved {
-				solver.accumulateInto(t, val)
-				continue
-			}
-			//if solver.solved[vID] {
+			//_, hasSolved := solver.solvedValues[vID]
+			//if hasSolved {
 			//	solver.accumulateInto(t, val)
 			//	continue
 			//}
+			if solver.solved[bias] {
+				solver.accumulateInto(t, val)
+				continue
+			}
 
 			if loc != 0 {
-				fmt.Println(solver.Wires2Instruction[t.GetWireID()])
+				_, exist := solver.Wires2Instruction[t.GetWireID()]
+				if !exist {
+					panic("no such Wire In Wire2Instruction!!!")
+				}
+				fmt.Println(t.GetWireID(), solver.GetWireBias(int(t.GetWireID())), solver.Wires2Instruction[t.GetWireID()])
 				panic("found more than one wire to instantiate")
 			}
 			termToCompute = t
@@ -879,8 +894,24 @@ func (solver *solver) wrapErrWithDebugInfo(cID uint32, err error) *UnsatisfiedCo
 	return &UnsatisfiedConstraintError{CID: int(cID), Err: err, DebugInfo: debugInfo}
 }
 
+// GetSolverOutput add by ZhmYe
+func (solver *solver) GetSolverOutput() (fr.Vector, fr.Vector, fr.Vector, []fr.Element) {
+	return solver.a, solver.b, solver.c, solver.values
+}
+
+//func (solver *solver) GetBias() map[uint32]int {
+//	return solver.Bias
+//}
+
 // temporary variables to avoid memallocs in hotloop
-type scratch struct {
+type Scratch struct {
 	tR1C  constraint.R1C
 	tHint constraint.HintMapping
+}
+
+func (s *Scratch) GettR1c() *constraint.R1C {
+	return &s.tR1C
+}
+func (s *Scratch) GettHint() *constraint.HintMapping {
+	return &s.tHint
 }

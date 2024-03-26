@@ -32,6 +32,9 @@ type Term struct {
 	CID, VID uint32
 }
 
+//	func (t *Term) SetBias(b int) {
+//		t.bias = b
+//	}
 func (t *Term) MarkConstant() {
 	t.VID = math.MaxUint32
 }

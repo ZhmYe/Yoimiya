@@ -22,6 +22,7 @@ import (
 	cs "S-gnark/constraint/bn254"
 	"S-gnark/logger"
 	"errors"
+	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"
 	curve "github.com/consensys/gnark-crypto/ecc/bn254"
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr"
@@ -368,7 +369,7 @@ func (vk *VerifyingKey) Precompute() error {
 func setupABC(r1cs *cs.R1CS, domain *fft.Domain, toxicWaste toxicWaste) (A []fr.Element, B []fr.Element, C []fr.Element) {
 
 	nbWires := r1cs.NbInternalVariables + r1cs.GetNbPublicVariables() + r1cs.GetNbSecretVariables()
-
+	//fmt.Println("nbWires=", nbWires)
 	A = make([]fr.Element, nbWires)
 	B = make([]fr.Element, nbWires)
 	C = make([]fr.Element, nbWires)
@@ -390,13 +391,11 @@ func setupABC(r1cs *cs.R1CS, domain *fft.Domain, toxicWaste toxicWaste) (A []fr.
 	var L fr.Element
 
 	// L = 1/n*(t^n-1)/(t-1), Li+1 = w*Li*(t-w^i)/(t-w^(i+1))
-
 	// Setting L0
 	L.Exp(toxicWaste.t, new(big.Int).SetUint64(uint64(domain.Cardinality))).
 		Sub(&L, &one)
 	L.Mul(&L, &tInv[0]).
 		Mul(&L, &domain.CardinalityInv)
-
 	accumulate := func(res *fr.Element, t constraint.Term, value *fr.Element) {
 		cID := t.CoeffID()
 		switch cID {
@@ -426,15 +425,42 @@ func setupABC(r1cs *cs.R1CS, domain *fft.Domain, toxicWaste toxicWaste) (A []fr.
 
 	j := 0
 	it := r1cs.GetR1CIterator()
+	bias := r1cs.GetBias()
+	//fmt.Println(len(bias), nbWires)
+	// todo 这里 A,B,C是根据WireID来取下标的，但是总长度是根据Wire数来取的
 	for c := it.Next(); c != nil; c = it.Next() {
 		for _, t := range c.L {
-			accumulate(&A[t.WireID()], t, &L)
+			//fmt.Println(t.WireID())
+			idx, exist := bias[t.GetWireID()]
+			if !exist {
+				//panic("No such Solved Wire!!!")
+				idx = t.WireID()
+				if idx >= nbWires {
+					fmt.Println("error", idx)
+				}
+
+			}
+			accumulate(&A[idx], t, &L)
 		}
 		for _, t := range c.R {
-			accumulate(&B[t.WireID()], t, &L)
+			idx, exist := bias[t.GetWireID()]
+			if !exist {
+				idx = t.WireID()
+				if idx >= nbWires {
+					fmt.Println("error", idx)
+				}
+			}
+			accumulate(&B[idx], t, &L)
 		}
 		for _, t := range c.O {
-			accumulate(&C[t.WireID()], t, &L)
+			idx, exist := bias[t.GetWireID()]
+			if !exist {
+				idx = t.WireID()
+				if idx >= nbWires {
+					fmt.Println("error", idx)
+				}
+			}
+			accumulate(&C[idx], t, &L)
 		}
 
 		// Li+1 = w*Li*(t-w^i)/(t-w^(i+1))

@@ -4,16 +4,52 @@ import (
 	"S-gnark/backend/groth16"
 	"S-gnark/backend/witness"
 	"S-gnark/constraint"
+	cs_bn254 "S-gnark/constraint/bn254"
 	"S-gnark/frontend/schema"
-	"fmt"
+	"errors"
 	"math/big"
 	"reflect"
-	"time"
+	"strconv"
 )
+
+// SetNbLeaf 设置nbPublic、nbSecret
+// todo 这里还需要加上extra
+func SetNbLeaf(assignment Circuit, cs *cs_bn254.R1CS, extra []constraint.ExtraValue) error {
+	(*cs).AddPublicVariable("1")
+	variableAdder := func() func(f schema.LeafInfo, tInput reflect.Value) error {
+		return func(f schema.LeafInfo, tInput reflect.Value) error {
+			if tInput.CanSet() {
+				if f.Visibility == schema.Unset {
+					return errors.New("can't set val " + f.FullName() + " visibility is unset")
+				}
+				if f.Visibility == schema.Public {
+					(*cs).AddPublicVariable(f.FullName())
+				} else if f.Visibility == schema.Secret {
+					(*cs).AddSecretVariable(f.FullName())
+				}
+			}
+
+			return nil
+		}
+		//return errors.New("can't set val ")
+	}
+	_, err := schema.Walk(assignment, tVariable, variableAdder())
+	if err != nil {
+		return err
+	}
+	// 这里设置了extra的偏移
+	//fmt.Println("len ForwardOutput", len(cs.GetForwardOutputs()))
+	for _, e := range extra {
+		(*cs).AddSecretVariable("ForwardOutput_" + strconv.Itoa(e.GetWireID()))
+		idx := (*cs).GetNbWires() - 1
+		(*cs).SetBias(uint32(e.GetWireID()), idx)
+	}
+	return nil
+}
 
 // todo 如何得到extra，即如何得到MIDDLE的值
 // generateWitness 为split后的电路生成witness,extra表示Middle
-func generateWitness(assignment Circuit, extra []any, field *big.Int, opts ...WitnessOption) (witness.Witness, error) {
+func generateWitness(assignment Circuit, extra []constraint.ExtraValue, field *big.Int, opts ...WitnessOption) (witness.Witness, error) {
 	opt, err := options(opts...)
 	if err != nil {
 		return nil, err
@@ -58,11 +94,11 @@ func generateWitness(assignment Circuit, extra []any, field *big.Int, opts ...Wi
 		}
 		// todo 这里不确定是否这样写
 		// 传入MIDDLE的值作为Input
-		for _, value := range extra {
-			chValues <- value
+		for _, e := range extra {
+			chValues <- e.GetValue()
 		}
 	}()
-	if err := w.Fill(s.Public, s.Secret, chValues); err != nil {
+	if err := w.Fill(s.Public, s.Secret+len(extra), chValues); err != nil {
 		return nil, err
 	}
 
@@ -71,12 +107,12 @@ func generateWitness(assignment Circuit, extra []any, field *big.Int, opts ...Wi
 
 // SetUpSplit 给定电路 进行SetUp操作并给出ProveingKey和VerifyingKey
 func SetUpSplit(cs constraint.ConstraintSystem) (groth16.ProvingKey, groth16.VerifyingKey) {
-	startTime := time.Now()
+	//startTime := time.Now()
 	outerPK, outerVK, err := groth16.Setup(cs)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("SetUp Time:", time.Since(startTime))
+	//fmt.Println("SetUp Time:", time.Since(startTime))
 	//full, err := NewWitness(outerAssignment, ecc.BN254.ScalarField())
 	//public, err := NewWitness(outerAssignment, ecc.BN254.ScalarField(), frontend.PublicOnly())
 	return outerPK, outerVK

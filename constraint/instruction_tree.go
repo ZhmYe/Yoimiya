@@ -43,19 +43,34 @@ func (system *System) HasWire(wireID uint32) bool {
 
 // IsInputOrConstant add by ZhmYe
 // 这里如果是第n次切割电路,wireId会溢出
+// todo 已经在外部导入了input(public、private)
+// 所以还是可以按照offset判断是否为input
 func (system *System) IsInputOrConstant(wireID uint32, split bool) bool {
 	offset := system.internalWireOffset()
-	if wireID < offset {
+	bias := system.GetWireBias(int(wireID)) // 得到wireID在values中的位置
+
+	//bias, exist := system.Bias[wireID]
+	//if exist {
+	//	return bias-int(offset) < system.NbInternalVariables
+	//}
+	if bias < int(offset) {
 		// it's an input.
 		return false
 	}
 	if wireID == math.MaxUint32 {
+		// const
 		return false
 	}
+	// todo 这里的逻辑可能要修改
 	// if wireID == maxUint32, it's a constant.
 	//fmt.Println(len(system.lbWireLevel), system.NbInternalVariables)
 	//return (wireID - offset) < uint32(system.NbInternalVariables)
-	return (wireID-offset) < uint32(system.NbInternalVariables) || split // modify by ZhmYe, to delete lbWir
+	if split {
+		return true
+	}
+	//bias := system.GetWireBias(int(wireID))
+	return bias-int(offset) < system.NbInternalVariables
+	//return (wireID-offset) < uint32(system.NbInternalVariables) || !split // modify by ZhmYe, to delete lbWir
 }
 func (system *System) GetWireLevel(wireID uint32) Level {
 	return system.lbWireLevel[wireID-system.internalWireOffset()]

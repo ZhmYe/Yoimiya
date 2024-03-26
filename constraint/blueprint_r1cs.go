@@ -65,7 +65,7 @@ func (b *BlueprintGenericR1C) DecompressR1C(c *R1C, inst Instruction) {
 ***/
 
 // NewUpdateInstructionTree modify by ZhmYe
-func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System, split bool) {
+func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System, split bool, needAppend bool) {
 	/***
 		Hints: ZhmYe
 		callData:
@@ -80,7 +80,8 @@ func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree In
 	lenL := int(inst.Calldata[1])
 	lenR := int(inst.Calldata[2])
 	lenO := int(inst.Calldata[3])
-	outputWires := make([]uint32, 0)
+	//outputWires := make([]uint32, 0)
+	outputWires := make(map[uint32]bool)
 	//maxLevel := LevelUnset
 	//cs.initDegree(iID)
 	previousIds := make([]int, 0)
@@ -102,7 +103,8 @@ func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree In
 			_, notOutput := cs.Wires2Instruction[wireID]
 			if !notOutput {
 				//if level := tree.GetWireLevel(wireID); level == LevelUnset {
-				outputWires = append(outputWires, wireID)
+				//outputWires = append(outputWires, wireID)
+				outputWires[wireID] = true
 			} else {
 				// add by ZhmYe
 				// 即使level没有超过最大level，只要有level就要遍历
@@ -110,14 +112,6 @@ func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree In
 				// 前序Instruction
 				previousInstructionID := cs.Wires2Instruction[wireID]
 				previousIds = append(previousIds, previousInstructionID)
-				//cs.InstructionForwardDAG.Update(previousInstructionID, iID)
-				//cs.InstructionBackwardDAG.Update(iID, previousInstructionID)
-				//cs.UpdateDegree(false, previousInstructionID) // 更新degree,这里用于更新Backward的degree
-				//if level > maxLevel {
-				//	// 如果当前wireID所在level不是LevelUnset(已经被记录了)，那么更新最大level, 便于知道outputWires应该插入到哪里
-				//	// 那些还没有加入到level中的wires需要等这些已经加入的output wires计算完成后才能计算，因此level需要更大
-				//	maxLevel = level
-				//}
 			}
 		}
 	}
@@ -129,10 +123,13 @@ func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree In
 
 	// insert the new wires.
 	//maxLevel++
-	for _, wireID := range outputWires {
+	for wireID, _ := range outputWires {
 		// add by ZhmYe
 		// 获得wire和Instruction之间的关系
 		cs.AppendWire2Instruction(wireID, iID)
+		if needAppend {
+			cs.SetBias(wireID, cs.AddInternalVariable())
+		}
 		//tree.InsertWire(wireID, maxLevel)
 	}
 	cs.Sit.Insert(iID, previousIds)

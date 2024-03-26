@@ -124,6 +124,7 @@ func (w *witness) Fill(nbPublic, nbSecret int, values <-chan any) error {
 	// fill public and secret values concurrently.
 	for v := range values {
 		if i >= n {
+			fmt.Println(i, n)
 			// we panic here; shouldn't happen and if it does we may leek a chan + producer go routine
 			panic("chan of values returns more elements than expected")
 		}

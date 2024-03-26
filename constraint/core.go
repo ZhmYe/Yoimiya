@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"github.com/blang/semver/v4"
 	"github.com/consensys/gnark-crypto/ecc"
+	"github.com/consensys/gnark-crypto/ecc/bn254/fr"
 	"math/big"
 	"strconv"
 	"sync"
@@ -79,6 +80,36 @@ type Instruction struct {
 	todo: modify
 ***/
 
+// add by ZhmYe
+
+// ExtraValue 用来表示由前置电路的输出作为后置电路的输入的所有wire
+type ExtraValue struct {
+	wireID int
+	value  fr.Element
+	isSet  bool
+}
+
+func NewExtraValue(wireID int) ExtraValue {
+	return ExtraValue{
+		wireID: wireID,
+		value:  fr.Element{},
+		isSet:  false,
+	}
+}
+func (v *ExtraValue) SetValue(value fr.Element) {
+	v.value = value
+	v.isSet = true
+}
+func (v *ExtraValue) GetWireID() int {
+	return v.wireID
+}
+func (v *ExtraValue) GetValue() fr.Element {
+	if !v.isSet {
+		panic("value not set...")
+	}
+	return v.value
+}
+
 // System contains core elements for a constraint System
 type System struct {
 	// serialization header
@@ -136,12 +167,14 @@ type System struct {
 
 	// add by ZhmYe
 	Wires2Instruction map[uint32]int // an output wire "w" first compute in Instruction "I", then store "w" -> "i"
+	Bias              map[uint32]int // 记录wireID在切割后的电路里对应的下标
 	// 这些是自底向上建SIT所需要的
 	//InstructionForwardDAG  *graph.DAG     // DAG constructed by Instructions, forward
 	//InstructionBackwardDAG *graph.DAG     // DAG constructed by Instructions, backward
 	//degree                 map[int]int    // store each node's degree(to order)
 	Sit           *graph.SITree
-	forwardOutput []int // 这里用来记录Middle传下来的结果，记录WireID
+	forwardOutput []ExtraValue // 这里用来需要传下去的wireID
+	//extra         []fr.Element // 这里用来记录
 }
 
 // NewSystem initialize the common structure among constraint system
@@ -165,40 +198,103 @@ func NewSystem(scalarField *big.Int, capacity int, t SystemType) System {
 		//InstructionBackwardDAG: graph.NewDAG(),
 		//degree:                 make(map[int]int),
 		Sit:           graph.NewSITree(),
-		forwardOutput: make([]int, 0),
+		forwardOutput: make([]ExtraValue, 0),
+		//extra:         make([]fr.Element, 0),
+		Bias: make(map[uint32]int),
 	}
 
 	system.genericHint = system.AddBlueprint(&BlueprintGenericHint{})
 	return system
 }
+
+// add by ZhmYe
+
+func (system *System) SetExtraValue(idx int, value fr.Element) {
+	system.forwardOutput[idx].SetValue(value)
+}
+
+// SetBias 用于设置Bias, wireID -> idx
+func (system *System) SetBias(wireID uint32, idx int) {
+	bias, exist := system.Bias[wireID]
+	if exist {
+		//fmt.Println("wireID = ", wireID, ", bias = ", bias, " , offset = ", system.internalWireOffset())
+		if bias < int(system.internalWireOffset()) {
+			return
+		}
+		panic("Wire Bias Has been Set")
+	}
+	system.Bias[wireID] = idx
+	if idx+1 != system.GetNbSecretVariables()+system.GetNbPublicVariables()+system.GetNbInternalVariables() {
+		fmt.Println("Set Bias Error!!!")
+	}
+}
+func (system *System) GetBias() map[uint32]int {
+	return system.Bias
+}
+func (system *System) GetWireBias(wireID int) int {
+	bias, exist := system.Bias[uint32(wireID)]
+	if exist {
+		return bias
+	}
+	return wireID
+}
+
+// SetForwardOutput 这里把上一个电路传下来的WireID记录在system.forwardOutput
 func (system *System) SetForwardOutput(output []int) {
-	system.forwardOutput = output
+	for _, wireID := range output {
+		system.forwardOutput = append(system.forwardOutput, NewExtraValue(wireID))
+	}
 }
 func (system *System) GetNbForwardOutput() int {
 	return len(system.forwardOutput)
 }
-func (system *System) GetForwardOutput(index int) int {
-	return system.forwardOutput[index]
+
+//	func (system *System) GetForwardOutput(wireID int) int {
+//		return system.forwardOutput[index]
+//	}
+
+func (system *System) GetForwardOutputs() []ExtraValue {
+	return system.forwardOutput
 }
-func (system *System) GetForwardOutputs(indexs ...int) []int {
+func (system *System) GetForwardOutputIds() []int {
 	result := make([]int, 0)
-	for _, index := range indexs {
-		result = append(result, system.GetForwardOutput(index))
+	for _, e := range system.forwardOutput {
+		result = append(result, e.GetWireID())
 	}
 	return result
 }
 
+//func (system *System) AddExtra(value fr.Element) {
+//	system.extra = append(system.extra, value)
+//}
+//func (system *System) GetExtra() []fr.Element {
+//	return system.extra
+//}
+
+// add by ZhmYe
+
+// UpdateForwardOutput 这里返回传给下一个电路的 WireID
+func (system *System) UpdateForwardOutput() {
+	middleInstructions := system.Sit.GetMiddleOutputs()
+	// 这里我们要得到Instruction里的所有WireID
+	// todo 是否要所有的WireID? 还是只要output
+	// 这里暂时按照只要output来写
+	// 首先先要得到Instruction
+	//system.forwardOutput = make([]frontend.ExtraValue, 0)
+	// system.Wire2Instruction记录了Wire在哪一个Instruction中作为output
+	for wire, iID := range system.Wires2Instruction {
+		_, isMiddle := middleInstructions[iID]
+		if isMiddle {
+			system.forwardOutput = append(system.forwardOutput, NewExtraValue(int(wire)))
+		}
+	}
+	//for _, wireID := range system.GetForwardOutputs() {
+	//	system.AddExtra(Asolver.GetWireValue(wireID))
+	//}
+}
+
 // AppendWire2Instruction add by ZhmYe
 func (system *System) AppendWire2Instruction(wireId uint32, iID int) {
-	//_, exist := system.Wires2Instruction[wireId]
-	//if !exist {
-	//	system.Wires2Instruction[wireId] = make([]int, 0)
-	//}
-	//system.Wires2Instruction[wireId] = append(system.Wires2Instruction[wireId], iID)
-	//if len(system.Wires2Instruction[wireId]) != 1 {
-	//	fmt.Println("not 1")
-	//}
-	// 可以确定一个wire对应一个instruction
 	system.Wires2Instruction[wireId] = iID
 }
 
@@ -300,6 +396,9 @@ func (system *System) GetNbPublicVariables() int {
 func (system *System) GetNbInternalVariables() int {
 	return system.NbInternalVariables
 }
+func (system *System) GetNbWires() int {
+	return system.GetNbSecretVariables() + system.GetNbPublicVariables() + system.GetNbInternalVariables()
+}
 
 // CheckSerializationHeader parses the scalar field and gnark version headers
 //
@@ -351,6 +450,7 @@ func (system *System) FieldBitLen() int {
 func (system *System) AddInternalVariable() (idx int) {
 	idx = system.NbInternalVariables + system.GetNbPublicVariables() + system.GetNbSecretVariables()
 	system.NbInternalVariables++
+	//fmt.Println(system.NbInternalVariables)
 	// also grow the level slice
 	// modify by ZhmYe
 	if Config.Config.Split == Config.SPLIT_LEVELS {
@@ -400,6 +500,8 @@ func (system *System) AddSolverHint(f solver.Hint, id solver.HintID, input []Lin
 	internalVariables = make([]int, nbOutput)
 	for i := 0; i < len(internalVariables); i++ {
 		internalVariables[i] = system.AddInternalVariable()
+		//// todo 这里似乎wireID就是下标？
+		//system.SetBias(uint32(internalVariables[i]), internalVariables[i])
 	}
 
 	// associate these wires with the solver hint
@@ -563,7 +665,8 @@ func (cs *System) AddInstructionInSpilt(bID BlueprintID, calldata []uint32) []ui
 	// modify by ZhmYe
 	switch Config.Config.Split {
 	case Config.SPLIT_STAGES:
-		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, true)
+		//fmt.Println(cs.GetNbInternalVariables())
+		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, true, true)
 	case Config.SPLIT_LEVELS:
 		level := blueprint.UpdateInstructionTree(inst, cs)
 		// we can't skip levels, so appending is fine.
@@ -573,7 +676,7 @@ func (cs *System) AddInstructionInSpilt(bID BlueprintID, calldata []uint32) []ui
 			cs.Levels[level] = append(cs.Levels[level], iID)
 		}
 	default:
-		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, true)
+		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, true, true)
 	}
 	//cs.GetDegree(iID)
 	return wires
@@ -614,7 +717,7 @@ func (cs *System) AddInstruction(bID BlueprintID, calldata []uint32) []uint32 {
 	// modify by ZhmYe
 	switch Config.Config.Split {
 	case Config.SPLIT_STAGES:
-		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, false)
+		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, false, false)
 	case Config.SPLIT_LEVELS:
 		level := blueprint.UpdateInstructionTree(inst, cs)
 		// we can't skip levels, so appending is fine.
@@ -624,7 +727,7 @@ func (cs *System) AddInstruction(bID BlueprintID, calldata []uint32) []uint32 {
 			cs.Levels[level] = append(cs.Levels[level], iID)
 		}
 	default:
-		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, false)
+		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, false, false)
 	}
 	//cs.GetDegree(iID)
 	return wires

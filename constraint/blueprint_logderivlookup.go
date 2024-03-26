@@ -158,7 +158,7 @@ func (b *BlueprintLookupHint) UpdateInstructionTree(inst Instruction, tree Instr
 
 // NewUpdateInstructionTree add by ZhmYe
 // to fix error(interface)
-func (b *BlueprintLookupHint) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System, split bool) {
+func (b *BlueprintLookupHint) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System, split bool, needAppend bool) {
 	// depend on the table UP to the number of entries at time of instruction creation.
 	nbEntries := int(inst.Calldata[1])
 	//cs.initDegree(iID)

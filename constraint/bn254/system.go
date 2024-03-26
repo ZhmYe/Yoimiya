@@ -54,7 +54,7 @@ func NewSparseR1CS(capacity int) *SparseR1CS {
 func newSystem(capacity int, t constraint.SystemType) *system {
 	return &system{
 		System:     constraint.NewSystem(fr.Modulus(), capacity, t),
-		CoeffTable: newCoeffTable(capacity / 10),
+		CoeffTable: NewCoeffTable(capacity / 10),
 	}
 }
 
@@ -65,7 +65,6 @@ func (cs *system) Solve(witness witness.Witness, opts ...csolver.Option) (any, e
 	log := logger.Logger().With().Int("nbConstraints", cs.GetNbConstraints()).Logger()
 	start := time.Now()
 	v := witness.Vector().(fr.Vector)
-
 	// init the solver
 	Asolver, err := newSolver(cs, v, opts...)
 	if err != nil {
@@ -95,27 +94,77 @@ func (cs *system) Solve(witness witness.Witness, opts ...csolver.Option) (any, e
 	}
 
 	log.Debug().Dur("took", time.Since(start)).Msg("constraint system solver done")
-
+	// add by ZhmYe
+	//Asolver.UpdateForwardOutput() // 这里cs.ForwardOutput或者Asolver.ForwardOutput就是middle的wireID
+	//// 计算传下去的extra内容，即middle的wire结果
+	for i, e := range Asolver.GetForwardOutputs() {
+		wireID := e.GetWireID()
+		Asolver.SetExtraValue(i, Asolver.GetWireValue(wireID))
+		//Asolver.AddExtra(Asolver.GetWireValue(wireID))
+	}
 	/***
 		Hints: ZhmYe
 	 	// todo 这里的values被替换为了solvedValues
-		// 尝试通过初始化values: []int, 然后插入排序，同时delete map获得values
+		// 尝试通过初始化values
 	***/
 
 	// format the solution
 	// TODO @gbotrel revisit post-refactor
 	if cs.Type == constraint.SystemR1CS {
 		var res R1CSSolution
-		res.W = Asolver.values
-		res.A = Asolver.a
-		res.B = Asolver.b
-		res.C = Asolver.c
+		a, b, c, solvedValues := Asolver.GetSolverOutput()
+		bias := Asolver.GetBias()
+		values := make([]fr.Element, len(solvedValues))
+		// todo 这里因为加入了Bias，所以可以得到values具体的位置
+		for wireID, value := range solvedValues {
+			idx, exist := bias[uint32(wireID)]
+			if !exist {
+				//panic("No such Solved Wire!!!")
+				idx = wireID
+			}
+			values[idx] = value
+		}
+
+		// todo 这里加入了对value的排序，可能消耗内存
+		/***
+			Hints: ZhmYe
+			从实际实验来看，似乎要排序，innerCircuit如果不排序会报错
+			todo
+			有没有什么既能保证有序又可以像map一样的结构或者算法？
+		***/
+		//sortedKey := make([]int, 0)
+		//for key, _ := range solvedValues {
+		//	sortedKey = append(sortedKey, key)
+		//}
+		//for i := 0; i < len(sortedKey); i++ {
+		//	for j := i + 1; j < len(sortedKey); j++ {
+		//		if sortedKey[i] > sortedKey[j] {
+		//			sortedKey[i], sortedKey[j] = sortedKey[j], sortedKey[i]
+		//		}
+		//	}
+		//}
+		//for _, key := range sortedKey {
+		//	values = append(values, solvedValues[key])
+		//	delete(solvedValues, key)
+		//}
+		res.W = values
+		res.A = a
+		res.B = b
+		res.C = c
 		return &res, nil
 	} else {
 		// sparse R1CS
 		var res SparseR1CSSolution
 		// query l, r, o in Lagrange basis, not blinded
-		res.L, res.R, res.O = evaluateLROSmallDomain(cs, Asolver.values)
+		//solvedValues := Asolver.solvedValues
+
+		values := Asolver.values
+		// todo 这里遍历map是无序的，但res.W是否要求有序？对map进行排序内存消耗？
+		//for key, value := range solvedValues {
+		//	values = append(values, value)
+		//	delete(solvedValues, key)
+		//}
+		res.L, res.R, res.O = evaluateLROSmallDomain(cs, values)
 
 		return &res, nil
 	}
@@ -182,7 +231,7 @@ func (cs *system) ReadFrom(r io.Reader) (int64, error) {
 	decoder := dm.NewDecoder(r)
 
 	// initialize coeff table
-	cs.CoeffTable = newCoeffTable(0)
+	cs.CoeffTable = NewCoeffTable(0)
 
 	if err := decoder.Decode(&cs); err != nil {
 		return int64(decoder.NumBytesRead()), err

@@ -168,8 +168,6 @@ func GetCircuitVkWitnessPublic(
 	startTime := time.Now()
 	outerCcs, err := frontend.Compile(ecc.BN254.ScalarField(), r1cs.NewBuilder, outerCircuit)
 	fmt.Println("Compile Time:", time.Since(startTime))
-	proofs, err := frontend.Split(outerCcs, outerAssignment)
-	fmt.Println(len(proofs))
 	if err != nil {
 		panic("error")
 	}
@@ -182,4 +180,107 @@ func GetCircuitVkWitnessPublic(
 	full, err := frontend.NewWitness(outerAssignment, ecc.BN254.ScalarField())
 	public, err := frontend.NewWitness(outerAssignment, ecc.BN254.ScalarField(), frontend.PublicOnly())
 	return outerCcs, outerPK, outerVK, full, public
+}
+
+func GetPackProofInSplit(
+	innerCcsArray [LENGTH]constraint.ConstraintSystem,
+	innerVKArray [LENGTH]groth16.VerifyingKey,
+	innerWitnessArray [LENGTH]witness.Witness,
+	innerProofArray [LENGTH]groth16.Proof) []frontend.PackedProof {
+
+	var circuitVk [LENGTH]VerifyingKey[sw_bn254.G1Affine, sw_bn254.G2Affine, sw_bn254.GTEl]
+
+	for j := range innerCcsArray {
+		innerVK := innerVKArray[j]
+
+		tVk, _ := innerVK.(*groth16backend_bn254.VerifyingKey)
+		e, err := bn254.Pair([]bn254.G1Affine{tVk.G1.Alpha}, []bn254.G2Affine{tVk.G2.Beta}) // compute E
+		circuitVk[j].E = sw_bn254.NewGTEl(e)
+		circuitVk[j].G1.K = make([]sw_bn254.G1Affine, len(tVk.G1.K))
+		for i := range circuitVk[j].G1.K {
+			circuitVk[j].G1.K[i] = sw_bn254.NewG1Affine(tVk.G1.K[i])
+		}
+		var deltaNeg, gammaNeg bn254.G2Affine
+		deltaNeg.Neg(&tVk.G2.Delta)
+		gammaNeg.Neg(&tVk.G2.Gamma)
+		circuitVk[j].G2.DeltaNeg = sw_bn254.NewG2Affine(deltaNeg)
+		circuitVk[j].G2.GammaNeg = sw_bn254.NewG2Affine(gammaNeg)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	// ScalarField is the [emulated.FieldParams] impelementation of the curve scalar field.
+	type ScalarField = emulated.BN254Fr
+
+	// get outer circuit witness
+	var circuitWitness [LENGTH]Witness[ScalarField]
+	for j, innerWitness := range innerWitnessArray {
+		pubw, _ := innerWitness.Public()
+		vec := pubw.Vector()
+		vect, _ := vec.(fr_bn254.Vector)
+		for i := range vect {
+			circuitWitness[j].Public = append(circuitWitness[j].Public, emulated.ValueOf[emparams.BN254Fr](vect[i]))
+		}
+	}
+
+	// get outer circuit proof
+	var circuitProof [LENGTH]Proof[sw_bn254.G1Affine, sw_bn254.G2Affine]
+	for i, innerProof := range innerProofArray {
+		tpoof, _ := innerProof.(*groth16backend_bn254.Proof)
+		circuitProof[i].Ar = sw_bn254.NewG1Affine(tpoof.Ar)
+		circuitProof[i].Krs = sw_bn254.NewG1Affine(tpoof.Krs)
+		circuitProof[i].Bs = sw_bn254.NewG2Affine(tpoof.Bs)
+	}
+
+	//fmt.Println("circuitVk: ", circuitVk)
+	//fmt.Println("circuitWitness: ", circuitWitness)
+	//fmt.Println("circuitProof: ", circuitProof)
+
+	outerCircuit := &OuterCircuit[ScalarField, sw_bn254.G1Affine, sw_bn254.G2Affine, sw_bn254.GTEl]{
+		InnerWitness: func(innerCcsArray [LENGTH]constraint.ConstraintSystem) [LENGTH]Witness[ScalarField] {
+			witnessArray := [LENGTH]Witness[ScalarField]{}
+			for i, innerCcs := range innerCcsArray {
+				witnessArray[i].Public = make([]emulated.Element[ScalarField], innerCcs.GetNbPublicVariables()-1)
+			}
+			return witnessArray
+		}(innerCcsArray),
+		VerifyingKey: func(innerCcsArray [LENGTH]constraint.ConstraintSystem) [LENGTH]VerifyingKey[sw_bn254.G1Affine, sw_bn254.G2Affine, sw_bn254.GTEl] {
+			verifyingKeyArray := [LENGTH]VerifyingKey[sw_bn254.G1Affine, sw_bn254.G2Affine, sw_bn254.GTEl]{}
+			for i, innerCcs := range innerCcsArray {
+				verifyingKeyArray[i].G1.K = make([]sw_bn254.G1Affine, innerCcs.GetNbPublicVariables())
+			}
+			return verifyingKeyArray
+		}(innerCcsArray),
+	}
+
+	outerAssignment := &OuterCircuit[ScalarField, sw_bn254.G1Affine, sw_bn254.G2Affine, sw_bn254.GTEl]{
+		InnerWitness: circuitWitness,
+		Proof:        circuitProof,
+		VerifyingKey: circuitVk,
+	}
+	startTime := time.Now()
+	outerCcs, err := frontend.Compile(ecc.BN254.ScalarField(), r1cs.NewBuilder, outerCircuit)
+	if err != nil {
+		panic("error")
+	}
+	fmt.Println("Compile Time:", time.Since(startTime))
+	proofs, err := frontend.Split(outerCcs, outerAssignment)
+	if err != nil {
+		panic("error")
+	}
+	return proofs
+	//fmt.Println(len(proofs))
+	//if err != nil {
+	//	panic("error")
+	//}
+	//if err != nil {
+	//	panic(err)
+	//}
+	//startTime = time.Now()
+	//outerPK, outerVK, err := groth16.Setup(outerCcs)
+	//fmt.Println("SetUp Time:", time.Since(startTime))
+	//full, err := frontend.NewWitness(outerAssignment, ecc.BN254.ScalarField())
+	//public, err := frontend.NewWitness(outerAssignment, ecc.BN254.ScalarField(), frontend.PublicOnly())
+	//return outerCcs, outerPK, outerVK, full, public
 }
