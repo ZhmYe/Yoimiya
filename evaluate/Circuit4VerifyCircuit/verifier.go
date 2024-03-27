@@ -7,6 +7,7 @@ import (
 	"S-gnark/constraint"
 	"S-gnark/frontend"
 	"S-gnark/frontend/cs/r1cs"
+	"S-gnark/frontend/split"
 	"S-gnark/std/algebra"
 	"S-gnark/std/algebra/emulated/sw_bn254"
 	"S-gnark/std/math/emulated"
@@ -186,7 +187,7 @@ func GetPackProofInSplit(
 	innerCcsArray [LENGTH]constraint.ConstraintSystem,
 	innerVKArray [LENGTH]groth16.VerifyingKey,
 	innerWitnessArray [LENGTH]witness.Witness,
-	innerProofArray [LENGTH]groth16.Proof) []frontend.PackedProof {
+	innerProofArray [LENGTH]groth16.Proof) []split.PackedProof {
 
 	var circuitVk [LENGTH]VerifyingKey[sw_bn254.G1Affine, sw_bn254.G2Affine, sw_bn254.GTEl]
 
@@ -265,7 +266,7 @@ func GetPackProofInSplit(
 		panic("error")
 	}
 	fmt.Println("Compile Time:", time.Since(startTime))
-	proofs, err := frontend.Split(outerCcs, outerAssignment)
+	proofs, err := split.Split(outerCcs, outerAssignment, split.NewParam(true, false, -1, false))
 	if err != nil {
 		panic("error")
 	}

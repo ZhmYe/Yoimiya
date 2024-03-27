@@ -42,7 +42,7 @@ func Compile(field *big.Int, newBuilder NewBuilder, circuit Circuit, opts ...Com
 	log := logger.Logger()
 	log.Info().Msg("compiling circuit")
 	// parse options
-	opt := defaultCompileConfig()
+	opt := DefaultCompileConfig()
 	for _, o := range opts {
 		if err := o(&opt); err != nil {
 			log.Err(err).Msg("applying compile option")
@@ -165,7 +165,7 @@ func callDeferred(builder Builder) error {
 // type for available options.
 type CompileOption func(opt *CompileConfig) error
 
-func defaultCompileConfig() CompileConfig {
+func DefaultCompileConfig() CompileConfig {
 	return CompileConfig{
 		CompressThreshold: 300,
 	}

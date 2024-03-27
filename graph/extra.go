@@ -1,18 +1,26 @@
 package graph
 
+import "math/rand"
+
 // 这里是对SIT.go的补充，为了避免Merge
 
 // GetMiddleOutputs 返回所有Middle的Stage里最后一个Instruction
 // todo 前面的Instruction里的Wire会不会也是Output?
-func (t *SITree) GetMiddleOutputs() map[int]bool {
-	result := make(map[int]bool)
+func (t *SITree) GetMiddleOutputs() map[int]int {
+	result := make(map[int]int)
 	middleStage := t.GetMiddleStage()
 	for _, id := range middleStage {
 		stage := t.GetStageByIndex(id)
-		for _, iID := range stage.GetInstructions() {
-			result[iID] = true
+		//for _, iID := range stage.GetInstructions() {
+		//	result[iID] = true
+		//}
+		count := 0
+		for _, subStage := range stage.GetChildIDs() {
+			if t.GetLayer(subStage) == BOTTOM {
+				count++
+			}
 		}
-		//result[stage.GetLastInstruction()] = true
+		result[stage.GetLastInstruction()] = count // 这里为bottom的子stage的数量说明该instruction会被使用几次
 	}
 	return result
 }
@@ -60,5 +68,14 @@ func (t *SITree) switchTop(stageID int, layer Layer) {
 			// 如果子节点是TOP，那么递归
 			t.switchTop(subStage, BOTTOM)
 		}
+	}
+}
+
+func (t *SITree) RandomlySetMiddle(stageID int) {
+	epsilon := 1.0
+	if rand.Float64() < epsilon {
+		t.SetLayer(stageID, MIDDLE)
+	} else {
+		t.SetLayer(stageID, TOP)
 	}
 }

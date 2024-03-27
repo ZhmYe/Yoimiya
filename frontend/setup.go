@@ -40,6 +40,9 @@ func SetNbLeaf(assignment Circuit, cs *cs_bn254.R1CS, extra []constraint.ExtraVa
 	// 这里设置了extra的偏移
 	//fmt.Println("len ForwardOutput", len(cs.GetForwardOutputs()))
 	for _, e := range extra {
+		if e.IsUsed() {
+			continue
+		}
 		(*cs).AddSecretVariable("ForwardOutput_" + strconv.Itoa(e.GetWireID()))
 		idx := (*cs).GetNbWires() - 1
 		(*cs).SetBias(uint32(e.GetWireID()), idx)
@@ -48,8 +51,9 @@ func SetNbLeaf(assignment Circuit, cs *cs_bn254.R1CS, extra []constraint.ExtraVa
 }
 
 // todo 如何得到extra，即如何得到MIDDLE的值
-// generateWitness 为split后的电路生成witness,extra表示Middle
-func generateWitness(assignment Circuit, extra []constraint.ExtraValue, field *big.Int, opts ...WitnessOption) (witness.Witness, error) {
+// GenerateWitness 为split后的电路生成witness,extra表示Middle
+
+func GenerateWitness(assignment Circuit, extra []constraint.ExtraValue, field *big.Int, opts ...WitnessOption) (witness.Witness, error) {
 	opt, err := options(opts...)
 	if err != nil {
 		return nil, err
@@ -73,7 +77,12 @@ func generateWitness(assignment Circuit, extra []constraint.ExtraValue, field *b
 	if err != nil {
 		return nil, err
 	}
-
+	extraNumber := 0
+	for _, e := range extra {
+		if !e.IsUsed() {
+			extraNumber++
+		}
+	}
 	// write the public | secret values in a chan
 	chValues := make(chan any)
 	go func() {
@@ -95,10 +104,13 @@ func generateWitness(assignment Circuit, extra []constraint.ExtraValue, field *b
 		// todo 这里不确定是否这样写
 		// 传入MIDDLE的值作为Input
 		for _, e := range extra {
+			if e.IsUsed() {
+				continue
+			}
 			chValues <- e.GetValue()
 		}
 	}()
-	if err := w.Fill(s.Public, s.Secret+len(extra), chValues); err != nil {
+	if err := w.Fill(s.Public, s.Secret+extraNumber, chValues); err != nil {
 		return nil, err
 	}
 

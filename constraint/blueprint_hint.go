@@ -115,6 +115,7 @@ func (b *BlueprintGenericHint) NewUpdateInstructionTree(inst Instruction, tree I
 	j := 3
 	//cs.initDegree(iID)
 	previousIds := make([]int, 0)
+	inputWires := make(map[uint32]bool)
 	for i := 0; i < lenInputs; i++ {
 		n := int(inst.Calldata[j]) // len of linear expr
 		j++
@@ -123,6 +124,8 @@ func (b *BlueprintGenericHint) NewUpdateInstructionTree(inst Instruction, tree I
 			wireID := inst.Calldata[j+1]
 			j += 2
 			if !tree.IsInputOrConstant(wireID, split) {
+				//cs.UpdateUsedExtra(int(wireID))
+				inputWires[wireID] = true
 				continue
 			}
 			// add by ZhmYe
@@ -145,5 +148,8 @@ func (b *BlueprintGenericHint) NewUpdateInstructionTree(inst Instruction, tree I
 		//tree.InsertWire(k, outputLevel)
 	}
 	cs.Sit.Insert(iID, previousIds)
+	for wireID, _ := range inputWires {
+		cs.UpdateUsedExtra(int(wireID))
+	}
 	//return outputLevel
 }

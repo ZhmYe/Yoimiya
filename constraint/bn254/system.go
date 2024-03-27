@@ -124,29 +124,6 @@ func (cs *system) Solve(witness witness.Witness, opts ...csolver.Option) (any, e
 			}
 			values[idx] = value
 		}
-
-		// todo 这里加入了对value的排序，可能消耗内存
-		/***
-			Hints: ZhmYe
-			从实际实验来看，似乎要排序，innerCircuit如果不排序会报错
-			todo
-			有没有什么既能保证有序又可以像map一样的结构或者算法？
-		***/
-		//sortedKey := make([]int, 0)
-		//for key, _ := range solvedValues {
-		//	sortedKey = append(sortedKey, key)
-		//}
-		//for i := 0; i < len(sortedKey); i++ {
-		//	for j := i + 1; j < len(sortedKey); j++ {
-		//		if sortedKey[i] > sortedKey[j] {
-		//			sortedKey[i], sortedKey[j] = sortedKey[j], sortedKey[i]
-		//		}
-		//	}
-		//}
-		//for _, key := range sortedKey {
-		//	values = append(values, solvedValues[key])
-		//	delete(solvedValues, key)
-		//}
 		res.W = values
 		res.A = a
 		res.B = b
@@ -159,11 +136,6 @@ func (cs *system) Solve(witness witness.Witness, opts ...csolver.Option) (any, e
 		//solvedValues := Asolver.solvedValues
 
 		values := Asolver.values
-		// todo 这里遍历map是无序的，但res.W是否要求有序？对map进行排序内存消耗？
-		//for key, value := range solvedValues {
-		//	values = append(values, value)
-		//	delete(solvedValues, key)
-		//}
 		res.L, res.R, res.O = evaluateLROSmallDomain(cs, values)
 
 		return &res, nil
