@@ -79,3 +79,10 @@ func (t *SITree) RandomlySetMiddle(stageID int) {
 		t.SetLayer(stageID, TOP)
 	}
 }
+func (t *SITree) GetAllInstructions() []int {
+	result := make([]int, 0)
+	for _, stage := range t.stages {
+		result = append(result, stage.Instructions...)
+	}
+	return result
+}
