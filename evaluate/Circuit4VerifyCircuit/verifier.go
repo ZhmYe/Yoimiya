@@ -263,10 +263,10 @@ func GetPackProofInSplit(
 	startTime := time.Now()
 	outerCcs, err := frontend.Compile(ecc.BN254.ScalarField(), r1cs.NewBuilder, outerCircuit)
 	if err != nil {
-		panic("error")
+		panic(err)
 	}
 	fmt.Println("Compile Time:", time.Since(startTime))
-	proofs, err := split.Split(outerCcs, outerAssignment, split.NewParam(true, false, -1, false))
+	proofs, err := split.Split(outerCcs, outerAssignment, split.NewParam(true, false, 2, false))
 	if err != nil {
 		panic("error")
 	}

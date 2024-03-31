@@ -3,6 +3,7 @@ package constraint
 import (
 	"S-gnark/constraint/solver"
 	"S-gnark/debug"
+	"fmt"
 )
 
 type BlueprintGenericHint struct{}
@@ -123,7 +124,7 @@ func (b *BlueprintGenericHint) NewUpdateInstructionTree(inst Instruction, tree I
 		for k := 0; k < n; k++ {
 			wireID := inst.Calldata[j+1]
 			j += 2
-			if !tree.IsInputOrConstant(wireID, split) {
+			if tree.IsInputOrConstant(wireID, split) {
 				//cs.UpdateUsedExtra(int(wireID))
 				inputWires[wireID] = true
 				continue
@@ -132,6 +133,7 @@ func (b *BlueprintGenericHint) NewUpdateInstructionTree(inst Instruction, tree I
 			// 前序Instruction
 			previousInstructionID, exist := cs.Wires2Instruction[wireID]
 			if !exist {
+				fmt.Println(wireID)
 				panic("error in hint")
 			}
 			//fmt.Println(wireID, len(cs.Wires2Instruction), previousInstructionID, iID)

@@ -16,6 +16,8 @@ import (
 // todo 这里还需要加上extra
 func SetNbLeaf(assignment Circuit, cs *cs_bn254.R1CS, extra []constraint.ExtraValue) error {
 	(*cs).AddPublicVariable("1")
+	idx := (*cs).GetNbWires() - 1
+	(*cs).SetBias(uint32(idx), idx)
 	variableAdder := func() func(f schema.LeafInfo, tInput reflect.Value) error {
 		return func(f schema.LeafInfo, tInput reflect.Value) error {
 			if tInput.CanSet() {
@@ -28,7 +30,8 @@ func SetNbLeaf(assignment Circuit, cs *cs_bn254.R1CS, extra []constraint.ExtraVa
 					(*cs).AddSecretVariable(f.FullName())
 				}
 			}
-
+			idx := (*cs).GetNbWires() - 1
+			(*cs).SetBias(uint32(idx), idx)
 			return nil
 		}
 		//return errors.New("can't set val ")

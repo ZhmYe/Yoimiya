@@ -109,7 +109,7 @@ func buildBottomConstraintSystem(
 		//sit.ModifyiID(i, j, len(cs.Instructions)) // 这里是串行添加的，新的Instruction id就是当前的长度
 	}
 	cs.CoeffTable = record.GetCoeffTable()
-	fmt.Println("Compile Result: ")
+	fmt.Println("	ToSplitCs Result: ")
 	fmt.Println("		NbPublic=", cs.GetNbPublicVariables(), " NbSecret=", cs.GetNbSecretVariables(), " NbInternal=", cs.GetNbInternalVariables())
 	fmt.Println("		NbCoeff=", cs.GetNbConstraints())
 	fmt.Println("		NbWires=", cs.GetNbPublicVariables()+cs.GetNbSecretVariables()+cs.GetNbInternalVariables())
@@ -135,7 +135,6 @@ func getClusterProof(toProve *ProveConstraintSystem, assignment frontend.Circuit
 		panic("Only Support bn254 r1cs now...")
 	}
 	// 这里会更新extra
-	// todo 这样传递会更新？
 	proof := GetSplitProof(toProveCs, assignment, &(toProve.extra), true)
 	return proof
 }
@@ -159,6 +158,11 @@ func updateProveCs(toProve *ProveConstraintSystem, iIDs []int, record *DataRecor
 			bID := toProveCs.AddBlueprint(record.GetBluePrint(pi.BlueprintID))
 			_toProveR1cs.AddInstructionInSpilt(bID, unpack(pi, record))
 		}
+		fmt.Println("	ToProveCs Update: ")
+		fmt.Println("		NbPublic=", toProveCs.GetNbPublicVariables(), " NbSecret=", toProveCs.GetNbSecretVariables(), " NbInternal=", toProveCs.GetNbInternalVariables())
+		fmt.Println("		NbCoeff=", toProveCs.GetNbConstraints())
+		fmt.Println("		NbWires=", toProveCs.GetNbPublicVariables()+toProveCs.GetNbSecretVariables()+toProveCs.GetNbInternalVariables())
+
 	default:
 		panic("Only Support bn254 r1cs now...")
 	}
@@ -220,6 +224,8 @@ func SplitAndCluster(cs constraint.ConstraintSystem, assignment frontend.Circuit
 			}
 		} else {
 			// 如果还可以继续切分，那么将top部分加入到toProveCs中，然后用bottom构建新的toSplitCs
+			// 对toProveCs的cs进行更新
+			updateProveCs(toProveCs, sit.GetInstructionIdsFromStageIDs(top), record)
 			var err error
 			toSplitCs, err = buildBottomConstraintSystem(
 				sit.GetInstructionIdsFromStageIDs(bottom),
@@ -227,8 +233,6 @@ func SplitAndCluster(cs constraint.ConstraintSystem, assignment frontend.Circuit
 			if err != nil {
 				panic(err)
 			}
-			// 对toProveCs的cs进行更新
-			updateProveCs(toProveCs, sit.GetInstructionIdsFromStageIDs(top), record)
 			// 如果上半电路数量足够,internal数量超过总数除以份数
 			if check(toProveCs.cs, originWireNumber, cut, index) {
 				// 那么toProveCs可以进行证明，
