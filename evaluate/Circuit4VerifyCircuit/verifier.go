@@ -1,12 +1,14 @@
 package Circuit4VerifyCircuit
 
 import (
+	"S-gnark/Config"
 	"S-gnark/backend/groth16"
 	groth16backend_bn254 "S-gnark/backend/groth16/bn254"
 	"S-gnark/backend/witness"
 	"S-gnark/constraint"
 	"S-gnark/frontend"
 	"S-gnark/frontend/cs/r1cs"
+	"S-gnark/frontend/split"
 	"S-gnark/std/algebra"
 	"S-gnark/std/algebra/emulated/sw_bn254"
 	"S-gnark/std/math/emulated"
@@ -186,7 +188,7 @@ func GetPackProofInSplit(
 	innerCcsArray [LENGTH]constraint.ConstraintSystem,
 	innerVKArray [LENGTH]groth16.VerifyingKey,
 	innerWitnessArray [LENGTH]witness.Witness,
-	innerProofArray [LENGTH]groth16.Proof) []frontend.PackedProof {
+	innerProofArray [LENGTH]groth16.Proof) []split.PackedProof {
 
 	var circuitVk [LENGTH]VerifyingKey[sw_bn254.G1Affine, sw_bn254.G2Affine, sw_bn254.GTEl]
 
@@ -262,10 +264,10 @@ func GetPackProofInSplit(
 	startTime := time.Now()
 	outerCcs, err := frontend.Compile(ecc.BN254.ScalarField(), r1cs.NewBuilder, outerCircuit)
 	if err != nil {
-		panic("error")
+		panic(err)
 	}
 	fmt.Println("Compile Time:", time.Since(startTime))
-	proofs, err := frontend.Split(outerCcs, outerAssignment)
+	proofs, err := split.Split(outerCcs, outerAssignment, split.NewParam(true, Config.Config.IsCluster(), 2, false))
 	if err != nil {
 		panic("error")
 	}

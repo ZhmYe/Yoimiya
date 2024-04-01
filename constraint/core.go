@@ -87,6 +87,7 @@ type ExtraValue struct {
 	wireID int
 	value  fr.Element
 	isSet  bool
+	count  int // 用于记录该ExtraValue还剩多少次被用机会
 }
 
 func NewExtraValue(wireID int) ExtraValue {
@@ -94,11 +95,30 @@ func NewExtraValue(wireID int) ExtraValue {
 		wireID: wireID,
 		value:  fr.Element{},
 		isSet:  false,
+		count:  0,
 	}
+}
+func (v *ExtraValue) SignToSet() {
+	v.isSet = true
 }
 func (v *ExtraValue) SetValue(value fr.Element) {
 	v.value = value
 	v.isSet = true
+}
+func (v *ExtraValue) SetCount(count int) {
+	v.count = count
+}
+func (v *ExtraValue) GetCount() int {
+	return v.count
+}
+func (v *ExtraValue) Consume(count int) {
+	v.count -= count
+	if v.count < 0 {
+		panic("error")
+	}
+}
+func (v *ExtraValue) IsUsed() bool {
+	return v.count == 0
 }
 func (v *ExtraValue) GetWireID() int {
 	return v.wireID
@@ -174,6 +194,7 @@ type System struct {
 	//degree                 map[int]int    // store each node's degree(to order)
 	Sit           *graph.SITree
 	forwardOutput []ExtraValue // 这里用来需要传下去的wireID
+	usedExtra     map[int]int  // 记录extra值被使用的次数
 	//extra         []fr.Element // 这里用来记录
 }
 
@@ -200,7 +221,8 @@ func NewSystem(scalarField *big.Int, capacity int, t SystemType) System {
 		Sit:           graph.NewSITree(),
 		forwardOutput: make([]ExtraValue, 0),
 		//extra:         make([]fr.Element, 0),
-		Bias: make(map[uint32]int),
+		Bias:      make(map[uint32]int),
+		usedExtra: make(map[int]int),
 	}
 
 	system.genericHint = system.AddBlueprint(&BlueprintGenericHint{})
@@ -209,6 +231,18 @@ func NewSystem(scalarField *big.Int, capacity int, t SystemType) System {
 
 // add by ZhmYe
 
+// UpdateUsedExtra 更新extra的使用记录，在判断变量是否为input的时候调用
+func (system *System) UpdateUsedExtra(wireID int) {
+	_, exist := system.usedExtra[wireID]
+	if !exist {
+		system.usedExtra[wireID] = 1
+	} else {
+		system.usedExtra[wireID]++
+	}
+}
+func (system *System) GetUsedExtra() map[int]int {
+	return system.usedExtra
+}
 func (system *System) SetExtraValue(idx int, value fr.Element) {
 	system.forwardOutput[idx].SetValue(value)
 }
@@ -240,10 +274,11 @@ func (system *System) GetWireBias(wireID int) int {
 }
 
 // SetForwardOutput 这里把上一个电路传下来的WireID记录在system.forwardOutput
-func (system *System) SetForwardOutput(output []int) {
-	for _, wireID := range output {
-		system.forwardOutput = append(system.forwardOutput, NewExtraValue(wireID))
-	}
+func (system *System) SetForwardOutput(output []ExtraValue) {
+	//for _, wireID := range output {
+	//	system.forwardOutput = append(system.forwardOutput, NewExtraValue(wireID))
+	//}
+	system.forwardOutput = output
 }
 func (system *System) GetNbForwardOutput() int {
 	return len(system.forwardOutput)
@@ -283,9 +318,11 @@ func (system *System) UpdateForwardOutput() {
 	//system.forwardOutput = make([]frontend.ExtraValue, 0)
 	// system.Wire2Instruction记录了Wire在哪一个Instruction中作为output
 	for wire, iID := range system.Wires2Instruction {
-		_, isMiddle := middleInstructions[iID]
+		count, isMiddle := middleInstructions[iID]
 		if isMiddle {
-			system.forwardOutput = append(system.forwardOutput, NewExtraValue(int(wire)))
+			e := NewExtraValue(int(wire))
+			e.SetCount(count) // 记录该extra会被使用多少次
+			system.forwardOutput = append(system.forwardOutput, e)
 		}
 	}
 	//for _, wireID := range system.GetForwardOutputs() {

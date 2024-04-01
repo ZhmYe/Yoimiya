@@ -1,5 +1,7 @@
 package constraint
 
+import "fmt"
+
 // BlueprintGenericR1C implements Blueprint and BlueprintR1C.
 // Encodes
 //
@@ -82,6 +84,7 @@ func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree In
 	lenO := int(inst.Calldata[3])
 	//outputWires := make([]uint32, 0)
 	outputWires := make(map[uint32]bool)
+	inputWires := make(map[uint32]bool)
 	//maxLevel := LevelUnset
 	//cs.initDegree(iID)
 	previousIds := make([]int, 0)
@@ -95,9 +98,12 @@ func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree In
 			//if !tree.HasWire(wireID) {
 			//	continue
 			//}
-			if !tree.IsInputOrConstant(wireID, split) {
+			if tree.IsInputOrConstant(wireID, split) {
+				inputWires[wireID] = true
+				//cs.UpdateUsedExtra(int(wireID))
 				continue
 			}
+
 			// outputWires中存储所有level为LevelUnset的wireID
 			// 原本下面通过判断level是否存在来判断，现在可以通过判断Wire2Instruction判断
 			_, notOutput := cs.Wires2Instruction[wireID]
@@ -110,7 +116,11 @@ func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree In
 				// 即使level没有超过最大level，只要有level就要遍历
 				// 当前wireID已经在之前的Instruction中被记录，那么建立顺序关系
 				// 前序Instruction
-				previousInstructionID := cs.Wires2Instruction[wireID]
+				previousInstructionID, exist := cs.Wires2Instruction[wireID]
+				if !exist {
+					fmt.Println(wireID)
+					panic("error in hint")
+				}
 				previousIds = append(previousIds, previousInstructionID)
 			}
 		}
@@ -133,7 +143,9 @@ func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree In
 		//tree.InsertWire(wireID, maxLevel)
 	}
 	cs.Sit.Insert(iID, previousIds)
-
+	for wireID, _ := range inputWires {
+		cs.UpdateUsedExtra(int(wireID))
+	}
 	//return maxLevel
 }
 

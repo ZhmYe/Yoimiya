@@ -1,9 +1,11 @@
 package test
 
 import (
+	"S-gnark/Config"
 	"S-gnark/backend/groth16"
 	"S-gnark/frontend"
 	"S-gnark/frontend/cs/r1cs"
+	"S-gnark/frontend/split"
 	"S-gnark/logger"
 	Circuit "S-gnark/statistics/circuit"
 	"S-gnark/statistics/utils"
@@ -39,7 +41,7 @@ func (t *TestMean) init() {
 	ccs, _ := frontend.Compile(ecc.BN254.ScalarField(), r1cs.NewBuilder, &circuit)
 	// groth16 zkSNARK: Setup
 	startTime := time.Now()
-	proofs, err := frontend.Split(ccs, &assignment)
+	proofs, err := split.Split(ccs, &assignment, split.NewParam(true, Config.Config.IsCluster(), 2, false))
 	if err != nil {
 		return
 	}

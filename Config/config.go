@@ -14,11 +14,27 @@ const (
 	NORMAL
 )
 
+type SPLIT_MODE int
+
+const (
+	CLUSTER SPLIT_MODE = iota
+	ALONE
+)
+
 type GlobalConfig struct {
 	Split                SPLIT_METHOD // 对于DAG的划分方式
 	MaxParallelingNumber int          // 最大并发数
 	MinWorkPerCPU        int
 	Mode                 CODE_MODE
+	SplitMode            SPLIT_MODE
 }
 
-var Config = GlobalConfig{Split: SPLIT_STAGES, MaxParallelingNumber: 100, MinWorkPerCPU: 50, Mode: NORMAL}
+var Config = GlobalConfig{Split: SPLIT_STAGES, MaxParallelingNumber: 100, MinWorkPerCPU: 50, Mode: NORMAL,
+	SplitMode: CLUSTER}
+
+func (c *GlobalConfig) IsCluster() bool {
+	if c.SplitMode == CLUSTER {
+		return true
+	}
+	return false
+}
