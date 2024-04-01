@@ -72,13 +72,10 @@ func Prove(r1cs *cs.R1CS, pk *ProvingKey, fullWitness witness.Witness, opts ...b
 	log := logger.Logger().With().Str("curve", r1cs.CurveID().String()).Str("acceleration", "none").Int("nbConstraints", r1cs.GetNbConstraints()).Str("backend", "groth16").Logger()
 
 	commitmentInfo := r1cs.CommitmentInfo.(constraint.Groth16Commitments)
-
 	proof := &Proof{Commitments: make([]curve.G1Affine, len(commitmentInfo))}
-
 	solverOpts := opt.SolverOpts[:len(opt.SolverOpts):len(opt.SolverOpts)]
 
 	privateCommittedValues := make([][]fr.Element, len(commitmentInfo))
-
 	// override hints
 	bsb22ID := solver.GetHintID(fcs.Bsb22CommitmentComputePlaceholder)
 	solverOpts = append(solverOpts, solver.OverrideHint(bsb22ID, func(_ *big.Int, in []*big.Int, out []*big.Int) error {

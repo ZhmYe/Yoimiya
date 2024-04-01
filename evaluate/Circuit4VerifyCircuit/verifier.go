@@ -1,6 +1,7 @@
 package Circuit4VerifyCircuit
 
 import (
+	"S-gnark/Config"
 	"S-gnark/backend/groth16"
 	groth16backend_bn254 "S-gnark/backend/groth16/bn254"
 	"S-gnark/backend/witness"
@@ -266,7 +267,7 @@ func GetPackProofInSplit(
 		panic(err)
 	}
 	fmt.Println("Compile Time:", time.Since(startTime))
-	proofs, err := split.Split(outerCcs, outerAssignment, split.NewParam(true, false, 2, false))
+	proofs, err := split.Split(outerCcs, outerAssignment, split.NewParam(true, Config.Config.IsCluster(), 2, false))
 	if err != nil {
 		panic("error")
 	}

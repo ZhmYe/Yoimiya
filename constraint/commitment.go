@@ -19,6 +19,7 @@ type PlonkCommitment struct {
 }
 
 type Commitment interface{}
+
 type Commitments interface{ CommitmentIndexes() []int }
 
 type Groth16Commitments []Groth16Commitment

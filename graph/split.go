@@ -84,7 +84,7 @@ func (s *SplitEngine) Split(n int) (*SITree, *SITree) {
 //		return s.GetWeightMap()
 //	}
 func (s *SplitEngine) GetWeightMap() map[int]float64 {
-	return s.sit.GetStageScore()
+	return make(map[int]float64)
 }
 
 //	func (s *SplitEngine) GetParentMap() map[int]map[int]bool {
