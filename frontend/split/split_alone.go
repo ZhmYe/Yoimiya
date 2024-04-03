@@ -28,19 +28,6 @@ func SplitAndProve(cs constraint.ConstraintSystem, assignment frontend.Circuit) 
 	case *cs_bn254.R1CS:
 		_r1cs.Sit.AssignLayer()
 		structureRoundLog(_r1cs, 0)
-		//switch _r1cs.Sit.Examine() {
-		//case graph.PASS:
-		//	log := logger.Logger()
-		//	log.Debug().Str("SIT LAYER EXAMINE", "PASS").Msg("YZM DEBUG")
-		//	//fmt.Println("Examine PASS...")
-		//case graph.HAS_LINK:
-		//	panic("Sit Layer Error: HAS_LINK...")
-		//case graph.LAYER_UNSET:
-		//	panic("Sit Layer Error: LAYER_UNSET...")
-		//case graph.SPLIT_ERROR:
-		//	panic("Sit Layer Error: SPLIT_ERROR...")
-		//}
-		//sits, err := trySplit(_r1cs)
 		top, bottom := _r1cs.Sit.CheckAndGetSubCircuitStageIDs()
 		_r1cs.UpdateForwardOutput() // 这里从原电路中获得middle对应的wireIDs
 		forwardOutput := _r1cs.GetForwardOutputs()

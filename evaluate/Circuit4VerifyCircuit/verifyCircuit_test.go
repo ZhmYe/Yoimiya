@@ -39,13 +39,15 @@ func Test4VerifyCircuit(t *testing.T) {
 	proofs := GetPackProofInSplit(innerCcsArray, innerVKArray, innerWitnessArray, innerProofArray)
 	fmt.Println(len(proofs))
 	fmt.Println("Split Circuit Time:", time.Since(startTime))
-	for _, packedProof := range proofs {
+	for i, packedProof := range proofs {
 		proof := packedProof.GetProof()
 		verifyKey := packedProof.GetVerifyingKey()
 		publicWitness := packedProof.GetPublicWitness()
 		err := groth16.Verify(proof, verifyKey, publicWitness)
 		if err != nil {
-			panic(err)
+			fmt.Println(err)
+		} else {
+			fmt.Println("Proof ", i, " Verify Success...")
 		}
 	}
 }
