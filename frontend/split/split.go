@@ -87,6 +87,12 @@ func GetSplitProof(split constraint.ConstraintSystem,
 	//for _, f := range nextForwardOutput {
 	//	*forwardOutput = append(*forwardOutput, f)
 	//}
+	//err := groth16.Verify(proof, vk, publicWitness)
+	//if err != nil {
+	//	panic(err)
+	//} else {
+	//	fmt.Println("PASS")
+	//}
 	return NewPackedProof(proof, vk, publicWitness)
 }
 

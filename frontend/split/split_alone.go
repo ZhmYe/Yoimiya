@@ -42,8 +42,6 @@ func SplitAndProve(cs constraint.ConstraintSystem, assignment frontend.Circuit) 
 			panic(err)
 		}
 
-		// 这里加入prove的逻辑，这样top可以丢弃
-		// 同时包含加入extra的逻辑
 		proof := GetSplitProof(topCs, assignment, &extras, false)
 		proofs = append(proofs, proof)
 		//fmt.Println("bottom=", len(bottom))
@@ -121,7 +119,9 @@ func buildConstraintSystemFromIds(iIDs []int, record *DataRecord, assignment fro
 		//sit.ModifyiID(i, j, len(cs.Instructions)) // 这里是串行添加的，新的Instruction id就是当前的长度
 	}
 	cs.CoeffTable = record.GetCoeffTable()
-	cs.CommitmentInfo = record.GetCommitmentInfo()
+	if isTop {
+		cs.CommitmentInfo = record.GetCommitmentInfo()
+	}
 	fmt.Println("Compile Result: ")
 	fmt.Println("		NbPublic=", cs.GetNbPublicVariables(), " NbSecret=", cs.GetNbSecretVariables(), " NbInternal=", cs.GetNbInternalVariables())
 	fmt.Println("		NbCoeff=", cs.GetNbConstraints())

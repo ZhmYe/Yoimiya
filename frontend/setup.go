@@ -46,7 +46,7 @@ func SetNbLeaf(assignment Circuit, cs *cs_bn254.R1CS, extra []constraint.ExtraVa
 		if e.IsUsed() {
 			continue
 		}
-		(*cs).AddSecretVariable("ForwardOutput_" + strconv.Itoa(e.GetWireID()))
+		(*cs).AddPublicVariable("ForwardOutput_" + strconv.Itoa(e.GetWireID())) // 这里设置为public，因为上半的输出应该是公开的，另外也简化了public witness的生成
 		idx := (*cs).GetNbWires() - 1
 		(*cs).SetBias(uint32(e.GetWireID()), idx)
 	}
@@ -81,6 +81,7 @@ func GenerateWitness(assignment Circuit, extra []constraint.ExtraValue, field *b
 		return nil, err
 	}
 	extraNumber := 0
+	// 这里如果是public witness不需要统计extraNumber
 	for _, e := range extra {
 		if !e.IsUsed() {
 			extraNumber++
