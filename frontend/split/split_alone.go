@@ -95,7 +95,8 @@ func buildConstraintSystemFromSit(sit *graph.SITree, record *DataRecord) (constr
 	}
 	return cs, nil
 }
-func buildConstraintSystemFromIds(iIDs []int, record *DataRecord, assignment frontend.Circuit, forwardOutput []constraint.ExtraValue, extra []constraint.ExtraValue, isTop bool) (constraint.ConstraintSystem, error) {
+func buildConstraintSystemFromIds(iIDs []int, record *DataRecord, assignment frontend.Circuit,
+	forwardOutput []constraint.ExtraValue, extra []constraint.ExtraValue, isTop bool) (constraint.ConstraintSystem, error) {
 	// todo 核心逻辑
 	// 这里根据切割返回出来的有序instruction ids，得到新的电路cs
 	// record中记录了CallData、Blueprint、Instruction的map

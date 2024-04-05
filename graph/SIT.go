@@ -225,6 +225,7 @@ func (t *SITree) InsertWithoutLayer(iID int, previousIds []int) {
 
 		}
 		// 把stage append
+		// 这里一定要在最后添加，因为computeDepth需要所有父节点包括fission
 		t.appendStage(stage)
 		//if hasBottom {
 		//	t.SetLayer(stage.GetID(), BOTTOM)

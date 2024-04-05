@@ -30,8 +30,16 @@ func SetNbLeaf(assignment Circuit, cs *cs_bn254.R1CS, extra []constraint.ExtraVa
 					(*cs).AddSecretVariable(f.FullName())
 				}
 			}
-			idx := (*cs).GetNbWires() - 1
-			(*cs).SetBias(uint32(idx), idx)
+			// 这里后续witness的排序是按照先public然后private的顺序来的，下面有extra作为public，因此private的bias应该要靠后
+			if f.Visibility == schema.Public {
+				// 如果是public，那么wireID和bias是一样的
+				idx := (*cs).GetNbWires() - 1
+				(*cs).SetBias(uint32(idx), idx)
+			} else if f.Visibility == schema.Secret {
+				// 如果是secret， 那么bias上还需要加上extra的数量
+				idx := (*cs).GetNbWires() - 1
+				(*cs).SetBias(uint32(idx), idx+len(extra))
+			}
 			return nil
 		}
 		//return errors.New("can't set val ")
@@ -47,7 +55,8 @@ func SetNbLeaf(assignment Circuit, cs *cs_bn254.R1CS, extra []constraint.ExtraVa
 			continue
 		}
 		(*cs).AddPublicVariable("ForwardOutput_" + strconv.Itoa(e.GetWireID())) // 这里设置为public，因为上半的输出应该是公开的，另外也简化了public witness的生成
-		idx := (*cs).GetNbWires() - 1
+		// 这里应该要看的是public的数量
+		idx := (*cs).GetNbPublicVariables() - 1
 		(*cs).SetBias(uint32(e.GetWireID()), idx)
 	}
 	return nil
@@ -81,7 +90,6 @@ func GenerateWitness(assignment Circuit, extra []constraint.ExtraValue, field *b
 		return nil, err
 	}
 	extraNumber := 0
-	// 这里如果是public witness不需要统计extraNumber
 	for _, e := range extra {
 		if !e.IsUsed() {
 			extraNumber++
@@ -97,6 +105,15 @@ func GenerateWitness(assignment Circuit, extra []constraint.ExtraValue, field *b
 			}
 			return nil
 		})
+		// todo 这里不确定是否这样写
+		// 传入MIDDLE的值作为Input
+		// 这里因为extra作为public，所以按顺序应该在这里
+		for _, e := range extra {
+			if e.IsUsed() {
+				continue
+			}
+			chValues <- e.GetValue()
+		}
 		if !opt.publicOnly {
 			schema.Walk(assignment, tVariable, func(leaf schema.LeafInfo, tValue reflect.Value) error {
 				if leaf.Visibility == schema.Secret {
@@ -105,16 +122,8 @@ func GenerateWitness(assignment Circuit, extra []constraint.ExtraValue, field *b
 				return nil
 			})
 		}
-		// todo 这里不确定是否这样写
-		// 传入MIDDLE的值作为Input
-		for _, e := range extra {
-			if e.IsUsed() {
-				continue
-			}
-			chValues <- e.GetValue()
-		}
 	}()
-	if err := w.Fill(s.Public, s.Secret+extraNumber, chValues); err != nil {
+	if err := w.Fill(s.Public+extraNumber, s.Secret, chValues); err != nil {
 		return nil, err
 	}
 

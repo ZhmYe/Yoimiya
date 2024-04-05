@@ -258,9 +258,9 @@ func (system *System) SetBias(wireID uint32, idx int) {
 		panic("Wire Bias Has been Set")
 	}
 	system.Bias[wireID] = idx
-	if idx+1 != system.GetNbSecretVariables()+system.GetNbPublicVariables()+system.GetNbInternalVariables() {
-		fmt.Println("Set Bias Error!!!")
-	}
+	//if idx+1 != system.GetNbSecretVariables()+system.GetNbPublicVariables()+system.GetNbInternalVariables() {
+	//	fmt.Println("Set Bias Error!!!")
+	//}
 }
 func (system *System) GetBias() map[uint32]int {
 	return system.Bias
