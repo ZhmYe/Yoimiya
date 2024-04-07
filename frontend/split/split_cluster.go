@@ -4,7 +4,7 @@ import (
 	"S-gnark/constraint"
 	cs_bn254 "S-gnark/constraint/bn254"
 	"S-gnark/frontend"
-	"S-gnark/graph"
+	"S-gnark/graph/Sit"
 	"fmt"
 	"time"
 )
@@ -177,7 +177,7 @@ func SplitAndCluster(cs constraint.ConstraintSystem, assignment frontend.Circuit
 	var record *DataRecord
 	proofs := make([]PackedProof, 0)
 	toSplitCs := cs
-	var sit *graph.SITree
+	var sit *Sit.SITree
 	flag, round, index, startTime := true, 0, 0, time.Now()
 	extras := make([]constraint.ExtraValue, 0)
 	forwardOutput := make([]constraint.ExtraValue, 0)
@@ -204,7 +204,13 @@ func SplitAndCluster(cs constraint.ConstraintSystem, assignment frontend.Circuit
 			// 这里从待切电路中获得middle对应的wireIDs，用于传给下一个toSplitCs
 			forwardOutput = _r1cs.GetForwardOutputs() // 得到本次待切电路的上半电路需要传给下半电路的forwardOutput
 			toProveCs.AddForwardOutput(forwardOutput) // 添加proveCs的forwardOutput
-			sit = _r1cs.Sit
+			switch _sit := _r1cs.SplitEngine.(type) {
+			case *Sit.SITree:
+				sit = _sit
+			default:
+				panic("Only Support SIT now...")
+			}
+			//sit = _r1cs.SplitEngine.(type)
 		default:
 			panic("Only Support bn254 r1cs now...")
 		}
@@ -216,7 +222,7 @@ func SplitAndCluster(cs constraint.ConstraintSystem, assignment frontend.Circuit
 			flag = false
 			switch finalCs := toSplitCs.(type) {
 			case *cs_bn254.R1CS:
-				updateProveCs(toProveCs, finalCs.Sit.GetAllInstructions(), record)
+				updateProveCs(toProveCs, finalCs.SplitEngine.GetAllInstructions(), record)
 				proof := getClusterProof(toProveCs, assignment)
 				proofs = append(proofs, proof)
 			default:

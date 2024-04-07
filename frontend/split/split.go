@@ -28,9 +28,9 @@ func Split(cs constraint.ConstraintSystem, assignment frontend.Circuit, param Pa
 func structureRoundLog(_r1cs *cs_bn254.R1CS, round int) {
 	fmt.Println("Round ", round)
 	fmt.Println("	Circuit Structure: ")
-	fmt.Println("		Layers Number: ", _r1cs.Sit.GetLayersInfo())
-	fmt.Println("		Stage Number:", _r1cs.Sit.GetStageNumber())
-	fmt.Println("		Instruction Number: ", _r1cs.Sit.GetTotalInstructionNumber())
+	fmt.Println("		Layers Number: ", _r1cs.SplitEngine.GetLayersInfo())
+	fmt.Println("		Stage/LEVEL Number:", _r1cs.SplitEngine.GetStageNumber())
+	//fmt.Println("		Instruction Number: ", _r1cs.Sit.GetTotalInstructionNumber())
 	fmt.Println("		NbPublic=", _r1cs.GetNbPublicVariables(), " NbSecret=", _r1cs.GetNbSecretVariables(), " NbInternal=", _r1cs.GetNbInternalVariables())
 	fmt.Println("		Wire Number: ", _r1cs.GetNbPublicVariables()+_r1cs.GetNbSecretVariables()+_r1cs.GetNbInternalVariables())
 }

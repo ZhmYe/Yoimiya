@@ -1,6 +1,8 @@
 package constraint
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // BlueprintGenericR1C implements Blueprint and BlueprintR1C.
 // Encodes
@@ -68,25 +70,12 @@ func (b *BlueprintGenericR1C) DecompressR1C(c *R1C, inst Instruction) {
 
 // NewUpdateInstructionTree modify by ZhmYe
 func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System, split bool, needAppend bool) {
-	/***
-		Hints: ZhmYe
-		callData:
-			len: 4 + 2 * len(L) + 2 * len(R) + 2 * len(O)
-			4: len, len(L), len(R), len(O)
-			2* len(L)/len(R)/len(O): 2 * (CoeffID(), WireID())
-
-		Wires and levels detailed in constraints/instruction_tree.go
-	***/
-	// a R1C doesn't know which wires are input and which are outputs
-	//fmt.Println(iID)
 	lenL := int(inst.Calldata[1])
 	lenR := int(inst.Calldata[2])
 	lenO := int(inst.Calldata[3])
-	//outputWires := make([]uint32, 0)
-	outputWires := make(map[uint32]bool)
-	//inputWires := make(map[uint32]bool)
-	//maxLevel := LevelUnset
-	//cs.initDegree(iID)
+	outputWires := make([]uint32, 0)
+	//maxLevel := -1
+	//outputWires := make(map[uint32]bool)
 	previousIds := make([]int, 0)
 	walkWires := func(n, idx int) {
 		for k := 0; k < n; k++ {
@@ -109,13 +98,16 @@ func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree In
 			_, notOutput := cs.Wires2Instruction[wireID]
 			if !notOutput {
 				//if level := tree.GetWireLevel(wireID); level == LevelUnset {
-				//outputWires = append(outputWires, wireID)
-				outputWires[wireID] = true
+				outputWires = append(outputWires, wireID)
+				//outputWires[wireID] = true
 			} else {
 				// add by ZhmYe
 				// 即使level没有超过最大level，只要有level就要遍历
 				// 当前wireID已经在之前的Instruction中被记录，那么建立顺序关系
 				// 前序Instruction
+
+				// 这里改成获取instruction的level
+				//
 				previousInstructionID, exist := cs.Wires2Instruction[wireID]
 				if !exist {
 					fmt.Println(wireID)
@@ -133,16 +125,56 @@ func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree In
 
 	// insert the new wires.
 	//maxLevel++
-	for wireID, _ := range outputWires {
+	for _, wireID := range outputWires {
 		// add by ZhmYe
 		// 获得wire和Instruction之间的关系
 		cs.AppendWire2Instruction(wireID, iID)
 		if needAppend {
 			cs.SetBias(wireID, cs.AddInternalVariable())
 		}
-		//tree.InsertWire(wireID, maxLevel)
+		//if Config.Config.Split == Config.SPLIT_LEVELS {
+		//	tree.InsertWire(wireID, maxLevel)
+		//}
 	}
-	cs.Sit.Insert(iID, previousIds)
+	cs.SplitEngine.Insert(iID, previousIds)
+	//switch Config.Config.Split {
+	//// 如果是stage，则开始维护sit
+	//case Config.SPLIT_STAGES:
+	//	cs.Sit.Insert(iID, previousIds)
+	//// 如果是level，则计算得到Levels
+	//case Config.SPLIT_LEVELS:
+	//	previousIdsMap := make(map[int]bool)
+	//	for _, id := range previousIds {
+	//		previousIdsMap[id] = true
+	//	}
+	//	// todo 这里用遍历一次来换取instruction -> level的内存
+	//	for i, level := range cs.Levels {
+	//		for _, id := range level {
+	//			_, exist := previousIdsMap[id]
+	//			if exist {
+	//				if i > maxLevel {
+	//					maxLevel = i
+	//				}
+	//			}
+	//		}
+	//	}
+	//	maxLevel++
+	//	// we can't skip levels, so appending is fine.
+	//	if maxLevel >= len(cs.Levels) {
+	//		cs.Levels = append(cs.Levels, []int{iID})
+	//	} else {
+	//		cs.Levels[maxLevel] = append(cs.Levels[maxLevel], iID)
+	//	}
+	//	cs.deepest = append(cs.deepest, maxLevel) // 记录instruction当前能抵达的最大深度，即它自己当前的深度
+	//	// 更新父节点的deepest
+	//	for _, id := range previousIds {
+	//		cs.deepest[id] = maxLevel
+	//	}
+	//default:
+	//	panic("error SPLIT_METHOD")
+	//
+	//}
+
 	//for wireID, _ := range inputWires {
 	//	cs.UpdateUsedExtra(int(wireID))
 	//}
