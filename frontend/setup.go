@@ -51,14 +51,15 @@ func SetNbLeaf(assignment Circuit, cs *cs_bn254.R1CS, extra []constraint.ExtraVa
 	// 这里设置了extra的偏移
 	//fmt.Println("len ForwardOutput", len(cs.GetForwardOutputs()))
 	for _, e := range extra {
-		if e.IsUsed() {
-			continue
-		}
+		//if e.IsUsed() {
+		//	continue
+		//}
 		(*cs).AddPublicVariable("ForwardOutput_" + strconv.Itoa(e.GetWireID())) // 这里设置为public，因为上半的输出应该是公开的，另外也简化了public witness的生成
 		// 这里应该要看的是public的数量
 		idx := (*cs).GetNbPublicVariables() - 1
 		(*cs).SetBias(uint32(e.GetWireID()), idx)
 	}
+	(*cs).SetExtraNumber(extra)
 	return nil
 }
 
@@ -89,12 +90,12 @@ func GenerateWitness(assignment Circuit, extra []constraint.ExtraValue, field *b
 	if err != nil {
 		return nil, err
 	}
-	extraNumber := 0
-	for _, e := range extra {
-		if !e.IsUsed() {
-			extraNumber++
-		}
-	}
+	extraNumber := len(extra)
+	//for _, e := range extra {
+	//if !e.IsUsed() {
+	//extraNumber++
+	//}
+	//}
 	// write the public | secret values in a chan
 	chValues := make(chan any)
 	go func() {
@@ -109,9 +110,9 @@ func GenerateWitness(assignment Circuit, extra []constraint.ExtraValue, field *b
 		// 传入MIDDLE的值作为Input
 		// 这里因为extra作为public，所以按顺序应该在这里
 		for _, e := range extra {
-			if e.IsUsed() {
-				continue
-			}
+			//if e.IsUsed() {
+			//	continue
+			//}
 			chValues <- e.GetValue()
 		}
 		if !opt.publicOnly {

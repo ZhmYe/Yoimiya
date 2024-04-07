@@ -95,7 +95,7 @@ func NewExtraValue(wireID int) ExtraValue {
 		wireID: wireID,
 		value:  fr.Element{},
 		isSet:  false,
-		count:  0,
+		//count:  0,
 	}
 }
 func (v *ExtraValue) SignToSet() {
@@ -105,21 +105,25 @@ func (v *ExtraValue) SetValue(value fr.Element) {
 	v.value = value
 	v.isSet = true
 }
-func (v *ExtraValue) SetCount(count int) {
-	v.count = count
-}
-func (v *ExtraValue) GetCount() int {
-	return v.count
-}
-func (v *ExtraValue) Consume(count int) {
-	v.count -= count
-	if v.count < 0 {
-		panic("error")
-	}
-}
-func (v *ExtraValue) IsUsed() bool {
-	return v.count == 0
-}
+
+//func (v *ExtraValue) SetCount(count int) {
+//	v.count = count
+//}
+//func (v *ExtraValue) GetCount() int {
+//	return v.count
+//}
+
+//func (v *ExtraValue) Consume(count int) {
+//	v.count -= count
+//	if v.count < 0 {
+//		panic("error")
+//	}
+//}
+
+//func (v *ExtraValue) IsUsed() bool {
+//	return v.count == 0
+//}
+
 func (v *ExtraValue) GetWireID() int {
 	return v.wireID
 }
@@ -194,7 +198,8 @@ type System struct {
 	//degree                 map[int]int    // store each node's degree(to order)
 	Sit           *graph.SITree
 	forwardOutput []ExtraValue // 这里用来需要传下去的wireID
-	usedExtra     map[int]int  // 记录extra值被使用的次数
+	extra         int          // 这里用来记录extra的数量，用于确认原本的public variable有多少个
+	//usedExtra     map[int]int  // 记录extra值被使用的次数
 	//extra         []fr.Element // 这里用来记录
 }
 
@@ -221,8 +226,9 @@ func NewSystem(scalarField *big.Int, capacity int, t SystemType) System {
 		Sit:           graph.NewSITree(),
 		forwardOutput: make([]ExtraValue, 0),
 		//extra:         make([]fr.Element, 0),
-		Bias:      make(map[uint32]int),
-		usedExtra: make(map[int]int),
+		Bias:  make(map[uint32]int),
+		extra: 0,
+		//usedExtra: make(map[int]int), // 现在只有两半电路，暂时先不要
 	}
 
 	system.genericHint = system.AddBlueprint(&BlueprintGenericHint{})
@@ -231,18 +237,31 @@ func NewSystem(scalarField *big.Int, capacity int, t SystemType) System {
 
 // add by ZhmYe
 
-// UpdateUsedExtra 更新extra的使用记录，在判断变量是否为input的时候调用
-func (system *System) UpdateUsedExtra(wireID int) {
-	_, exist := system.usedExtra[wireID]
-	if !exist {
-		system.usedExtra[wireID] = 1
-	} else {
-		system.usedExtra[wireID]++
-	}
+// SetExtraNumber 设置extra的public 数量
+func (system *System) SetExtraNumber(extra []ExtraValue) {
+	system.extra = len(extra)
 }
-func (system *System) GetUsedExtra() map[int]int {
-	return system.usedExtra
+
+// GetExtraNumber 获取extra的public 数量
+func (system *System) GetExtraNumber() int {
+	return system.extra
 }
+
+// // UpdateUsedExtra 更新extra的使用记录，在判断变量是否为input的时候调用
+//
+//	func (system *System) UpdateUsedExtra(wireID int) {
+//		_, exist := system.usedExtra[wireID]
+//		if !exist {
+//			system.usedExtra[wireID] = 1
+//		} else {
+//			system.usedExtra[wireID]++
+//		}
+//	}
+//
+//	func (system *System) GetUsedExtra() map[int]int {
+//		return system.usedExtra
+//	}
+
 func (system *System) SetExtraValue(idx int, value fr.Element) {
 	system.forwardOutput[idx].SetValue(value)
 }
@@ -318,10 +337,10 @@ func (system *System) UpdateForwardOutput() {
 	//system.forwardOutput = make([]frontend.ExtraValue, 0)
 	// system.Wire2Instruction记录了Wire在哪一个Instruction中作为output
 	for wire, iID := range system.Wires2Instruction {
-		count, isMiddle := middleInstructions[iID]
+		_, isMiddle := middleInstructions[iID]
 		if isMiddle {
 			e := NewExtraValue(int(wire))
-			e.SetCount(count) // 记录该extra会被使用多少次
+			//e.SetCount(count) // 记录该extra会被使用多少次
 			system.forwardOutput = append(system.forwardOutput, e)
 		}
 	}
@@ -579,6 +598,33 @@ func (system *System) AddCommitment(c Commitment) error {
 		return fmt.Errorf("unknown commitment type %T", v)
 	}
 	return nil
+}
+
+// GetCommitmentInfoInSplit add by ZhmYe
+// 用于获取bias后的commitment
+func (system *System) GetCommitmentInfoInSplit() Groth16Commitments {
+	commitmentInfo := system.CommitmentInfo.(Groth16Commitments)
+	NewCommitmentInfo := make(Groth16Commitments, 0)
+	for _, commitment := range commitmentInfo {
+		// 首先修改commitmentIndex
+		commitmentIndex := system.GetWireBias(commitment.CommitmentIndex)
+		publicAndCommitmentCommitted := make([]int, len(commitment.PublicAndCommitmentCommitted))
+		for j, id := range commitment.PublicAndCommitmentCommitted {
+			publicAndCommitmentCommitted[j] = system.GetWireBias(id)
+		}
+		privateCommitted := make([]int, len(commitment.PrivateCommitted))
+		for k, id := range commitment.PrivateCommitted {
+			privateCommitted[k] = system.GetWireBias(id)
+		}
+		NewCommitmentInfo = append(NewCommitmentInfo, Groth16Commitment{
+			PublicAndCommitmentCommitted: publicAndCommitmentCommitted,
+			PrivateCommitted:             privateCommitted,
+			CommitmentIndex:              commitmentIndex,
+			NbPublicCommitted:            commitment.NbPublicCommitted,
+		})
+	}
+	return NewCommitmentInfo
+
 }
 
 func (system *System) AddLog(l LogEntry) {
