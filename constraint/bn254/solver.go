@@ -178,8 +178,8 @@ func newSolver(cs *system, witness fr.Vector, opts ...csolver.Option) (*solver, 
 		// add by ZhmYe
 		// INIT A, B, C in R1CS, all elements in matrix is 0 default
 		log.Debug().Any("A shape", []int{len(s.a), len(s.a[0])}).Msg("YZM R1CS Shape TEST")
-		log.Debug().Any("A shape", []int{len(s.b), len(s.b[0])}).Msg("YZM R1CS Shape TEST")
-		log.Debug().Any("A shape", []int{len(s.c), len(s.c[0])}).Msg("YZM R1CS Shape TEST")
+		log.Debug().Any("B shape", []int{len(s.b), len(s.b[0])}).Msg("YZM R1CS Shape TEST")
+		log.Debug().Any("C shape", []int{len(s.c), len(s.c[0])}).Msg("YZM R1CS Shape TEST")
 	}
 	return &s, nil
 }

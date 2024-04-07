@@ -84,7 +84,7 @@ func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree In
 	lenO := int(inst.Calldata[3])
 	//outputWires := make([]uint32, 0)
 	outputWires := make(map[uint32]bool)
-	inputWires := make(map[uint32]bool)
+	//inputWires := make(map[uint32]bool)
 	//maxLevel := LevelUnset
 	//cs.initDegree(iID)
 	previousIds := make([]int, 0)
@@ -99,7 +99,7 @@ func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree In
 			//	continue
 			//}
 			if tree.IsInputOrConstant(wireID, split) {
-				inputWires[wireID] = true
+				//inputWires[wireID] = true
 				//cs.UpdateUsedExtra(int(wireID))
 				continue
 			}
@@ -143,9 +143,9 @@ func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree In
 		//tree.InsertWire(wireID, maxLevel)
 	}
 	cs.Sit.Insert(iID, previousIds)
-	for wireID, _ := range inputWires {
-		cs.UpdateUsedExtra(int(wireID))
-	}
+	//for wireID, _ := range inputWires {
+	//	cs.UpdateUsedExtra(int(wireID))
+	//}
 	//return maxLevel
 }
 

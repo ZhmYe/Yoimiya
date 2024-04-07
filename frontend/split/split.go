@@ -35,13 +35,14 @@ func structureRoundLog(_r1cs *cs_bn254.R1CS, round int) {
 	fmt.Println("		Wire Number: ", _r1cs.GetNbPublicVariables()+_r1cs.GetNbSecretVariables()+_r1cs.GetNbInternalVariables())
 }
 
-func GetExtra(system constraint.ConstraintSystem) ([]constraint.ExtraValue, map[int]int) {
+func GetExtra(system constraint.ConstraintSystem) []constraint.ExtraValue {
 	switch _r1cs := system.(type) {
 	case *cs_bn254.R1CS:
 		//forwardOutput := _r1cs.GetForwardOutputs() // 获得更新后的forwardOutput，即middle output wireID
 		//extra := _r1cs.GetForwardOutputs()
-		usedExtra := _r1cs.GetUsedExtra()
-		return _r1cs.GetForwardOutputs(), usedExtra
+		//usedExtra := _r1cs.GetUsedExtra()
+		//return _r1cs.GetForwardOutputs(), usedExtra
+		return _r1cs.GetForwardOutputs()
 	default:
 		panic("Only Support bn254 r1cs now...")
 	}
@@ -66,26 +67,35 @@ func GetSplitProof(split constraint.ConstraintSystem,
 	pk, vk := frontend.SetUpSplit(split)
 	fullWitness, _ := frontend.GenerateWitness(assignment, *extra, ecc.BN254.ScalarField())
 	publicWitness, _ := frontend.GenerateWitness(assignment, *extra, ecc.BN254.ScalarField(), frontend.PublicOnly())
-	proof, _ := groth16.Prove(split, pk.(groth16.ProvingKey), fullWitness)
+	proof, err := groth16.Prove(split, pk.(groth16.ProvingKey), fullWitness)
+	if err != nil {
+		panic(err)
+	}
 	//var nextExtra []fr.Element
 	//nextForwardOutput, nextExtra := GetExtra(split)
 	if !isCluster {
-		newExtra, usedExtra := GetExtra(split)
+		newExtra := GetExtra(split)
 		//*extra = make([]any, 0)
 		for _, e := range newExtra {
 			*extra = append(*extra, e)
 		}
-		for i, e := range *extra {
-			count, isUsed := usedExtra[e.GetWireID()]
-			if isUsed {
-				//e.Consume(count)
-				(*extra)[i].Consume(count)
-			}
-		}
+		//for i, e := range *extra {
+		//	count, isUsed := usedExtra[e.GetWireID()]
+		//	if isUsed {
+		//		//e.Consume(count)
+		//		(*extra)[i].Consume(count)
+		//	}
+		//}
 	}
 	//*extra = newExtra
 	//for _, f := range nextForwardOutput {
 	//	*forwardOutput = append(*forwardOutput, f)
+	//}
+	//err := groth16.Verify(proof, vk, publicWitness)
+	//if err != nil {
+	//	panic(err)
+	//} else {
+	//	fmt.Println("PASS")
 	//}
 	return NewPackedProof(proof, vk, publicWitness)
 }

@@ -57,6 +57,8 @@ func (t *TestMean) init() {
 		}
 		if !verifier.verify(proof) {
 			t.success = false
+		} else {
+			fmt.Println("PASS")
 		}
 	}
 	//for _, split := range splits {
@@ -92,6 +94,8 @@ func Test4Mean(t *testing.T) {
 	flag := "false"
 	if test.check() {
 		flag = "true"
+	} else {
+		panic("Not PASS")
 	}
 	log.Info().Str("Mean Test", flag).Msg("Test LOG")
 	//fmt.Println(test.check())

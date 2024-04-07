@@ -112,18 +112,19 @@ func (cs *system) Solve(witness witness.Witness, opts ...csolver.Option) (any, e
 	// TODO @gbotrel revisit post-refactor
 	if cs.Type == constraint.SystemR1CS {
 		var res R1CSSolution
-		a, b, c, solvedValues := Asolver.GetSolverOutput()
-		bias := Asolver.GetBias()
-		values := make([]fr.Element, len(solvedValues))
-		// todo 这里因为加入了Bias，所以可以得到values具体的位置
-		for wireID, value := range solvedValues {
-			idx, exist := bias[uint32(wireID)]
-			if !exist {
-				//panic("No such Solved Wire!!!")
-				idx = wireID
-			}
-			values[idx] = value
-		}
+		a, b, c, values := Asolver.GetSolverOutput()
+		//bias := Asolver.GetBias()
+		//values := make([]fr.Element, len(solvedValues))
+		//for wireID, value := range solvedValues {
+		//	idx, exist := bias[uint32(wireID)]
+		//	if !exist {
+		//		//panic("No such Solved Wire!!!")
+		//		idx = wireID
+		//	}
+		//	values[idx] = value
+		//}
+
+		// 这里values已经是经过Bias的无需再计算bias，直接获取就行
 		res.W = values
 		res.A = a
 		res.B = b

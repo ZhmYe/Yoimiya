@@ -6,21 +6,21 @@ import "math/rand"
 
 // GetMiddleOutputs 返回所有Middle的Stage里最后一个Instruction
 // todo 前面的Instruction里的Wire会不会也是Output?
-func (t *SITree) GetMiddleOutputs() map[int]int {
-	result := make(map[int]int)
+func (t *SITree) GetMiddleOutputs() map[int]bool {
+	result := make(map[int]bool)
 	middleStage := t.GetMiddleStage()
 	for _, id := range middleStage {
 		stage := t.GetStageByIndex(id)
-		//for _, iID := range stage.GetInstructions() {
-		//	result[iID] = true
-		//}
-		count := 0
-		for _, subStage := range stage.GetChildIDs() {
-			if t.GetLayer(subStage) == BOTTOM {
-				count++
-			}
+		for _, iID := range stage.GetInstructions() {
+			result[iID] = true
 		}
-		result[stage.GetLastInstruction()] = count // 这里为bottom的子stage的数量说明该instruction会被使用几次
+		//count := 0
+		//for _, subStage := range stage.GetChildIDs() {
+		//	if t.GetLayer(subStage) == BOTTOM {
+		//		count++
+		//	}
+		//}
+		//result[stage.GetLastInstruction()] = count // 这里为bottom的子stage的数量说明该instruction会被使用几次
 	}
 	return result
 }

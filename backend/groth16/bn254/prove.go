@@ -70,8 +70,10 @@ func Prove(r1cs *cs.R1CS, pk *ProvingKey, fullWitness witness.Witness, opts ...b
 		opt.HashToFieldFn = hash_to_field.New([]byte(constraint.CommitmentDst))
 	}
 	log := logger.Logger().With().Str("curve", r1cs.CurveID().String()).Str("acceleration", "none").Int("nbConstraints", r1cs.GetNbConstraints()).Str("backend", "groth16").Logger()
-
-	commitmentInfo := r1cs.CommitmentInfo.(constraint.Groth16Commitments)
+	//commitmentInfo := r1cs.CommitmentInfo.(constraint.Groth16Commitments)
+	// modify by ZhmYe
+	commitmentInfo := r1cs.GetCommitmentInfoInSplit()
+	fmt.Println(len(commitmentInfo))
 	proof := &Proof{Commitments: make([]curve.G1Affine, len(commitmentInfo))}
 	solverOpts := opt.SolverOpts[:len(opt.SolverOpts):len(opt.SolverOpts)]
 
@@ -105,7 +107,10 @@ func Prove(r1cs *cs.R1CS, pk *ProvingKey, fullWitness witness.Witness, opts ...b
 		res.BigInt(out[0])
 		return nil
 	}))
-
+	/***
+		Hints: ZhmYe
+		这里没有进去，mean_test
+	***/
 	if r1cs.GkrInfo.Is() {
 		var gkrData cs.GkrSolvingData
 		solverOpts = append(solverOpts,

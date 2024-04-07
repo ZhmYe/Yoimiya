@@ -28,19 +28,6 @@ func SplitAndProve(cs constraint.ConstraintSystem, assignment frontend.Circuit) 
 	case *cs_bn254.R1CS:
 		_r1cs.Sit.AssignLayer()
 		structureRoundLog(_r1cs, 0)
-		//switch _r1cs.Sit.Examine() {
-		//case graph.PASS:
-		//	log := logger.Logger()
-		//	log.Debug().Str("SIT LAYER EXAMINE", "PASS").Msg("YZM DEBUG")
-		//	//fmt.Println("Examine PASS...")
-		//case graph.HAS_LINK:
-		//	panic("Sit Layer Error: HAS_LINK...")
-		//case graph.LAYER_UNSET:
-		//	panic("Sit Layer Error: LAYER_UNSET...")
-		//case graph.SPLIT_ERROR:
-		//	panic("Sit Layer Error: SPLIT_ERROR...")
-		//}
-		//sits, err := trySplit(_r1cs)
 		top, bottom := _r1cs.Sit.CheckAndGetSubCircuitStageIDs()
 		_r1cs.UpdateForwardOutput() // 这里从原电路中获得middle对应的wireIDs
 		forwardOutput := _r1cs.GetForwardOutputs()
@@ -55,8 +42,6 @@ func SplitAndProve(cs constraint.ConstraintSystem, assignment frontend.Circuit) 
 			panic(err)
 		}
 
-		// 这里加入prove的逻辑，这样top可以丢弃
-		// 同时包含加入extra的逻辑
 		proof := GetSplitProof(topCs, assignment, &extras, false)
 		proofs = append(proofs, proof)
 		//fmt.Println("bottom=", len(bottom))
@@ -110,7 +95,8 @@ func buildConstraintSystemFromSit(sit *graph.SITree, record *DataRecord) (constr
 	}
 	return cs, nil
 }
-func buildConstraintSystemFromIds(iIDs []int, record *DataRecord, assignment frontend.Circuit, forwardOutput []constraint.ExtraValue, extra []constraint.ExtraValue, isTop bool) (constraint.ConstraintSystem, error) {
+func buildConstraintSystemFromIds(iIDs []int, record *DataRecord, assignment frontend.Circuit,
+	forwardOutput []constraint.ExtraValue, extra []constraint.ExtraValue, isTop bool) (constraint.ConstraintSystem, error) {
 	// todo 核心逻辑
 	// 这里根据切割返回出来的有序instruction ids，得到新的电路cs
 	// record中记录了CallData、Blueprint、Instruction的map
@@ -134,7 +120,9 @@ func buildConstraintSystemFromIds(iIDs []int, record *DataRecord, assignment fro
 		//sit.ModifyiID(i, j, len(cs.Instructions)) // 这里是串行添加的，新的Instruction id就是当前的长度
 	}
 	cs.CoeffTable = record.GetCoeffTable()
-	cs.CommitmentInfo = record.GetCommitmentInfo()
+	if isTop {
+		cs.CommitmentInfo = record.GetCommitmentInfo()
+	}
 	fmt.Println("Compile Result: ")
 	fmt.Println("		NbPublic=", cs.GetNbPublicVariables(), " NbSecret=", cs.GetNbSecretVariables(), " NbInternal=", cs.GetNbInternalVariables())
 	fmt.Println("		NbCoeff=", cs.GetNbConstraints())

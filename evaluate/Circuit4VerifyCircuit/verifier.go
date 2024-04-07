@@ -267,7 +267,7 @@ func GetPackProofInSplit(
 		panic(err)
 	}
 	fmt.Println("Compile Time:", time.Since(startTime))
-	proofs, err := split.Split(outerCcs, outerAssignment, split.NewParam(true, Config.Config.IsCluster(), 2, false))
+	proofs, err := split.Split(outerCcs, outerAssignment, split.NewParam(true, Config.Config.IsCluster(), 1000, false))
 	if err != nil {
 		panic("error")
 	}

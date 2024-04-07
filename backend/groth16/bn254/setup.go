@@ -106,9 +106,30 @@ func Setup(r1cs *cs.R1CS, pk *ProvingKey, vk *VerifyingKey) error {
 		In TwoSampleTCircuit, Public inputs: 10, Private inputs: 3, Internal Variables: 1722
 	***/
 	nbWires := r1cs.NbInternalVariables + r1cs.GetNbPublicVariables() + r1cs.GetNbSecretVariables()
-	commitmentInfo := r1cs.CommitmentInfo.(constraint.Groth16Commitments)
+	// modify by ZhmYe
+	//commitmentInfo := r1cs.CommitmentInfo.(constraint.Groth16Commitments)
+	commitmentInfo := r1cs.GetCommitmentInfoInSplit()
 	commitmentWires := commitmentInfo.CommitmentIndexes()
+	// add by ZhmYe
+	// 这里commitment的commitIndex是wire id，在split部分应该是bias
+	//bias := r1cs.GetBias()
+	//for i, commitmentIdx := range commitmentWires {
+	//	idx, exist := bias[uint32(commitmentIdx)]
+	//	if exist {
+	//		commitmentWires[i] = idx
+	//	}
+	//}
 	privateCommitted := commitmentInfo.GetPrivateCommitted()
+	// add by ZhmYe
+	//for i, commitmentIdxs := range privateCommitted {
+	//	for j, commitmentIdx := range commitmentIdxs {
+	//		idx, exist := bias[uint32(commitmentIdx)]
+	//		if exist {
+	//			privateCommitted[i][j] = idx
+	//		}
+	//	}
+	//}
+
 	nbPrivateCommittedWires := internal.NbElements(privateCommitted)
 
 	// add by ZhmYe
@@ -308,8 +329,18 @@ func Setup(r1cs *cs.R1CS, pk *ProvingKey, vk *VerifyingKey) error {
 	if err != nil {
 		return err
 	}
-
-	vk.PublicAndCommitmentCommitted = commitmentInfo.GetPublicAndCommitmentCommitted(commitmentWires, r1cs.GetNbPublicVariables())
+	publicAndCommitmentCommitted := commitmentInfo.GetPublicAndCommitmentCommitted(commitmentWires, r1cs.GetNbPublicVariables())
+	// add by ZhmYe
+	// 这里和上面的privateCommit一样需要计算bias
+	//for i, commitmentIdxs := range publicAndCommitmentCommitted {
+	//	for j, commitmentIdx := range commitmentIdxs {
+	//		idx, exist := bias[uint32(commitmentIdx)]
+	//		if exist {
+	//			publicAndCommitmentCommitted[i][j] = idx
+	//		}
+	//	}
+	//}
+	vk.PublicAndCommitmentCommitted = publicAndCommitmentCommitted
 
 	// ---------------------------------------------------------------------------------------------
 	// G2 scalars
@@ -433,7 +464,6 @@ func setupABC(r1cs *cs.R1CS, domain *fft.Domain, toxicWaste toxicWaste) (A []fr.
 			//fmt.Println(t.WireID())
 			idx, exist := bias[t.GetWireID()]
 			if !exist {
-				//panic("No such Solved Wire!!!")
 				idx = t.WireID()
 				if idx >= nbWires {
 					fmt.Println("error", idx)
