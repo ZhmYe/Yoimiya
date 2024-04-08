@@ -110,7 +110,7 @@ func (b *BlueprintGenericHint) UpdateInstructionTree(inst Instruction, tree Inst
 // NewUpdateInstructionTree add by ZhmYe
 func (b *BlueprintGenericHint) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System, split bool, needAppend bool) {
 	// BlueprintGenericHint knows the input and output to the instruction
-	//maxLevel := LevelUnset
+	//maxLevel := -1
 	// iterate over the inputs and find the max level
 	lenInputs := int(inst.Calldata[2])
 	j := 3
@@ -149,9 +149,42 @@ func (b *BlueprintGenericHint) NewUpdateInstructionTree(inst Instruction, tree I
 		}
 		//tree.InsertWire(k, outputLevel)
 	}
-	cs.Sit.Insert(iID, previousIds)
-	//for wireID, _ := range inputWires {
-	//	cs.UpdateUsedExtra(int(wireID))
+	cs.SplitEngine.Insert(iID, previousIds)
+	//switch Config.Config.Split {
+	//// 如果是stage，则开始维护sit
+	//case Config.SPLIT_STAGES:
+	//	cs.Sit.Insert(iID, previousIds)
+	//// 如果是level，则计算得到Levels
+	//case Config.SPLIT_LEVELS:
+	//	previousIdsMap := make(map[int]bool)
+	//	for _, id := range previousIds {
+	//		previousIdsMap[id] = true
+	//	}
+	//	// todo 这里用遍历一次来换取instruction -> level的内存
+	//	for i, level := range cs.Levels {
+	//		for _, id := range level {
+	//			_, exist := previousIdsMap[id]
+	//			if exist {
+	//				if i > maxLevel {
+	//					maxLevel = i
+	//				}
+	//			}
+	//		}
+	//	}
+	//	maxLevel++
+	//	// we can't skip levels, so appending is fine.
+	//	if maxLevel >= len(cs.Levels) {
+	//		cs.Levels = append(cs.Levels, []int{iID})
+	//	} else {
+	//		cs.Levels[maxLevel] = append(cs.Levels[maxLevel], iID)
+	//	}
+	//	cs.deepest = append(cs.deepest, maxLevel) // 记录instruction当前能抵达的最大深度，即它自己当前的深度
+	//	// 更新父节点的deepest
+	//	for _, id := range previousIds {
+	//		cs.deepest[id] = maxLevel
+	//	}
+	//default:
+	//	panic("error SPLIT_METHOD")
+	//
 	//}
-	//return outputLevel
 }

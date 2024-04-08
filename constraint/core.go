@@ -5,7 +5,6 @@ import (
 	"S-gnark/Config"
 	"S-gnark/constraint/solver"
 	"S-gnark/debug"
-	"S-gnark/graph"
 	"S-gnark/internal/tinyfield"
 	"S-gnark/internal/utils"
 	"S-gnark/logger"
@@ -196,11 +195,13 @@ type System struct {
 	//InstructionForwardDAG  *graph.DAG     // DAG constructed by Instructions, forward
 	//InstructionBackwardDAG *graph.DAG     // DAG constructed by Instructions, backward
 	//degree                 map[int]int    // store each node's degree(to order)
-	Sit           *graph.SITree
+	SplitEngine SplitEngine
+	//Sit           *Sit.SITree
 	forwardOutput []ExtraValue // 这里用来需要传下去的wireID
 	extra         int          // 这里用来记录extra的数量，用于确认原本的public variable有多少个
 	//usedExtra     map[int]int  // 记录extra值被使用的次数
 	//extra         []fr.Element // 这里用来记录
+	deepest []int // 这里用来记录每个instruction的后续Instruction最大抵达的深度
 }
 
 // NewSystem initialize the common structure among constraint system
@@ -219,11 +220,14 @@ func NewSystem(scalarField *big.Int, capacity int, t SystemType) System {
 		lbWireLevel:        make([]Level, 0, capacity),
 		Levels:             make([][]int, 0, capacity/2),
 		CommitmentInfo:     NewCommitments(t),
-		Wires2Instruction:  make(map[uint32]int),
+
+		// add by ZhmYe
+		Wires2Instruction: make(map[uint32]int),
 		//InstructionForwardDAG:  graph.NewDAG(),
 		//InstructionBackwardDAG: graph.NewDAG(),
 		//degree:                 make(map[int]int),
-		Sit:           graph.NewSITree(),
+		SplitEngine: InitSplitEngine(),
+		//Sit:           Sit.NewSITree(),
 		forwardOutput: make([]ExtraValue, 0),
 		//extra:         make([]fr.Element, 0),
 		Bias:  make(map[uint32]int),
@@ -329,7 +333,7 @@ func (system *System) GetForwardOutputIds() []int {
 
 // UpdateForwardOutput 这里返回传给下一个电路的 WireID
 func (system *System) UpdateForwardOutput() {
-	middleInstructions := system.Sit.GetMiddleOutputs()
+	middleInstructions := system.SplitEngine.GetMiddleOutputs()
 	// 这里我们要得到Instruction里的所有WireID
 	// todo 是否要所有的WireID? 还是只要output
 	// 这里暂时按照只要output来写
@@ -746,21 +750,22 @@ func (cs *System) AddInstructionInSpilt(bID BlueprintID, calldata []uint32) []ui
 	// update the instruction dependency tree
 	iID := len(cs.Instructions) - 1
 	// modify by ZhmYe
-	switch Config.Config.Split {
-	case Config.SPLIT_STAGES:
-		//fmt.Println(cs.GetNbInternalVariables())
-		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, true, true)
-	case Config.SPLIT_LEVELS:
-		level := blueprint.UpdateInstructionTree(inst, cs)
-		// we can't skip levels, so appending is fine.
-		if int(level) >= len(cs.Levels) {
-			cs.Levels = append(cs.Levels, []int{iID})
-		} else {
-			cs.Levels[level] = append(cs.Levels[level], iID)
-		}
-	default:
-		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, true, true)
-	}
+	blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, true, true)
+	//switch Config.Config.Split {
+	//case Config.SPLIT_STAGES:
+	//	//fmt.Println(cs.GetNbInternalVariables())
+	//	blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, true, true)
+	//case Config.SPLIT_LEVELS:
+	//	level := blueprint.UpdateInstructionTree(inst, cs)
+	//	// we can't skip levels, so appending is fine.
+	//	if int(level) >= len(cs.Levels) {
+	//		cs.Levels = append(cs.Levels, []int{iID})
+	//	} else {
+	//		cs.Levels[level] = append(cs.Levels[level], iID)
+	//	}
+	//default:
+	//	blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, true, true)
+	//}
 	//cs.GetDegree(iID)
 	return wires
 }
@@ -794,24 +799,24 @@ func (cs *System) AddInstruction(bID BlueprintID, calldata []uint32) []uint32 {
 
 	// add the instruction
 	cs.Instructions = append(cs.Instructions, pi)
-
 	// update the instruction dependency tree
 	iID := len(cs.Instructions) - 1
 	// modify by ZhmYe
-	switch Config.Config.Split {
-	case Config.SPLIT_STAGES:
-		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, false, false)
-	case Config.SPLIT_LEVELS:
-		level := blueprint.UpdateInstructionTree(inst, cs)
-		// we can't skip levels, so appending is fine.
-		if int(level) >= len(cs.Levels) {
-			cs.Levels = append(cs.Levels, []int{iID})
-		} else {
-			cs.Levels[level] = append(cs.Levels[level], iID)
-		}
-	default:
-		blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, false, false)
-	}
+	blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, false, false)
+	//switch Config.Config.Split {
+	//case Config.SPLIT_STAGES:
+	//	blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, false, false)
+	//case Config.SPLIT_LEVELS:
+	//	level := blueprint.UpdateInstructionTree(inst, cs)
+	//	// we can't skip levels, so appending is fine.
+	//	if int(level) >= len(cs.Levels) {
+	//		cs.Levels = append(cs.Levels, []int{iID})
+	//	} else {
+	//		cs.Levels[level] = append(cs.Levels[level], iID)
+	//	}
+	//default:
+	//	blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, false, false)
+	//}
 	//cs.GetDegree(iID)
 	return wires
 }

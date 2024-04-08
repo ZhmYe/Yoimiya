@@ -1,7 +1,8 @@
-package graph
+package DAG_Based
 
 import (
 	"S-gnark/Record"
+	"S-gnark/graph/Sit"
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
@@ -13,10 +14,10 @@ type SplitEngine struct {
 	forward           *DAG         // 电路Instruction之间的依赖关系(前面的Instruction指向后面的Instruction)组成的DAG
 	backward          *DAG         // 电路Instruction之间的依赖关系(后面的Instruction指向前面的Instruction)组成的DAG
 	LastLevel         []int        // 记录那些没有后续计算的Instruction
-	Stages            []*Stage     // 用于保存Stage, new Stage id = len(Stages)
-	RootStages        []*Stage     // 用于保存那些没有父Stage的stage，这些stage从一开始就可以并行运行
+	Stages            []*Sit.Stage // 用于保存Stage, new Stage id = len(Stages)
+	RootStages        []*Sit.Stage // 用于保存那些没有父Stage的stage，这些stage从一开始就可以并行运行
 	Instruction2Stage map[int]int  // 查询Instruction在哪个Stage中
-	stack             []*Stage     // 用于输出
+	stack             []*Sit.Stage // 用于输出
 	HasStore          map[int]bool // 用于输出
 	InstructionNumber int
 }
@@ -26,15 +27,15 @@ func NewSplitEngine(forward *DAG, backward *DAG, level []int) *SplitEngine {
 	s.forward = forward
 	s.backward = backward
 	s.LastLevel = level
-	s.Stages = make([]*Stage, 0)
-	s.RootStages = make([]*Stage, 0)
+	s.Stages = make([]*Sit.Stage, 0)
+	s.RootStages = make([]*Sit.Stage, 0)
 	s.Instruction2Stage = make(map[int]int)
 	s.HasStore = make(map[int]bool)
 	s.InstructionNumber = 0
 	return s
 }
-func (s *SplitEngine) NewStage(Instruction []int) *Stage {
-	stage := NewStage(len(s.Stages), Instruction...)
+func (s *SplitEngine) NewStage(Instruction []int) *Sit.Stage {
+	stage := Sit.NewStage(len(s.Stages), Instruction...)
 	s.Stages = append(s.Stages, stage)
 	for _, id := range Instruction {
 		s.Instruction2Stage[id] = stage.id
@@ -67,17 +68,17 @@ func (s *SplitEngine) Exist(id int) bool {
 	_, exist := s.Instruction2Stage[id]
 	return exist
 }
-func (s *SplitEngine) getStageByInstruction(id int) *Stage {
+func (s *SplitEngine) getStageByInstruction(id int) *Sit.Stage {
 	if !s.Exist(id) {
 		fmt.Errorf("Stage does not exist")
 		return nil
 	}
 	return s.Stages[s.Instruction2Stage[id]]
 }
-func (s *SplitEngine) getStageById(id int) *Stage {
+func (s *SplitEngine) getStageById(id int) *Sit.Stage {
 	return s.Stages[id]
 }
-func (s *SplitEngine) Split() []*Stage {
+func (s *SplitEngine) Split() []*Sit.Stage {
 	// 遍历所有没有后续计算的Instruction
 	startTime := time.Now()
 	for _, iID := range s.LastLevel {
@@ -107,7 +108,7 @@ const (
 )
 
 func (s *SplitEngine) ClearStack() {
-	s.stack = make([]*Stage, 0)
+	s.stack = make([]*Sit.Stage, 0)
 }
 
 //	func (s *SplitEngine) Examine() ExamineResult {
@@ -218,14 +219,14 @@ func (s *SplitEngine) ClearStack() {
 //			s.dfs(sub, testMap, number)
 //		}
 //	}
-func (s *SplitEngine) GetRootStages() []*Stage {
+func (s *SplitEngine) GetRootStages() []*Sit.Stage {
 	return s.RootStages
 }
 
 func (s *SplitEngine) GetStageNumber() int {
 	return len(s.Stages)
 }
-func (s *SplitEngine) processStage(iID int, stage *Stage) {
+func (s *SplitEngine) processStage(iID int, stage *Sit.Stage) {
 	if !s.backward.Exist(iID) {
 		// 如果当前节点没有父节点
 		// 那么当前stage是可以直接运行的，加入到rootStage中
@@ -291,7 +292,7 @@ func (s *SplitEngine) getTable() table.Writer {
 	//fmt.Println(t.Render())
 	return t
 }
-func (s *SplitEngine) appendToStack(stage *Stage) {
+func (s *SplitEngine) appendToStack(stage *Sit.Stage) {
 	_, exist := s.HasStore[stage.id]
 	if exist {
 		return

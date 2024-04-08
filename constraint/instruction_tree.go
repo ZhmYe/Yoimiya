@@ -27,7 +27,7 @@ type InstructionTree interface {
 }
 
 // the instruction tree is a simple array of levels.
-// it's morally a map[uint32 (wireID)]Level, but we use an array for performance reasons.
+// it's morally a map[uint32 (wireID)]PackedLevel, but we use an array for performance reasons.
 
 func (system *System) HasWire(wireID uint32) bool {
 	offset := system.internalWireOffset()

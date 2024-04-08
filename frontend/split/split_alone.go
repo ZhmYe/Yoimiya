@@ -1,10 +1,10 @@
 package split
 
 import (
+	"S-gnark/Config"
 	"S-gnark/constraint"
 	cs_bn254 "S-gnark/constraint/bn254"
 	"S-gnark/frontend"
-	"S-gnark/graph"
 	"fmt"
 	"time"
 )
@@ -20,15 +20,27 @@ import (
 
 // SplitAndProve 将传入的电路(constraintSystem)切分为多份，返回所有切出的子电路的proof
 func SplitAndProve(cs constraint.ConstraintSystem, assignment frontend.Circuit) ([]PackedProof, error) {
+	switch Config.Config.Split {
+	case Config.SPLIT_STAGES:
+		return SplitAndProveInSit(cs, assignment)
+	case Config.SPLIT_LEVELS:
+		return SplitAndProveInSit(cs, assignment)
+	default:
+		panic("error SPLIT_METHOD")
+	}
+}
+
+// SplitAndProveInSit SPLIT_STAGE的逻辑
+func SplitAndProveInSit(cs constraint.ConstraintSystem, assignment frontend.Circuit) ([]PackedProof, error) {
 	proofs := make([]PackedProof, 0)
 	extras := make([]constraint.ExtraValue, 0)
 	startTime := time.Now()
 	fmt.Println("=================Start Split=================")
 	switch _r1cs := cs.(type) {
 	case *cs_bn254.R1CS:
-		_r1cs.Sit.AssignLayer()
+		_r1cs.SplitEngine.AssignLayer()
 		structureRoundLog(_r1cs, 0)
-		top, bottom := _r1cs.Sit.CheckAndGetSubCircuitStageIDs()
+		top, bottom := _r1cs.SplitEngine.GetSubCircuitInstructionIDs()
 		_r1cs.UpdateForwardOutput() // 这里从原电路中获得middle对应的wireIDs
 		forwardOutput := _r1cs.GetForwardOutputs()
 		//if err != nil {
@@ -37,7 +49,7 @@ func SplitAndProve(cs constraint.ConstraintSystem, assignment frontend.Circuit) 
 		var err error
 		record := NewDataRecord(_r1cs)
 		fmt.Print("	Top Circuit ")
-		topCs, err := buildConstraintSystemFromIds(_r1cs.Sit.GetInstructionIdsFromStageIDs(top), record, assignment, forwardOutput, extras, true)
+		topCs, err := buildConstraintSystemFromIds(top, record, assignment, forwardOutput, extras, true)
 		if err != nil {
 			panic(err)
 		}
@@ -46,7 +58,7 @@ func SplitAndProve(cs constraint.ConstraintSystem, assignment frontend.Circuit) 
 		proofs = append(proofs, proof)
 		//fmt.Println("bottom=", len(bottom))
 		fmt.Print("	Bottom Circuit ")
-		bottomCs, err := buildConstraintSystemFromIds(_r1cs.Sit.GetInstructionIdsFromStageIDs(bottom), record, assignment, forwardOutput, extras, false)
+		bottomCs, err := buildConstraintSystemFromIds(bottom, record, assignment, forwardOutput, extras, false)
 		if err != nil {
 			panic(err)
 		}
@@ -59,41 +71,6 @@ func SplitAndProve(cs constraint.ConstraintSystem, assignment frontend.Circuit) 
 	fmt.Println("Total Time: ", time.Since(startTime))
 	fmt.Println("=================Finish Split=================")
 	return proofs, nil
-}
-
-// 将传入的cs转化为新的多个电路内部对应的sit，同时返回所有的instruction
-func trySplit(cs *cs_bn254.R1CS) ([]*graph.SITree, error) {
-	result := make([]*graph.SITree, 0)
-	// todo 这里等待实现
-	splitEngine := graph.NewSplitEngine(cs.Sit)
-	//splitEngine.Split(1)
-	top, bottom := splitEngine.Split(2)
-	result = append(result, top)
-	if bottom != nil {
-		result = append(result, bottom)
-	}
-	return result, nil
-}
-func buildConstraintSystemFromSit(sit *graph.SITree, record *DataRecord) (constraint.ConstraintSystem, error) {
-	// todo 核心逻辑
-	// 这里根据切割返回出来的结果sit，得到新的电路cs
-	// record中记录了CallData、Blueprint、Instruction的map
-	// CallData、Instruction应该是一一对应的关系，map取出后可删除
-	opt := frontend.DefaultCompileConfig()
-	cs := cs_bn254.NewR1CS(opt.Capacity)
-	for i, stage := range sit.GetStages() {
-		for j, iID := range stage.GetInstructions() {
-			pi := record.GetPackedInstruction(iID)
-			bID := cs.AddBlueprint(record.GetBluePrint(pi.BlueprintID))
-			// todo 这里有很多Nb，如NbConstraints，暂时不确定前面是否需要加入
-			// 这里需要重新得到WireID,不能沿用原来的WireID,因为后面的values是用WireID作为数组索引的
-			//originInstruction := UnpackInstruction(pi, record) // 这里是原来的instruction，我们要尝试重新添加
-			cs.AddInstruction(bID, unpack(pi, record))
-			// 由于instruction变化，所以在这里需要重新映射stage内部的iID
-			sit.ModifyiID(i, j, len(cs.Instructions)) // 这里是串行添加的，新的Instruction id就是当前的长度
-		}
-	}
-	return cs, nil
 }
 func buildConstraintSystemFromIds(iIDs []int, record *DataRecord, assignment frontend.Circuit,
 	forwardOutput []constraint.ExtraValue, extra []constraint.ExtraValue, isTop bool) (constraint.ConstraintSystem, error) {

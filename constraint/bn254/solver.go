@@ -21,7 +21,8 @@ import (
 	"S-gnark/Record"
 	"S-gnark/constraint"
 	csolver "S-gnark/constraint/solver"
-	"S-gnark/graph"
+	"S-gnark/graph/PackedLevel"
+	"S-gnark/graph/Sit"
 	"S-gnark/logger"
 	"errors"
 	"fmt"
@@ -511,7 +512,7 @@ func (solver *solver) processInstruction(pi constraint.PackedInstruction, scratc
 
 **
 */
-func (solver *solver) runStage(stage *graph.Stage, wg *sync.WaitGroup, chTasks *chan []*graph.Stage) {
+func (solver *solver) runStage(stage *Sit.Stage, wg *sync.WaitGroup, chTasks *chan []*Sit.Stage) {
 	if !stage.WakeUp() {
 		return
 	}
@@ -586,53 +587,60 @@ func (solver *solver) runInStage() error {
 	//forward, backward := solver.GetDAGs()
 	//splitEngine := graph.NewSplitEngine(forward, backward, finalInstruction)
 	//splitEngine.Split()
-	rootStages := solver.Sit.GetRootStages()
-	wg.Add(solver.Sit.GetTotalInstructionNumber())
-	//total := 0
-	chTasks := make(chan []*graph.Stage, runtime.NumCPU())
+	switch sit := solver.SplitEngine.(type) {
+	case *Sit.SITree:
 
-	// start a worker pool
-	// each worker wait on chTasks
-	// a task is a slice of constraint indexes to be solved
-	for i := 0; i < runtime.NumCPU(); i++ {
-		go func() {
-			//var scratch scratch
-			for t := range chTasks {
-				for _, stage := range t {
-					//if err := solver.processInstruction(solver.Instructions[i], &scratch); err != nil {
-					//	wg.Done()
-					//	return
-					//}
-					solver.runStage(stage, &wg, &chTasks)
+		rootStages := sit.GetRootStages()
+		wg.Add(sit.GetTotalInstructionNumber())
+		//total := 0
+		chTasks := make(chan []*Sit.Stage, runtime.NumCPU())
+
+		// start a worker pool
+		// each worker wait on chTasks
+		// a task is a slice of constraint indexes to be solved
+		for i := 0; i < runtime.NumCPU(); i++ {
+			go func() {
+				//var scratch scratch
+				for t := range chTasks {
+					for _, stage := range t {
+						//if err := solver.processInstruction(solver.Instructions[i], &scratch); err != nil {
+						//	wg.Done()
+						//	return
+						//}
+						solver.runStage(stage, &wg, &chTasks)
+					}
+					//wg.Done()
 				}
-				//wg.Done()
-			}
+			}()
+		}
+		// clean up pool go routines
+		defer func() {
+			close(chTasks)
+			//close(chError)
 		}()
+		for _, stage := range rootStages {
+			tmp := stage
+			go func() {
+				solver.runStage(tmp, &wg, &chTasks)
+			}()
+		}
+		//for i := 0; i < len(rootStages)/evaluate.Config.MaxParallelingNumber+1; i++ {
+		//	_start := i * evaluate.Config.MaxParallelingNumber
+		//	_end := int(math.Min(float64((i+1)*evaluate.Config.MaxParallelingNumber), float64(len(rootStages))))
+		//	for _, stage := range rootStages[_start:_end] {
+		//		tmp := stage
+		//		go func() {
+		//			solver.runStage(tmp, &wg)
+		//		}()
+		//	}
+		//}
+		wg.Wait()
+		//log.Debug().Int("total run number", total).Msg("YZM DEBUG")
+		return nil
+	default:
+		panic("Only Support Sit here")
+
 	}
-	// clean up pool go routines
-	defer func() {
-		close(chTasks)
-		//close(chError)
-	}()
-	for _, stage := range rootStages {
-		tmp := stage
-		go func() {
-			solver.runStage(tmp, &wg, &chTasks)
-		}()
-	}
-	//for i := 0; i < len(rootStages)/evaluate.Config.MaxParallelingNumber+1; i++ {
-	//	_start := i * evaluate.Config.MaxParallelingNumber
-	//	_end := int(math.Min(float64((i+1)*evaluate.Config.MaxParallelingNumber), float64(len(rootStages))))
-	//	for _, stage := range rootStages[_start:_end] {
-	//		tmp := stage
-	//		go func() {
-	//			solver.runStage(tmp, &wg)
-	//		}()
-	//	}
-	//}
-	wg.Wait()
-	//log.Debug().Int("total run number", total).Msg("YZM DEBUG")
-	return nil
 }
 func (solver *solver) runInLevels() error {
 	// minWorkPerCPU is the minimum target number of constraint a task should hold
@@ -674,59 +682,62 @@ func (solver *solver) runInLevels() error {
 		close(chTasks)
 		close(chError)
 	}()
-	for _, level := range solver.Levels {
-		var scratch Scratch
-		// max CPU to use
-		maxCPU := float64(len(level)) / float64(minWorkPerCPU)
+	switch levels := solver.SplitEngine.(type) {
+	case *PackedLevel.PackedLevel:
+		for _, level := range levels.Levels {
+			var scratch Scratch
+			// max CPU to use
+			maxCPU := float64(len(level)) / float64(minWorkPerCPU)
 
-		if maxCPU <= 1.0 {
-			// we do it sequentially
-			for _, i := range level {
-				if err := solver.processInstruction(solver.Instructions[i], &scratch); err != nil {
-					return err
+			if maxCPU <= 1.0 {
+				// we do it sequentially
+				for _, i := range level {
+					if err := solver.processInstruction(solver.Instructions[i], &scratch); err != nil {
+						return err
+					}
 				}
+				continue
 			}
-			continue
-		}
 
-		// number of tasks for this level is set to number of CPU
-		// but if we don't have enough work for all our CPU, it can be lower.
-		nbTasks := runtime.NumCPU()
-		maxTasks := int(math.Ceil(maxCPU))
-		if nbTasks > maxTasks {
-			nbTasks = maxTasks
-		}
-		nbIterationsPerCpus := len(level) / nbTasks
-
-		// more CPUs than tasks: a CPU will work on exactly one iteration
-		// note: this depends on minWorkPerCPU constant
-		if nbIterationsPerCpus < 1 {
-			nbIterationsPerCpus = 1
-			nbTasks = len(level)
-		}
-
-		extraTasks := len(level) - (nbTasks * nbIterationsPerCpus)
-		extraTasksOffset := 0
-
-		for i := 0; i < nbTasks; i++ {
-			wg.Add(1)
-			_start := i*nbIterationsPerCpus + extraTasksOffset
-			_end := _start + nbIterationsPerCpus
-			if extraTasks > 0 {
-				_end++
-				extraTasks--
-				extraTasksOffset++
+			// number of tasks for this level is set to number of CPU
+			// but if we don't have enough work for all our CPU, it can be lower.
+			nbTasks := runtime.NumCPU()
+			maxTasks := int(math.Ceil(maxCPU))
+			if nbTasks > maxTasks {
+				nbTasks = maxTasks
 			}
-			// since we're never pushing more than num CPU tasks
-			// we will never be blocked here
-			chTasks <- level[_start:_end]
-		}
+			nbIterationsPerCpus := len(level) / nbTasks
 
-		// wait for the level to be done
-		wg.Wait()
+			// more CPUs than tasks: a CPU will work on exactly one iteration
+			// note: this depends on minWorkPerCPU constant
+			if nbIterationsPerCpus < 1 {
+				nbIterationsPerCpus = 1
+				nbTasks = len(level)
+			}
 
-		if len(chError) > 0 {
-			return <-chError
+			extraTasks := len(level) - (nbTasks * nbIterationsPerCpus)
+			extraTasksOffset := 0
+
+			for i := 0; i < nbTasks; i++ {
+				wg.Add(1)
+				_start := i*nbIterationsPerCpus + extraTasksOffset
+				_end := _start + nbIterationsPerCpus
+				if extraTasks > 0 {
+					_end++
+					extraTasks--
+					extraTasksOffset++
+				}
+				// since we're never pushing more than num CPU tasks
+				// we will never be blocked here
+				chTasks <- level[_start:_end]
+			}
+
+			// wait for the level to be done
+			wg.Wait()
+
+			if len(chError) > 0 {
+				return <-chError
+			}
 		}
 	}
 	return nil
@@ -761,7 +772,7 @@ func (solver *solver) run() error {
 	//if len(solver.solvedValues) != solver.nbWires {
 	//	return errors.New("solver didn't assign a value to all wires")
 	//}
-	logger.Info().Str("Run Function Time", time.Since(startTime).String()).Msg("YZM TEST")
+	logger.Info().Str("Run Function Time", time.Since(startTime).String()).Int("Solve Value Number", len(solver.values)).Msg("YZM TEST")
 	fmt.Println("Run Function Time: ", time.Since(startTime))
 	Record.GlobalRecord.AddRunTime(time.Since(startTime))
 	return nil
