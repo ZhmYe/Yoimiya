@@ -111,13 +111,13 @@ func (l *PackedLevel) GetSubCircuitInstructionIDs() ([]int, []int) {
 
 func (l *PackedLevel) AssignLayer() {
 	//totalStageNumber := t.GetStageNumber()
-	totalInstructionNumebr := len(l.layer)
+	totalInstructionNumber := len(l.layer)
 	total := 0
 	splitDepth := -1
 	// 遍历所有level
 	for i := 0; i < len(l.Levels); i++ {
 		level := l.Levels[i]
-		if 2*(total+len(level)) > totalInstructionNumebr {
+		if 2*(total+len(level)) > totalInstructionNumber {
 			splitDepth = i
 			break
 		}

@@ -29,8 +29,13 @@ type GlobalConfig struct {
 	SplitMode            SPLIT_MODE
 }
 
-var Config = GlobalConfig{Split: SPLIT_LEVELS, MaxParallelingNumber: 100, MinWorkPerCPU: 50, Mode: NORMAL,
-	SplitMode: ALONE}
+var Config = GlobalConfig{
+	Split:                SPLIT_LEVELS,
+	MaxParallelingNumber: 100,
+	MinWorkPerCPU:        50,
+	Mode:                 NORMAL,
+	SplitMode:            ALONE,
+}
 
 func (c *GlobalConfig) IsCluster() bool {
 	if c.SplitMode == CLUSTER {
