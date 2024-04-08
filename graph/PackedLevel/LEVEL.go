@@ -10,6 +10,7 @@ type PackedLevel struct {
 	deepest []int   // 这里用于某一个cs，cs里的instruction id是连续的
 	// todo 这里可以把deepest和layer结合一下
 	layer []graph.Layer
+	index map[int]int // 对应instruction -> level，如果直接遍历太慢了
 }
 
 const TOP = graph.TOP
@@ -22,26 +23,37 @@ func NewPackedLevel() *PackedLevel {
 	l.Levels = make([][]int, 0)
 	l.deepest = make([]int, 0)
 	l.layer = make([]graph.Layer, 0)
+	l.index = make(map[int]int)
 	return l
 }
 func (l *PackedLevel) Insert(iID int, previousIDs []int) {
 	// 如果level已经比当前维护的levels多了，新建一层，并将iID更新
-	previousIdsMap := make(map[int]bool)
+	//previousIdsMap := make(map[int]bool)
 	maxLevel := -1
-	for _, id := range previousIDs {
-		previousIdsMap[id] = true
-	}
+	//for _, id := range previousIDs {
+	//	previousIdsMap[id] = true
+	//}
 	// todo 这里用遍历一次来换取instruction -> level的内存
-	for i, level := range l.Levels {
-		for _, id := range level {
-			_, exist := previousIdsMap[id]
-			if exist {
-				if i > maxLevel {
-					maxLevel = i
-				}
-			}
+	// todo 实践表明太慢了
+	for _, id := range previousIDs {
+		level, exist := l.index[id]
+		if !exist {
+			panic("no such instruction!!!")
+		}
+		if level > maxLevel {
+			maxLevel = level
 		}
 	}
+	//for i, level := range l.Levels {
+	//	for _, id := range level {
+	//		_, exist := previousIdsMap[id]
+	//		if exist {
+	//			if i > maxLevel {
+	//				maxLevel = i
+	//			}
+	//		}
+	//	}
+	//}
 	maxLevel++
 	if maxLevel >= len(l.Levels) {
 		l.Levels = append(l.Levels, []int{iID})
@@ -49,6 +61,7 @@ func (l *PackedLevel) Insert(iID int, previousIDs []int) {
 		// 将iID添加到level
 		l.Levels[maxLevel] = append(l.Levels[maxLevel], iID)
 	}
+	l.index[iID] = maxLevel
 	// 这里可以保证iID就是下标
 	l.deepest = append(l.deepest, maxLevel) // 记录instruction当前能抵达的最大深度，即它自己当前的深度
 	l.layer = append(l.layer, graph.UNSET)
@@ -111,17 +124,19 @@ func (l *PackedLevel) AssignLayer() {
 		total += len(level)
 	}
 	// todo 这里的逻辑
-	for i := 0; i < len(l.layer); i++ {
-		depth := l.deepest[i]
-		// 如果本身所处层数大于splitDepth，则为bottom
-		if i > splitDepth {
-			l.layer[i] = BOTTOM
-		} else {
-			// 如果当前就在splitDepth或者子节点达到的最大位置在splitDepth之后，则为middle
-			if depth > splitDepth || i == splitDepth {
-				l.layer[i] = MIDDLE
+	for i, level := range l.Levels {
+		for _, id := range level {
+			depth := l.deepest[id]
+			// 如果本身所处层数大于splitDepth，则为bottom
+			if i > splitDepth {
+				l.layer[id] = BOTTOM
 			} else {
-				l.layer[i] = TOP
+				// 如果当前就在splitDepth或者子节点达到的最大位置在splitDepth之后，则为middle
+				if depth > splitDepth || i == splitDepth {
+					l.layer[id] = MIDDLE
+				} else {
+					l.layer[id] = TOP
+				}
 			}
 		}
 	}
