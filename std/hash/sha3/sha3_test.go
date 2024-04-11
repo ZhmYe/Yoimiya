@@ -6,10 +6,10 @@ import (
 	"hash"
 	"testing"
 
-	"S-gnark/frontend"
-	zkhash "S-gnark/std/hash"
-	"S-gnark/std/math/uints"
-	"S-gnark/test"
+	"Yoimiya/frontend"
+	zkhash "Yoimiya/std/hash"
+	"Yoimiya/std/math/uints"
+	"Yoimiya/test"
 	"github.com/consensys/gnark-crypto/ecc"
 	"golang.org/x/crypto/sha3"
 )

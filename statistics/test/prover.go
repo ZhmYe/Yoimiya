@@ -1,9 +1,9 @@
 package test
 
 import (
-	"S-gnark/backend/groth16"
-	"S-gnark/backend/witness"
-	"S-gnark/constraint"
+	"Yoimiya/backend/groth16"
+	"Yoimiya/backend/witness"
+	"Yoimiya/constraint"
 )
 
 type Prover struct {

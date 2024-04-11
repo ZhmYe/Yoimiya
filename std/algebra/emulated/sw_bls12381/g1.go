@@ -3,9 +3,9 @@ package sw_bls12381
 import (
 	"fmt"
 
-	"S-gnark/frontend"
-	"S-gnark/std/algebra/emulated/sw_emulated"
-	"S-gnark/std/math/emulated"
+	"Yoimiya/frontend"
+	"Yoimiya/std/algebra/emulated/sw_emulated"
+	"Yoimiya/std/math/emulated"
 	bls12381 "github.com/consensys/gnark-crypto/ecc/bls12-381"
 	fr_bls12381 "github.com/consensys/gnark-crypto/ecc/bls12-381/fr"
 )

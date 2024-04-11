@@ -19,14 +19,14 @@ import (
 	"github.com/consensys/gnark-crypto/ecc/{{toLower .Curve}}/fr/iop"
 	{{ template "import_kzg" . }}
 	fiatshamir "github.com/consensys/gnark-crypto/fiat-shamir"
-	"S-gnark/backend"
-	"S-gnark/backend/witness"
+	"Yoimiya/backend"
+	"Yoimiya/backend/witness"
 	{{ template "import_backend_cs" . }}
-	"S-gnark/constraint"
-	"S-gnark/constraint/solver"
-	"S-gnark/internal/utils"
-	"S-gnark/logger"
-	fcs "S-gnark/frontend/cs"
+	"Yoimiya/constraint"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/internal/utils"
+	"Yoimiya/logger"
+	fcs "Yoimiya/frontend/cs"
 )
 
 // TODO in gnark-crypto:

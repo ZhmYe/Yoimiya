@@ -17,8 +17,8 @@
 package cs
 
 import (
-	"S-gnark/constraint"
-	"S-gnark/internal/utils"
+	"Yoimiya/constraint"
+	"Yoimiya/internal/utils"
 	"math/big"
 
 	"github.com/consensys/gnark-crypto/ecc/bls24-317/fr"

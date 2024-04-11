@@ -3,8 +3,8 @@ package fields_bn254
 import (
 	"math/big"
 
-	"S-gnark/constraint/solver"
-	"S-gnark/std/math/emulated"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/std/math/emulated"
 	"github.com/consensys/gnark-crypto/ecc/bn254"
 )
 

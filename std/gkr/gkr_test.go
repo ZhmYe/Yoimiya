@@ -8,14 +8,14 @@ import (
 	"reflect"
 	"testing"
 
-	"S-gnark/backend"
-	"S-gnark/frontend"
-	fiatshamir "S-gnark/std/fiat-shamir"
-	"S-gnark/std/polynomial"
-	"S-gnark/test"
+	"Yoimiya/backend"
+	"Yoimiya/frontend"
+	fiatshamir "Yoimiya/std/fiat-shamir"
+	"Yoimiya/std/polynomial"
+	"Yoimiya/test"
 	"github.com/stretchr/testify/assert"
 
-	"S-gnark/std/hash"
+	"Yoimiya/std/hash"
 )
 
 func TestGkrVectors(t *testing.T) {

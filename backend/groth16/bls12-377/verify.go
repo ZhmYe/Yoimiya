@@ -22,9 +22,9 @@ import (
 	"io"
 	"time"
 
-	"S-gnark/backend"
-	"S-gnark/constraint"
-	"S-gnark/logger"
+	"Yoimiya/backend"
+	"Yoimiya/constraint"
+	"Yoimiya/logger"
 	"github.com/consensys/gnark-crypto/ecc"
 	curve "github.com/consensys/gnark-crypto/ecc/bls12-377"
 	"github.com/consensys/gnark-crypto/ecc/bls12-377/fr"

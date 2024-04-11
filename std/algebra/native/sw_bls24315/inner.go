@@ -5,7 +5,7 @@ import (
 	"math/big"
 	"sync"
 
-	"S-gnark/frontend"
+	"Yoimiya/frontend"
 	"github.com/consensys/gnark-crypto/ecc"
 	bls24315 "github.com/consensys/gnark-crypto/ecc/bls24-315"
 )

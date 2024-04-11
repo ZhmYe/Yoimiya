@@ -1,7 +1,7 @@
 package circuit
 
 import (
-	"S-gnark/frontend"
+	"Yoimiya/frontend"
 )
 
 type TwoSampleTCircuit struct {

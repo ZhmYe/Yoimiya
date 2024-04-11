@@ -1,7 +1,7 @@
 package Sit
 
 import (
-	"S-gnark/Config"
+	"Yoimiya/Config"
 )
 
 // SITree Stage-Instruction Tree

@@ -1,6 +1,6 @@
 package fields_bls24315
 
-import "S-gnark/frontend"
+import "Yoimiya/frontend"
 
 // Square034 squares a sparse element in Fp24
 func (e *E24) Square034(api frontend.API, x E24) *E24 {

@@ -1,9 +1,9 @@
 package Circuit4VerifyCircuit
 
 import (
-	"S-gnark/frontend"
-	"S-gnark/std/algebra"
-	"S-gnark/std/math/emulated"
+	"Yoimiya/frontend"
+	"Yoimiya/std/algebra"
+	"Yoimiya/std/math/emulated"
 	"fmt"
 )
 

@@ -17,8 +17,8 @@
 package cs
 
 import (
-	"S-gnark/constraint"
-	csolver "S-gnark/constraint/solver"
+	"Yoimiya/constraint"
+	csolver "Yoimiya/constraint/solver"
 	"errors"
 	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"

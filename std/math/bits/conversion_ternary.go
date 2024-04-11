@@ -4,7 +4,7 @@ import (
 	"math"
 	"math/big"
 
-	"S-gnark/frontend"
+	"Yoimiya/frontend"
 )
 
 // ToTernary is an alias of ToBase(api, Ternary, v, opts...)

@@ -1,9 +1,9 @@
 package constraint
 
 import (
-	"S-gnark/Config"
-	"S-gnark/graph/PackedLevel"
-	"S-gnark/graph/Sit"
+	"Yoimiya/Config"
+	"Yoimiya/graph/PackedLevel"
+	"Yoimiya/graph/Sit"
 )
 
 type SplitEngine interface {

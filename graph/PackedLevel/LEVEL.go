@@ -1,7 +1,7 @@
 package PackedLevel
 
 import (
-	"S-gnark/graph"
+	"Yoimiya/graph"
 )
 
 // PackedLevel 用于记录某一instruction自身所在的LEVEL，以及它的子节点最大深度

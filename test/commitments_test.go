@@ -5,15 +5,15 @@ import (
 	"reflect"
 	"testing"
 
-	"S-gnark/backend"
-	groth16 "S-gnark/backend/groth16/bn254"
-	"S-gnark/backend/witness"
-	cs "S-gnark/constraint/bn254"
-	"S-gnark/frontend/cs/r1cs"
+	"Yoimiya/backend"
+	groth16 "Yoimiya/backend/groth16/bn254"
+	"Yoimiya/backend/witness"
+	cs "Yoimiya/constraint/bn254"
+	"Yoimiya/frontend/cs/r1cs"
 	"github.com/stretchr/testify/require"
 
-	"S-gnark/frontend"
-	"S-gnark/frontend/cs/scs"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/cs/scs"
 	"github.com/consensys/gnark-crypto/ecc"
 	"github.com/stretchr/testify/assert"
 )

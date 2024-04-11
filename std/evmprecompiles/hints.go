@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"math/big"
 
-	"S-gnark/constraint/solver"
-	"S-gnark/frontend"
-	"S-gnark/std/math/emulated"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/frontend"
+	"Yoimiya/std/math/emulated"
 	"github.com/consensys/gnark-crypto/ecc/secp256k1/ecdsa"
 )
 

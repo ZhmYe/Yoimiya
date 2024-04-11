@@ -10,16 +10,16 @@ import (
 	{{- template "import_fft" . }}
 	{{- template "import_hash_to_field" . }}
 	{{- template "import_pedersen" .}}
-	"S-gnark/constraint"
+	"Yoimiya/constraint"
 	"github.com/consensys/gnark-crypto/ecc"
-	"S-gnark/internal/utils"
-	"S-gnark/backend"
-	"S-gnark/backend/groth16/internal"
-	"S-gnark/constraint/solver"
-	"S-gnark/backend/witness"
-	"S-gnark/logger"
+	"Yoimiya/internal/utils"
+	"Yoimiya/backend"
+	"Yoimiya/backend/groth16/internal"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/backend/witness"
+	"Yoimiya/logger"
 
-	fcs "S-gnark/frontend/cs"
+	fcs "Yoimiya/frontend/cs"
 )
 
 

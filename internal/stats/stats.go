@@ -6,11 +6,11 @@ import (
 	"os"
 	"sync"
 
-	"S-gnark"
-	"S-gnark/backend"
-	"S-gnark/frontend"
-	"S-gnark/frontend/cs/r1cs"
-	"S-gnark/frontend/cs/scs"
+	"Yoimiya"
+	"Yoimiya/backend"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/cs/r1cs"
+	"Yoimiya/frontend/cs/scs"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

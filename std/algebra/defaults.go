@@ -3,15 +3,15 @@ package algebra
 import (
 	"fmt"
 
-	"S-gnark/frontend"
-	"S-gnark/std/algebra/emulated/sw_bls12381"
-	"S-gnark/std/algebra/emulated/sw_bn254"
-	"S-gnark/std/algebra/emulated/sw_bw6761"
-	"S-gnark/std/algebra/emulated/sw_emulated"
-	"S-gnark/std/algebra/native/sw_bls12377"
-	"S-gnark/std/algebra/native/sw_bls24315"
-	"S-gnark/std/math/emulated"
-	"S-gnark/std/math/emulated/emparams"
+	"Yoimiya/frontend"
+	"Yoimiya/std/algebra/emulated/sw_bls12381"
+	"Yoimiya/std/algebra/emulated/sw_bn254"
+	"Yoimiya/std/algebra/emulated/sw_bw6761"
+	"Yoimiya/std/algebra/emulated/sw_emulated"
+	"Yoimiya/std/algebra/native/sw_bls12377"
+	"Yoimiya/std/algebra/native/sw_bls24315"
+	"Yoimiya/std/math/emulated"
+	"Yoimiya/std/math/emulated/emparams"
 )
 
 // GetCurve returns the [Curve] implementation corresponding to the scalar and

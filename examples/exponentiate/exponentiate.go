@@ -15,8 +15,8 @@
 package exponentiate
 
 import (
-	"S-gnark/frontend"
-	"S-gnark/std/math/bits"
+	"Yoimiya/frontend"
+	"Yoimiya/std/math/bits"
 )
 
 // Circuit y == x**e

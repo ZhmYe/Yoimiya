@@ -1,7 +1,7 @@
 package expr
 
 import (
-	"S-gnark/constraint"
+	"Yoimiya/constraint"
 )
 
 type LinearExpression []Term

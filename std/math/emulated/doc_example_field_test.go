@@ -3,12 +3,12 @@ package emulated_test
 import (
 	"fmt"
 
-	"S-gnark/backend"
-	"S-gnark/backend/groth16"
-	"S-gnark/constraint/solver"
-	"S-gnark/frontend"
-	"S-gnark/frontend/cs/r1cs"
-	"S-gnark/std/math/emulated"
+	"Yoimiya/backend"
+	"Yoimiya/backend/groth16"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/cs/r1cs"
+	"Yoimiya/std/math/emulated"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

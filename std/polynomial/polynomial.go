@@ -3,7 +3,7 @@ package polynomial
 import (
 	"math/bits"
 
-	"S-gnark/frontend"
+	"Yoimiya/frontend"
 )
 
 type Polynomial []frontend.Variable

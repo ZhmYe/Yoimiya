@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"math/big"
 
-	"S-gnark/frontend"
-	"S-gnark/internal/utils"
+	"Yoimiya/frontend"
+	"Yoimiya/internal/utils"
 )
 
 // Element defines an element in the ring of integers modulo n. The integer

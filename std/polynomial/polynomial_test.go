@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"testing"
 
-	"S-gnark/frontend"
-	"S-gnark/frontend/cs/r1cs"
-	"S-gnark/frontend/cs/scs"
-	"S-gnark/test"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/cs/r1cs"
+	"Yoimiya/frontend/cs/scs"
+	"Yoimiya/test"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

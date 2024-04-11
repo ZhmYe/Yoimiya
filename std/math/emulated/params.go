@@ -3,7 +3,7 @@ package emulated
 import (
 	"math/big"
 
-	"S-gnark/std/math/emulated/emparams"
+	"Yoimiya/std/math/emulated/emparams"
 )
 
 // FieldParams describes the emulated field characteristics. For a list of

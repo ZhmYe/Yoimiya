@@ -1,9 +1,9 @@
 package lzss
 
 import (
-	"S-gnark/frontend"
-	"S-gnark/std/compress"
-	"S-gnark/std/lookup/logderivlookup"
+	"Yoimiya/frontend"
+	"Yoimiya/std/compress"
+	"Yoimiya/std/lookup/logderivlookup"
 	"github.com/consensys/compress/lzss"
 )
 
@@ -89,7 +89,7 @@ func Decompress(api frontend.API, c []frontend.Variable, cLength frontend.Variab
 		inIDelta = api.Select(copying, api.Mul(inIDelta, copyLen01), byteNbWords)
 
 		// TODO Try removing this check and requiring the user to pad the input with nonzeros
-		// TODO Change inner to mulacc once https://S-gnark/pull/859 is merged
+		// TODO Change inner to mulacc once https://Yoimiya/pull/859 is merged
 		// inI = inI + inIDelta * (1 - eof)
 		if eof == 0 {
 			inI = api.Add(inI, inIDelta)

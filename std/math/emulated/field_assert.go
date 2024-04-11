@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math/big"
 
-	"S-gnark/frontend"
+	"Yoimiya/frontend"
 )
 
 // assertLimbsEqualitySlow is the main routine in the package. It asserts that the

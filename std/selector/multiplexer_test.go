@@ -3,12 +3,12 @@ package selector_test
 import (
 	"testing"
 
-	"S-gnark/frontend/cs/r1cs"
+	"Yoimiya/frontend/cs/r1cs"
 	"github.com/consensys/gnark-crypto/ecc"
 
-	"S-gnark/frontend"
-	"S-gnark/std/selector"
-	"S-gnark/test"
+	"Yoimiya/frontend"
+	"Yoimiya/std/selector"
+	"Yoimiya/test"
 )
 
 type muxCircuit struct {

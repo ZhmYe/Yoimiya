@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"math/big"
 
-	"S-gnark/frontend"
-	"S-gnark/std/algebra/emulated/sw_emulated"
-	"S-gnark/std/math/bits"
-	"S-gnark/std/math/emulated"
+	"Yoimiya/frontend"
+	"Yoimiya/std/algebra/emulated/sw_emulated"
+	"Yoimiya/std/math/bits"
+	"Yoimiya/std/math/emulated"
 )
 
 // ECRecover implements [ECRECOVER] precompile contract at address 0x01.

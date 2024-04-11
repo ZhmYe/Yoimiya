@@ -19,8 +19,8 @@ package sw_bls12377
 import (
 	"errors"
 
-	"S-gnark/frontend"
-	"S-gnark/std/algebra/native/fields_bls12377"
+	"Yoimiya/frontend"
+	"Yoimiya/std/algebra/native/fields_bls12377"
 )
 
 // GT target group of the pairing

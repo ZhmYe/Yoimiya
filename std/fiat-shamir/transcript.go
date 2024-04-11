@@ -20,10 +20,10 @@ import (
 	"errors"
 	"golang.org/x/exp/slices"
 
-	"S-gnark/constant"
-	"S-gnark/frontend"
-	"S-gnark/std/hash"
-	"S-gnark/std/math/bits"
+	"Yoimiya/constant"
+	"Yoimiya/frontend"
+	"Yoimiya/std/hash"
+	"Yoimiya/std/math/bits"
 )
 
 // errChallengeNotFound is returned when a wrong challenge name is provided.

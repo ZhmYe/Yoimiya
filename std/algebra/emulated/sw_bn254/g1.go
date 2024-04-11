@@ -1,8 +1,8 @@
 package sw_bn254
 
 import (
-	"S-gnark/std/algebra/emulated/sw_emulated"
-	"S-gnark/std/math/emulated"
+	"Yoimiya/std/algebra/emulated/sw_emulated"
+	"Yoimiya/std/math/emulated"
 	"github.com/consensys/gnark-crypto/ecc/bn254"
 	fr_bn254 "github.com/consensys/gnark-crypto/ecc/bn254/fr"
 )

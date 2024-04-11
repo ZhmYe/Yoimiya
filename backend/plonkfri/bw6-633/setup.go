@@ -17,7 +17,7 @@
 package plonkfri
 
 import (
-	cs "S-gnark/constraint/bw6-633"
+	cs "Yoimiya/constraint/bw6-633"
 	"crypto/sha256"
 	"github.com/consensys/gnark-crypto/ecc/bw6-633/fr"
 	"github.com/consensys/gnark-crypto/ecc/bw6-633/fr/fft"

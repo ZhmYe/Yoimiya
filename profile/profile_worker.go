@@ -114,7 +114,7 @@ func collectSample(pc []uintptr) {
 }
 
 func filterSCSPrivateFunc(f string) bool {
-	const scsPrefix = "S-gnark/frontend/cs/scs.(*builder)."
+	const scsPrefix = "Yoimiya/frontend/cs/scs.(*builder)."
 	if strings.HasPrefix(f, scsPrefix) && len(f) > len(scsPrefix) {
 		// filter plonk frontend private APIs from the trace.
 		c := []rune(f)[len(scsPrefix)]
@@ -126,7 +126,7 @@ func filterSCSPrivateFunc(f string) bool {
 }
 
 func filterR1CSPrivateFunc(f string) bool {
-	const r1csPrefix = "S-gnark/frontend/cs/r1cs.(*builder)."
+	const r1csPrefix = "Yoimiya/frontend/cs/r1cs.(*builder)."
 	if strings.HasPrefix(f, r1csPrefix) && len(f) > len(r1csPrefix) {
 		// filter r1cs frontend private APIs from the trace.
 		c := []rune(f)[len(r1csPrefix)]

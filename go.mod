@@ -1,4 +1,4 @@
-module S-gnark
+module Yoimiya
 
 go 1.20
 

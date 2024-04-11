@@ -3,9 +3,9 @@ package fields_bls12381
 import (
 	"testing"
 
-	"S-gnark/frontend"
-	"S-gnark/std/math/emulated"
-	"S-gnark/test"
+	"Yoimiya/frontend"
+	"Yoimiya/std/math/emulated"
+	"Yoimiya/test"
 	"github.com/consensys/gnark-crypto/ecc"
 	bls12381 "github.com/consensys/gnark-crypto/ecc/bls12-381"
 	"github.com/consensys/gnark-crypto/ecc/bls12-381/fp"

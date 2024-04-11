@@ -1,6 +1,6 @@
 package expr
 
-import "S-gnark/constraint"
+import "Yoimiya/constraint"
 
 type Term struct {
 	VID   int

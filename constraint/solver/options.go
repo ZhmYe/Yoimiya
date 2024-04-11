@@ -1,7 +1,7 @@
 package solver
 
 import (
-	"S-gnark/logger"
+	"Yoimiya/logger"
 	"github.com/rs/zerolog"
 )
 

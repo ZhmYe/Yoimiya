@@ -1,7 +1,7 @@
 package main
 
 import (
-	"S-gnark/evaluate"
+	"Yoimiya/evaluate"
 	"math/rand"
 	"time"
 )

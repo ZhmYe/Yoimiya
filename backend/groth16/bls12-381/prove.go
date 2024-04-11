@@ -17,14 +17,14 @@
 package groth16
 
 import (
-	"S-gnark/backend"
-	"S-gnark/backend/groth16/internal"
-	"S-gnark/backend/witness"
-	"S-gnark/constraint"
-	cs "S-gnark/constraint/bls12-381"
-	"S-gnark/constraint/solver"
-	"S-gnark/internal/utils"
-	"S-gnark/logger"
+	"Yoimiya/backend"
+	"Yoimiya/backend/groth16/internal"
+	"Yoimiya/backend/witness"
+	"Yoimiya/constraint"
+	cs "Yoimiya/constraint/bls12-381"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/internal/utils"
+	"Yoimiya/logger"
 	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"
 	curve "github.com/consensys/gnark-crypto/ecc/bls12-381"
@@ -36,7 +36,7 @@ import (
 	"runtime"
 	"time"
 
-	fcs "S-gnark/frontend/cs"
+	fcs "Yoimiya/frontend/cs"
 )
 
 // Proof represents a Groth16 proof that was encoded with a ProvingKey and can be verified

@@ -21,8 +21,8 @@ import (
 
 	"github.com/consensys/gnark-crypto/ecc/bw6-761/fr/fft"
 
-	"S-gnark/backend/groth16/internal/test_utils"
-	"S-gnark/io"
+	"Yoimiya/backend/groth16/internal/test_utils"
+	"Yoimiya/io"
 	"github.com/consensys/gnark-crypto/ecc/bw6-761/fr/pedersen"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

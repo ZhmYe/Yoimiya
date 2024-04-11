@@ -3,8 +3,8 @@ package bitslice
 import (
 	"math/big"
 
-	"S-gnark/frontend"
-	"S-gnark/std/rangecheck"
+	"Yoimiya/frontend"
+	"Yoimiya/std/rangecheck"
 )
 
 // Partition partitions v into two parts splitted at bit numbered graph. The

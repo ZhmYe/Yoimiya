@@ -17,10 +17,10 @@
 package cs_test
 
 import (
-	"S-gnark/frontend"
-	"S-gnark/frontend/cs/r1cs"
-	"S-gnark/frontend/cs/scs"
-	"S-gnark/internal/backend/circuits"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/cs/r1cs"
+	"Yoimiya/frontend/cs/scs"
+	"Yoimiya/internal/backend/circuits"
 	"bytes"
 	"reflect"
 	"testing"
@@ -28,9 +28,9 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 
-	"S-gnark/constraint/tinyfield"
+	"Yoimiya/constraint/tinyfield"
 
-	fr "S-gnark/internal/tinyfield"
+	fr "Yoimiya/internal/tinyfield"
 )
 
 func TestSerialization(t *testing.T) {

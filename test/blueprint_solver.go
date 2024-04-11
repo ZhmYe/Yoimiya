@@ -3,8 +3,8 @@ package test
 import (
 	"math/big"
 
-	"S-gnark/constraint"
-	"S-gnark/internal/utils"
+	"Yoimiya/constraint"
+	"Yoimiya/internal/utils"
 )
 
 // blueprintSolver is a constraint.Solver that can be used to test a circuit

@@ -3,10 +3,10 @@ package selector_test
 import (
 	"fmt"
 
-	"S-gnark/backend/groth16"
-	"S-gnark/frontend"
-	"S-gnark/frontend/cs/r1cs"
-	"S-gnark/std/selector"
+	"Yoimiya/backend/groth16"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/cs/r1cs"
+	"Yoimiya/std/selector"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

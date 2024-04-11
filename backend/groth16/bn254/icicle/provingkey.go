@@ -3,8 +3,8 @@ package icicle_bn254
 import (
 	"unsafe"
 
-	groth16_bn254 "S-gnark/backend/groth16/bn254"
-	cs "S-gnark/constraint/bn254"
+	groth16_bn254 "Yoimiya/backend/groth16/bn254"
+	cs "Yoimiya/constraint/bn254"
 )
 
 type deviceInfo struct {

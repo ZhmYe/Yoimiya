@@ -5,9 +5,9 @@ package profile_test
 import (
 	"fmt"
 
-	"S-gnark/frontend"
-	"S-gnark/frontend/cs/r1cs"
-	"S-gnark/profile"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/cs/r1cs"
+	"Yoimiya/profile"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

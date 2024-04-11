@@ -25,10 +25,10 @@ package uints
 import (
 	"fmt"
 
-	"S-gnark/frontend"
-	"S-gnark/std/internal/logderivprecomp"
-	"S-gnark/std/math/bitslice"
-	"S-gnark/std/rangecheck"
+	"Yoimiya/frontend"
+	"Yoimiya/std/internal/logderivprecomp"
+	"Yoimiya/std/math/bitslice"
+	"Yoimiya/std/rangecheck"
 )
 
 // TODO: if internal then enforce range check!

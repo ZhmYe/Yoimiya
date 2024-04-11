@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"math/big"
 
-	"S-gnark/frontend"
-	"S-gnark/std/algebra/algopts"
-	"S-gnark/std/math/emulated"
+	"Yoimiya/frontend"
+	"Yoimiya/std/algebra/algopts"
+	"Yoimiya/std/math/emulated"
 	"golang.org/x/exp/slices"
 )
 

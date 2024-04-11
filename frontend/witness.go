@@ -4,8 +4,8 @@ import (
 	"math/big"
 	"reflect"
 
-	"S-gnark/backend/witness"
-	"S-gnark/frontend/schema"
+	"Yoimiya/backend/witness"
+	"Yoimiya/frontend/schema"
 )
 
 // NewWitness build an ordered vector of field elements from the given assignment (Circuit)

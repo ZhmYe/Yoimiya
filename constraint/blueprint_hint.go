@@ -1,8 +1,8 @@
 package constraint
 
 import (
-	"S-gnark/constraint/solver"
-	"S-gnark/debug"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/debug"
 	"fmt"
 )
 

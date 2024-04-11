@@ -3,7 +3,7 @@ package bits
 import (
 	"errors"
 
-	"S-gnark/frontend"
+	"Yoimiya/frontend"
 )
 
 // Base defines the base for decomposing the scalar into digits.

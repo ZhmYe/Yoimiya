@@ -1,12 +1,12 @@
 package lzss
 
 import (
-	"S-gnark/constraint"
-	"S-gnark/frontend"
-	"S-gnark/frontend/cs/scs"
-	"S-gnark/profile"
-	"S-gnark/std/compress"
-	"S-gnark/std/hash/mimc"
+	"Yoimiya/constraint"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/cs/scs"
+	"Yoimiya/profile"
+	"Yoimiya/std/compress"
+	"Yoimiya/std/hash/mimc"
 	"compress/gzip"
 	"fmt"
 	goCompress "github.com/consensys/compress"

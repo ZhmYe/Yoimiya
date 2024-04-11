@@ -1,11 +1,11 @@
 package frontend
 
 import (
-	"S-gnark/constraint"
-	"S-gnark/debug"
-	"S-gnark/frontend/schema"
-	"S-gnark/internal/circuitdefer"
-	"S-gnark/logger"
+	"Yoimiya/constraint"
+	"Yoimiya/debug"
+	"Yoimiya/frontend/schema"
+	"Yoimiya/internal/circuitdefer"
+	"Yoimiya/logger"
 	"errors"
 	"fmt"
 	"math/big"

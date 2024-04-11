@@ -17,7 +17,7 @@
 package mpcsetup
 
 import (
-	groth16 "S-gnark/backend/groth16/bn254"
+	groth16 "Yoimiya/backend/groth16/bn254"
 	curve "github.com/consensys/gnark-crypto/ecc/bn254"
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr/fft"
 )

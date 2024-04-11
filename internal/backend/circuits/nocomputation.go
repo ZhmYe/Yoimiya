@@ -1,7 +1,7 @@
 package circuits
 
 import (
-	"S-gnark/frontend"
+	"Yoimiya/frontend"
 )
 
 // test circuit with no computational constraints

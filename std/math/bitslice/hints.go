@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math/big"
 
-	"S-gnark/constraint/solver"
+	"Yoimiya/constraint/solver"
 )
 
 func init() {

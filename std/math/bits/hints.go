@@ -4,7 +4,7 @@ import (
 	"errors"
 	"math/big"
 
-	"S-gnark/constraint/solver"
+	"Yoimiya/constraint/solver"
 )
 
 func GetHints() []solver.Hint {

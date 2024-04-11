@@ -6,10 +6,10 @@ import (
 	"math/big"
 	"testing"
 
-	"S-gnark/frontend"
-	"S-gnark/std/algebra/emulated/sw_emulated"
-	"S-gnark/std/math/emulated"
-	"S-gnark/test"
+	"Yoimiya/frontend"
+	"Yoimiya/std/algebra/emulated/sw_emulated"
+	"Yoimiya/std/math/emulated"
+	"Yoimiya/test"
 	"github.com/consensys/gnark-crypto/ecc"
 	"github.com/consensys/gnark-crypto/ecc/secp256k1/ecdsa"
 )

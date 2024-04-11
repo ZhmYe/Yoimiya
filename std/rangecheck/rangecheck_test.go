@@ -5,9 +5,9 @@ import (
 	"math/big"
 	"testing"
 
-	"S-gnark/frontend"
-	"S-gnark/frontend/cs/r1cs"
-	"S-gnark/test"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/cs/r1cs"
+	"Yoimiya/test"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

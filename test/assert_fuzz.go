@@ -7,10 +7,10 @@ import (
 	"reflect"
 	"time"
 
-	"S-gnark"
-	"S-gnark/backend"
-	"S-gnark/frontend"
-	"S-gnark/frontend/schema"
+	"Yoimiya"
+	"Yoimiya/backend"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/schema"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

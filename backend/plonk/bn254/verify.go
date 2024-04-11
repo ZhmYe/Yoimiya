@@ -32,8 +32,8 @@ import (
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr"
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr/hash_to_field"
 
-	"S-gnark/backend"
-	"S-gnark/logger"
+	"Yoimiya/backend"
+	"Yoimiya/logger"
 	"github.com/consensys/gnark-crypto/ecc/bn254/kzg"
 	fiatshamir "github.com/consensys/gnark-crypto/fiat-shamir"
 )
@@ -366,7 +366,7 @@ func deriveRandomness(fs *fiatshamir.Transcript, challenge string, points ...*cu
 
 // ExportSolidity exports the verifying key to a solidity smart contract.
 //
-// See https://S-gnark-tests for example usage.
+// See https://Yoimiya-tests for example usage.
 //
 // Code has not been audited and is provided as-is, we make no guarantees or warranties to its safety and reliability.
 func (vk *VerifyingKey) ExportSolidity(w io.Writer) error {

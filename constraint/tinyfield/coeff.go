@@ -17,11 +17,11 @@
 package cs
 
 import (
-	"S-gnark/constraint"
-	"S-gnark/internal/utils"
+	"Yoimiya/constraint"
+	"Yoimiya/internal/utils"
 	"math/big"
 
-	fr "S-gnark/internal/tinyfield"
+	fr "Yoimiya/internal/tinyfield"
 )
 
 // CoeffTable ensure we store unique coefficients in the constraint system

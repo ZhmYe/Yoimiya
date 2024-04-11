@@ -17,8 +17,8 @@ import (
 	{{- template "import_hash_to_field" . }}
 	{{ template "import_kzg" . }}
 	fiatshamir "github.com/consensys/gnark-crypto/fiat-shamir"
-	"S-gnark/backend"
-	"S-gnark/logger"
+	"Yoimiya/backend"
+	"Yoimiya/logger"
 )
 
 var (
@@ -352,7 +352,7 @@ func deriveRandomness(fs *fiatshamir.Transcript, challenge string, points ...*cu
 {{if eq .Curve "BN254"}}
 // ExportSolidity exports the verifying key to a solidity smart contract.
 //
-// See https://S-gnark-tests for example usage.
+// See https://Yoimiya-tests for example usage.
 //
 // Code has not been audited and is provided as-is, we make no guarantees or warranties to its safety and reliability.
 func (vk *VerifyingKey) ExportSolidity(w io.Writer) error {

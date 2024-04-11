@@ -10,9 +10,9 @@
 package rangecheck
 
 import (
-	"S-gnark/constraint/solver"
-	"S-gnark/frontend"
-	"S-gnark/frontend/cs/r1cs"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/cs/r1cs"
 )
 
 // only for documentation purposes. If we import the package then godoc knows

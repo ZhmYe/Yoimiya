@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"testing"
 
-	"S-gnark/constraint"
-	"S-gnark/frontend"
-	"S-gnark/frontend/cs/r1cs"
-	"S-gnark/frontend/cs/scs"
-	"S-gnark/test"
+	"Yoimiya/constraint"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/cs/r1cs"
+	"Yoimiya/frontend/cs/scs"
+	"Yoimiya/test"
 	"github.com/consensys/gnark-crypto/ecc"
 	"github.com/consensys/gnark-crypto/ecc/bn254"
 )

@@ -23,8 +23,8 @@ import (
 	bls12377 "github.com/consensys/gnark-crypto/ecc/bls12-377"
 	"github.com/consensys/gnark-crypto/ecc/bw6-761/fr"
 
-	"S-gnark/constraint/solver"
-	"S-gnark/frontend"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/frontend"
 )
 
 // G1Jac point in Jacobian coords

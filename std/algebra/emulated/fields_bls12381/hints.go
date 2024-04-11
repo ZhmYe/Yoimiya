@@ -3,8 +3,8 @@ package fields_bls12381
 import (
 	"math/big"
 
-	"S-gnark/constraint/solver"
-	"S-gnark/std/math/emulated"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/std/math/emulated"
 	bls12381 "github.com/consensys/gnark-crypto/ecc/bls12-381"
 )
 

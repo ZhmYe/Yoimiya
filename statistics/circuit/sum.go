@@ -1,6 +1,6 @@
 package circuit
 
-import "S-gnark/frontend"
+import "Yoimiya/frontend"
 
 // SumCircuit
 // circuit

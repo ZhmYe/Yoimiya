@@ -3,10 +3,10 @@ package constraint_test
 import (
 	"fmt"
 
-	"S-gnark/constraint"
-	cs "S-gnark/constraint/bn254"
-	"S-gnark/frontend"
-	"S-gnark/frontend/cs/r1cs"
+	"Yoimiya/constraint"
+	cs "Yoimiya/constraint/bn254"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/cs/r1cs"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

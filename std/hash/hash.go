@@ -21,8 +21,8 @@ import (
 	"errors"
 	"sync"
 
-	"S-gnark/frontend"
-	"S-gnark/std/math/uints"
+	"Yoimiya/frontend"
+	"Yoimiya/std/math/uints"
 )
 
 // FieldHasher hashes inputs into a short digest. This interface mocks

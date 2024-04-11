@@ -19,7 +19,7 @@ import (
 	"crypto/sha256"
 	"hash"
 
-	"S-gnark/constraint/solver"
+	"Yoimiya/constraint/solver"
 )
 
 // ID represent a unique ID for a proving scheme

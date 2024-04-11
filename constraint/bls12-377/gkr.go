@@ -17,9 +17,9 @@
 package cs
 
 import (
-	"S-gnark/constraint"
-	hint "S-gnark/constraint/solver"
-	"S-gnark/std/utils/algo_utils"
+	"Yoimiya/constraint"
+	hint "Yoimiya/constraint/solver"
+	"Yoimiya/std/utils/algo_utils"
 	"fmt"
 	"github.com/consensys/gnark-crypto/ecc/bls12-377/fr"
 	"github.com/consensys/gnark-crypto/ecc/bls12-377/fr/gkr"

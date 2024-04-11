@@ -20,8 +20,8 @@ import (
 	"math/big"
 	"testing"
 
-	"S-gnark/frontend"
-	"S-gnark/test"
+	"Yoimiya/frontend"
+	"Yoimiya/test"
 	"github.com/consensys/gnark-crypto/ecc"
 	bls12377 "github.com/consensys/gnark-crypto/ecc/bls12-377"
 )

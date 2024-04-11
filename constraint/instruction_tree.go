@@ -1,7 +1,7 @@
 package constraint
 
 import (
-	"S-gnark/debug"
+	"Yoimiya/debug"
 	"math"
 )
 

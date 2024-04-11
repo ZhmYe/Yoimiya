@@ -3,9 +3,9 @@ package frontend
 import (
 	"math/big"
 
-	"S-gnark/constraint"
-	"S-gnark/constraint/solver"
-	"S-gnark/frontend/schema"
+	"Yoimiya/constraint"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/frontend/schema"
 )
 
 type NewBuilder func(*big.Int, CompileConfig) (Builder, error)
@@ -93,7 +93,7 @@ type Committer interface {
 
 // Rangechecker allows to externally range-check the variables to be of
 // specified width. Not all compilers implement this interface. Users should
-// instead use [S-gnark/std/rangecheck] package which
+// instead use [Yoimiya/std/rangecheck] package which
 // automatically chooses most optimal method for range checking the variables.
 type Rangechecker interface {
 	// Check checks that the given variable v has bit-length bits.

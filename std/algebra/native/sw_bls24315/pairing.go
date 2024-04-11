@@ -20,8 +20,8 @@ import (
 	"errors"
 	"math/big"
 
-	"S-gnark/frontend"
-	"S-gnark/std/algebra/native/fields_bls24315"
+	"Yoimiya/frontend"
+	"Yoimiya/std/algebra/native/fields_bls24315"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

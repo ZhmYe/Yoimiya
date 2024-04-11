@@ -1,7 +1,7 @@
 package selector
 
 import (
-	"S-gnark/frontend"
+	"Yoimiya/frontend"
 	"fmt"
 	"math/big"
 )

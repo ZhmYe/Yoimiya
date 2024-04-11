@@ -14,9 +14,9 @@ https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm
 package ecdsa
 
 import (
-	"S-gnark/frontend"
-	"S-gnark/std/algebra/emulated/sw_emulated"
-	"S-gnark/std/math/emulated"
+	"Yoimiya/frontend"
+	"Yoimiya/std/algebra/emulated/sw_emulated"
+	"Yoimiya/std/math/emulated"
 )
 
 // Signature represents the signature for some message.

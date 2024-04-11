@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"math/big"
 
-	"S-gnark/backend"
-	"S-gnark/std/recursion"
+	"Yoimiya/backend"
+	"Yoimiya/std/recursion"
 )
 
 // GetNativeProverOptions returns PLONK prover options for the native prover to

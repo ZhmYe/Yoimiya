@@ -1,11 +1,11 @@
 package frontend
 
 import (
-	"S-gnark/backend/groth16"
-	"S-gnark/backend/witness"
-	"S-gnark/constraint"
-	cs_bn254 "S-gnark/constraint/bn254"
-	"S-gnark/frontend/schema"
+	"Yoimiya/backend/groth16"
+	"Yoimiya/backend/witness"
+	"Yoimiya/constraint"
+	cs_bn254 "Yoimiya/constraint/bn254"
+	"Yoimiya/frontend/schema"
 	"errors"
 	"math/big"
 	"reflect"

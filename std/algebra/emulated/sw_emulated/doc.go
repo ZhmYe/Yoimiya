@@ -26,8 +26,8 @@ field. For now, we only have a single curve defined on every base field, but
 this may change in the future with the addition of additional curves.
 
 This package uses field emulation (unlike packages
-[S-gnark/std/algebra/native/sw_bls12377] and
-[S-gnark/std/algebra/native/sw_bls24315], which use 2-chains). This
+[Yoimiya/std/algebra/native/sw_bls12377] and
+[Yoimiya/std/algebra/native/sw_bls24315], which use 2-chains). This
 allows to use any curve over any native (SNARK) field. The drawback of this
 approach is the extreme cost of the operations.
 */

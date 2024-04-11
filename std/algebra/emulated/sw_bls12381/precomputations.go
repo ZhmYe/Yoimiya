@@ -3,8 +3,8 @@ package sw_bls12381
 import (
 	"sync"
 
-	"S-gnark/std/algebra/emulated/fields_bls12381"
-	"S-gnark/std/math/emulated"
+	"Yoimiya/std/algebra/emulated/fields_bls12381"
+	"Yoimiya/std/math/emulated"
 )
 
 // precomputed lines going through Q and multiples of Q

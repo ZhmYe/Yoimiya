@@ -3,8 +3,8 @@ package bitslice
 import (
 	"testing"
 
-	"S-gnark/frontend"
-	"S-gnark/test"
+	"Yoimiya/frontend"
+	"Yoimiya/test"
 )
 
 type partitionCircuit struct {

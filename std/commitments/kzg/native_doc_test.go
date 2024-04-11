@@ -3,11 +3,11 @@ package kzg_test
 import (
 	"crypto/rand"
 
-	"S-gnark/backend/groth16"
-	"S-gnark/frontend"
-	"S-gnark/frontend/cs/r1cs"
-	"S-gnark/std/algebra/native/sw_bls12377"
-	"S-gnark/std/commitments/kzg"
+	"Yoimiya/backend/groth16"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/cs/r1cs"
+	"Yoimiya/std/algebra/native/sw_bls12377"
+	"Yoimiya/std/commitments/kzg"
 	"github.com/consensys/gnark-crypto/ecc"
 	fr_bls12377 "github.com/consensys/gnark-crypto/ecc/bls12-377/fr"
 	kzg_bls12377 "github.com/consensys/gnark-crypto/ecc/bls12-377/kzg"

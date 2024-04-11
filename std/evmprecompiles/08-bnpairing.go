@@ -1,8 +1,8 @@
 package evmprecompiles
 
 import (
-	"S-gnark/frontend"
-	"S-gnark/std/algebra/emulated/sw_bn254"
+	"Yoimiya/frontend"
+	"Yoimiya/std/algebra/emulated/sw_bn254"
 )
 
 // ECPair implements [ALT_BN128_PAIRING_CHECK] precompile contract at address 0x08.

@@ -23,16 +23,16 @@ import (
 	"runtime"
 	"strings"
 
-	"S-gnark/debug"
-	"S-gnark/frontend/cs"
+	"Yoimiya/debug"
+	"Yoimiya/frontend/cs"
 
-	"S-gnark/constraint"
-	"S-gnark/constraint/solver"
-	"S-gnark/frontend"
-	"S-gnark/frontend/internal/expr"
-	"S-gnark/frontend/schema"
-	"S-gnark/internal/frontendtype"
-	"S-gnark/std/math/bits"
+	"Yoimiya/constraint"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/internal/expr"
+	"Yoimiya/frontend/schema"
+	"Yoimiya/internal/frontendtype"
+	"Yoimiya/std/math/bits"
 )
 
 // Add returns res = i1+i2+...in

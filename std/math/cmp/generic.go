@@ -2,8 +2,8 @@
 package cmp
 
 import (
-	"S-gnark/frontend"
-	"S-gnark/std/math/bits"
+	"Yoimiya/frontend"
+	"Yoimiya/std/math/bits"
 	"math/big"
 )
 

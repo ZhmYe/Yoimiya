@@ -15,7 +15,7 @@
 package cubic
 
 import (
-	"S-gnark/frontend"
+	"Yoimiya/frontend"
 )
 
 // Circuit defines a simple circuit

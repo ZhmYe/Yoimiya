@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strconv"
 
-	"S-gnark/frontend"
-	fiatshamir "S-gnark/std/fiat-shamir"
-	"S-gnark/std/polynomial"
-	"S-gnark/std/sumcheck"
+	"Yoimiya/frontend"
+	fiatshamir "Yoimiya/std/fiat-shamir"
+	"Yoimiya/std/polynomial"
+	"Yoimiya/std/sumcheck"
 )
 
 // @tabaie TODO: Contains many things copy-pasted from gnark-crypto. Generify somehow?

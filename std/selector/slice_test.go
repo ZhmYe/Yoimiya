@@ -1,9 +1,9 @@
 package selector_test
 
 import (
-	"S-gnark/frontend"
-	"S-gnark/std/selector"
-	"S-gnark/test"
+	"Yoimiya/frontend"
+	"Yoimiya/std/selector"
+	"Yoimiya/test"
 	"testing"
 )
 

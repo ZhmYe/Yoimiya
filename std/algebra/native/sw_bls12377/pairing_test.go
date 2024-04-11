@@ -21,9 +21,9 @@ import (
 	"math/big"
 	"testing"
 
-	"S-gnark/frontend"
-	"S-gnark/std/algebra/native/fields_bls12377"
-	"S-gnark/test"
+	"Yoimiya/frontend"
+	"Yoimiya/std/algebra/native/fields_bls12377"
+	"Yoimiya/test"
 	"github.com/consensys/gnark-crypto/ecc"
 	bls12377 "github.com/consensys/gnark-crypto/ecc/bls12-377"
 	"github.com/consensys/gnark-crypto/ecc/bls12-377/fr"

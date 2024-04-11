@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"testing"
 
-	"S-gnark/backend/groth16"
-	groth16_bn254 "S-gnark/backend/groth16/bn254"
-	icicle_bn254 "S-gnark/backend/groth16/bn254/icicle"
-	cs_bn254 "S-gnark/constraint/bn254"
-	"S-gnark/frontend"
-	"S-gnark/frontend/cs/r1cs"
-	"S-gnark/test"
+	"Yoimiya/backend/groth16"
+	groth16_bn254 "Yoimiya/backend/groth16/bn254"
+	icicle_bn254 "Yoimiya/backend/groth16/bn254/icicle"
+	cs_bn254 "Yoimiya/constraint/bn254"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/cs/r1cs"
+	"Yoimiya/test"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

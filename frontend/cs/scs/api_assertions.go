@@ -20,10 +20,10 @@ import (
 	"fmt"
 	"math/big"
 
-	"S-gnark/debug"
-	"S-gnark/frontend"
-	"S-gnark/frontend/internal/expr"
-	"S-gnark/std/math/bits"
+	"Yoimiya/debug"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/internal/expr"
+	"Yoimiya/std/math/bits"
 )
 
 // AssertIsEqual fails if i1 != i2

@@ -19,10 +19,10 @@ package rollup
 import (
 	"testing"
 
-	"S-gnark/backend"
-	"S-gnark/frontend"
-	"S-gnark/std/hash/mimc"
-	"S-gnark/test"
+	"Yoimiya/backend"
+	"Yoimiya/frontend"
+	"Yoimiya/std/hash/mimc"
+	"Yoimiya/test"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

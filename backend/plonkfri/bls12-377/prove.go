@@ -21,18 +21,18 @@ import (
 	"math/bits"
 	"runtime"
 
-	"S-gnark/backend/witness"
+	"Yoimiya/backend/witness"
 
 	"github.com/consensys/gnark-crypto/ecc/bls12-377/fr"
 
 	"github.com/consensys/gnark-crypto/ecc/bls12-377/fr/fft"
 
-	cs "S-gnark/constraint/bls12-377"
+	cs "Yoimiya/constraint/bls12-377"
 
 	"github.com/consensys/gnark-crypto/ecc/bls12-377/fr/fri"
 
-	"S-gnark/backend"
-	"S-gnark/internal/utils"
+	"Yoimiya/backend"
+	"Yoimiya/internal/utils"
 	fiatshamir "github.com/consensys/gnark-crypto/fiat-shamir"
 )
 

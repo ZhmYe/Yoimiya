@@ -1,10 +1,9 @@
 package split
 
 import (
-	"S-gnark/Config"
-	"S-gnark/constraint"
-	cs_bn254 "S-gnark/constraint/bn254"
-	"S-gnark/frontend"
+	"Yoimiya/constraint"
+	cs_bn254 "Yoimiya/constraint/bn254"
+	"Yoimiya/frontend"
 	"fmt"
 	"time"
 )
@@ -18,20 +17,8 @@ import (
 
 ***/
 
-// SplitAndProve 将传入的电路(constraintSystem)切分为多份，返回所有切出的子电路的proof
+// SplitAndProve 这里把sit和level用interface统一写成了splitEngine，在内部区分
 func SplitAndProve(cs constraint.ConstraintSystem, assignment frontend.Circuit) ([]PackedProof, error) {
-	switch Config.Config.Split {
-	case Config.SPLIT_STAGES:
-		return SplitAndProveInSit(cs, assignment)
-	case Config.SPLIT_LEVELS:
-		return SplitAndProveInSit(cs, assignment)
-	default:
-		panic("error SPLIT_METHOD")
-	}
-}
-
-// SplitAndProveInSit SPLIT_STAGE的逻辑
-func SplitAndProveInSit(cs constraint.ConstraintSystem, assignment frontend.Circuit) ([]PackedProof, error) {
 	proofs := make([]PackedProof, 0)
 	extras := make([]constraint.ExtraValue, 0)
 	startTime := time.Now()
@@ -83,6 +70,7 @@ func buildConstraintSystemFromIds(iIDs []int, record *DataRecord, assignment fro
 	cs := cs_bn254.NewR1CS(opt.Capacity)
 	if isTop {
 		SetForwardOutput(cs, forwardOutput) // 设置应该传到bottom的wireID
+		cs.CommitmentInfo = record.GetCommitmentInfo()
 	}
 	err := frontend.SetNbLeaf(assignment, cs, extra)
 	if err != nil {
@@ -97,9 +85,6 @@ func buildConstraintSystemFromIds(iIDs []int, record *DataRecord, assignment fro
 		//sit.ModifyiID(i, j, len(cs.Instructions)) // 这里是串行添加的，新的Instruction id就是当前的长度
 	}
 	cs.CoeffTable = record.GetCoeffTable()
-	if isTop {
-		cs.CommitmentInfo = record.GetCommitmentInfo()
-	}
 	fmt.Println("Compile Result: ")
 	fmt.Println("		NbPublic=", cs.GetNbPublicVariables(), " NbSecret=", cs.GetNbSecretVariables(), " NbInternal=", cs.GetNbInternalVariables())
 	fmt.Println("		NbCoeff=", cs.GetNbConstraints())

@@ -5,10 +5,10 @@ package icicle_bn254
 import (
 	"fmt"
 
-	"S-gnark/backend"
-	groth16_bn254 "S-gnark/backend/groth16/bn254"
-	"S-gnark/backend/witness"
-	cs "S-gnark/constraint/bn254"
+	"Yoimiya/backend"
+	groth16_bn254 "Yoimiya/backend/groth16/bn254"
+	"Yoimiya/backend/witness"
+	cs "Yoimiya/constraint/bn254"
 )
 
 const HasIcicle = false

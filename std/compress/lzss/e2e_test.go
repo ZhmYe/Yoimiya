@@ -6,10 +6,10 @@ import (
 	"os"
 	"testing"
 
-	"S-gnark/backend"
-	"S-gnark/frontend"
-	test_vector_utils "S-gnark/std/utils/test_vectors_utils"
-	"S-gnark/test"
+	"Yoimiya/backend"
+	"Yoimiya/frontend"
+	test_vector_utils "Yoimiya/std/utils/test_vectors_utils"
+	"Yoimiya/test"
 	"github.com/consensys/gnark-crypto/ecc"
 	"github.com/stretchr/testify/assert"
 )

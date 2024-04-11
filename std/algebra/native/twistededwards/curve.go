@@ -1,7 +1,7 @@
 package twistededwards
 
 import (
-	"S-gnark/frontend"
+	"Yoimiya/frontend"
 	"github.com/consensys/gnark-crypto/ecc/twistededwards"
 )
 
@@ -48,7 +48,7 @@ func (c *curve) ScalarMul(p1 Point, scalar frontend.Variable) Point {
 	var p Point
 	if c.endo != nil {
 		// TODO restore
-		// this is disabled until this issue is solved https://S-gnark/issues/268
+		// this is disabled until this issue is solved https://Yoimiya/issues/268
 		// p.scalarMulGLV(c.api, &p1, scalar, c.params, c.endo)
 		p.scalarMul(c.api, &p1, scalar, c.params)
 	} else {

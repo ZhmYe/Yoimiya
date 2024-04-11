@@ -3,9 +3,9 @@ package sw_bn254
 import (
 	"math/big"
 
-	"S-gnark/frontend"
-	"S-gnark/std/algebra/emulated/fields_bn254"
-	"S-gnark/std/math/emulated"
+	"Yoimiya/frontend"
+	"Yoimiya/std/algebra/emulated/fields_bn254"
+	"Yoimiya/std/math/emulated"
 	"github.com/consensys/gnark-crypto/ecc/bn254"
 )
 

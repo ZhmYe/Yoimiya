@@ -1,9 +1,9 @@
 package sha3
 
 import (
-	"S-gnark/frontend"
-	"S-gnark/std/hash"
-	"S-gnark/std/math/uints"
+	"Yoimiya/frontend"
+	"Yoimiya/std/hash"
+	"Yoimiya/std/math/uints"
 )
 
 // New256 creates a new SHA3-256 hash.

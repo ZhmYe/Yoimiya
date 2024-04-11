@@ -1,18 +1,18 @@
 package Circuit4VerifyCircuit
 
 import (
-	"S-gnark/Config"
-	"S-gnark/backend/groth16"
-	groth16backend_bn254 "S-gnark/backend/groth16/bn254"
-	"S-gnark/backend/witness"
-	"S-gnark/constraint"
-	"S-gnark/frontend"
-	"S-gnark/frontend/cs/r1cs"
-	"S-gnark/frontend/split"
-	"S-gnark/std/algebra"
-	"S-gnark/std/algebra/emulated/sw_bn254"
-	"S-gnark/std/math/emulated"
-	"S-gnark/std/math/emulated/emparams"
+	"Yoimiya/Config"
+	"Yoimiya/backend/groth16"
+	groth16backend_bn254 "Yoimiya/backend/groth16/bn254"
+	"Yoimiya/backend/witness"
+	"Yoimiya/constraint"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/cs/r1cs"
+	"Yoimiya/frontend/split"
+	"Yoimiya/std/algebra"
+	"Yoimiya/std/algebra/emulated/sw_bn254"
+	"Yoimiya/std/math/emulated"
+	"Yoimiya/std/math/emulated/emparams"
 	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"
 	"github.com/consensys/gnark-crypto/ecc/bn254"
@@ -183,12 +183,11 @@ func GetCircuitVkWitnessPublic(
 	public, err := frontend.NewWitness(outerAssignment, ecc.BN254.ScalarField(), frontend.PublicOnly())
 	return outerCcs, outerPK, outerVK, full, public
 }
-
-func GetPackProofInSplit(
+func GetVerifyCircuitAssignment(
 	innerCcsArray [LENGTH]constraint.ConstraintSystem,
 	innerVKArray [LENGTH]groth16.VerifyingKey,
 	innerWitnessArray [LENGTH]witness.Witness,
-	innerProofArray [LENGTH]groth16.Proof) []split.PackedProof {
+	innerProofArray [LENGTH]groth16.Proof) (frontend.Circuit, frontend.Circuit) {
 
 	var circuitVk [LENGTH]VerifyingKey[sw_bn254.G1Affine, sw_bn254.G2Affine, sw_bn254.GTEl]
 
@@ -261,12 +260,24 @@ func GetPackProofInSplit(
 		Proof:        circuitProof,
 		VerifyingKey: circuitVk,
 	}
+	return outerAssignment, outerCircuit
+}
+func GetVerifyCircuitCs(outerCircuit frontend.Circuit) constraint.ConstraintSystem {
 	startTime := time.Now()
 	outerCcs, err := frontend.Compile(ecc.BN254.ScalarField(), r1cs.NewBuilder, outerCircuit)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println("Compile Time:", time.Since(startTime))
+	return outerCcs
+}
+func GetPackProofInSplit(
+	innerCcsArray [LENGTH]constraint.ConstraintSystem,
+	innerVKArray [LENGTH]groth16.VerifyingKey,
+	innerWitnessArray [LENGTH]witness.Witness,
+	innerProofArray [LENGTH]groth16.Proof) []split.PackedProof {
+	outerAssignment, outerCircuit := GetVerifyCircuitAssignment(innerCcsArray, innerVKArray, innerWitnessArray, innerProofArray)
+	outerCcs := GetVerifyCircuitCs(outerCircuit)
 	proofs, err := split.Split(outerCcs, outerAssignment, split.NewParam(true, Config.Config.IsCluster(), 1000, false))
 	if err != nil {
 		panic("error")

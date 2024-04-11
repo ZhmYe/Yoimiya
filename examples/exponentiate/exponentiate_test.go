@@ -17,7 +17,7 @@ package exponentiate
 import (
 	"testing"
 
-	"S-gnark/test"
+	"Yoimiya/test"
 )
 
 func TestExponentiateGroth16(t *testing.T) {

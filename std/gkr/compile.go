@@ -5,12 +5,12 @@ import (
 	"math/big"
 	"math/bits"
 
-	"S-gnark/constraint"
-	"S-gnark/constraint/solver"
-	"S-gnark/frontend"
-	fiatshamir "S-gnark/std/fiat-shamir"
-	"S-gnark/std/hash"
-	"S-gnark/std/utils/algo_utils"
+	"Yoimiya/constraint"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/frontend"
+	fiatshamir "Yoimiya/std/fiat-shamir"
+	"Yoimiya/std/hash"
+	"Yoimiya/std/utils/algo_utils"
 )
 
 type circuitDataForSnark struct {

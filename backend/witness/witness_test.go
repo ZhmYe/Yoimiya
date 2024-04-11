@@ -7,9 +7,9 @@ import (
 	"reflect"
 	"testing"
 
-	"S-gnark/backend/witness"
-	"S-gnark/frontend"
-	"S-gnark/io"
+	"Yoimiya/backend/witness"
+	"Yoimiya/frontend"
+	"Yoimiya/io"
 	"github.com/consensys/gnark-crypto/ecc"
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr"
 	"github.com/stretchr/testify/require"

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"math/big"
 
-	"S-gnark/constraint/solver"
-	"S-gnark/frontend"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/frontend"
 )
 
 func (f *Field[T]) wrapHint(nonnativeInputs ...*Element[T]) []frontend.Variable {

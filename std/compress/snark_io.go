@@ -1,7 +1,7 @@
 package compress
 
 import (
-	"S-gnark/frontend"
+	"Yoimiya/frontend"
 )
 
 func Pack(api frontend.API, words []frontend.Variable, wordLen int) []frontend.Variable {

@@ -3,7 +3,7 @@ package bits
 import (
 	"math/big"
 
-	"S-gnark/frontend"
+	"Yoimiya/frontend"
 )
 
 // ToBinary is an alias of ToBase(api, Binary, v, opts)

@@ -21,8 +21,8 @@ import (
 	"math/big"
 	"sync"
 
-	"S-gnark/constraint/solver"
-	"S-gnark/frontend"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/frontend"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

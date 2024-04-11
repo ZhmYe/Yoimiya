@@ -5,10 +5,10 @@ import (
 	"math/big"
 	"testing"
 
-	"S-gnark/constraint/solver"
-	"S-gnark/frontend"
-	"S-gnark/std/math/cmp"
-	"S-gnark/test"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/frontend"
+	"Yoimiya/std/math/cmp"
+	"Yoimiya/test"
 )
 
 type CmpCircuit struct {
@@ -55,7 +55,7 @@ func (c *MathCmpAssertIsLessOrEqCircuitFull) Define(api frontend.API) error {
 
 func getNBitsHint() (solver.HintID, error) {
 	for _, v := range solver.GetRegisteredHints() {
-		if solver.GetHintName(v) == "S-gnark/std/math/bits.nBits" {
+		if solver.GetHintName(v) == "Yoimiya/std/math/bits.nBits" {
 			return solver.GetHintID(v), nil
 		}
 	}

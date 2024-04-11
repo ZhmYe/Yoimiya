@@ -5,10 +5,10 @@ import (
 	"math/big"
 	"testing"
 
-	"S-gnark/backend"
-	"S-gnark/constraint/solver"
-	"S-gnark/frontend"
-	"S-gnark/test"
+	"Yoimiya/backend"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/frontend"
+	"Yoimiya/test"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

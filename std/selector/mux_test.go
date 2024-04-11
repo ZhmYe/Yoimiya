@@ -1,8 +1,8 @@
 package selector
 
 import (
-	"S-gnark/frontend"
-	"S-gnark/test"
+	"Yoimiya/frontend"
+	"Yoimiya/test"
 	"testing"
 )
 

@@ -1,10 +1,10 @@
 package split
 
 import (
-	"S-gnark/backend/groth16"
-	"S-gnark/constraint"
-	cs_bn254 "S-gnark/constraint/bn254"
-	"S-gnark/frontend"
+	"Yoimiya/backend/groth16"
+	"Yoimiya/constraint"
+	cs_bn254 "Yoimiya/constraint/bn254"
+	"Yoimiya/frontend"
 	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"
 )

@@ -5,11 +5,11 @@ import (
 	"math"
 	"math/big"
 
-	"S-gnark/constraint/solver"
-	"S-gnark/frontend"
-	"S-gnark/internal/frontendtype"
-	"S-gnark/internal/kvstore"
-	"S-gnark/std/internal/logderivarg"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/frontend"
+	"Yoimiya/internal/frontendtype"
+	"Yoimiya/internal/kvstore"
+	"Yoimiya/std/internal/logderivarg"
 )
 
 type ctxCheckerKey struct{}

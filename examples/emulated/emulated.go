@@ -1,8 +1,8 @@
 package emulated
 
 import (
-	"S-gnark/frontend"
-	"S-gnark/std/math/emulated"
+	"Yoimiya/frontend"
+	"Yoimiya/std/math/emulated"
 )
 
 type Circuit struct {

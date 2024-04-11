@@ -1,19 +1,19 @@
 package std
 
 import (
-	"S-gnark/std/math/cmp"
+	"Yoimiya/std/math/cmp"
 	"sync"
 
-	"S-gnark/constraint/solver"
-	"S-gnark/std/algebra/native/sw_bls12377"
-	"S-gnark/std/algebra/native/sw_bls24315"
-	"S-gnark/std/evmprecompiles"
-	"S-gnark/std/internal/logderivarg"
-	"S-gnark/std/math/bits"
-	"S-gnark/std/math/bitslice"
-	"S-gnark/std/math/emulated"
-	"S-gnark/std/rangecheck"
-	"S-gnark/std/selector"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/std/algebra/native/sw_bls12377"
+	"Yoimiya/std/algebra/native/sw_bls24315"
+	"Yoimiya/std/evmprecompiles"
+	"Yoimiya/std/internal/logderivarg"
+	"Yoimiya/std/math/bits"
+	"Yoimiya/std/math/bitslice"
+	"Yoimiya/std/math/emulated"
+	"Yoimiya/std/rangecheck"
+	"Yoimiya/std/selector"
 )
 
 var registerOnce sync.Once

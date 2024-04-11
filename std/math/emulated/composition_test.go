@@ -6,7 +6,7 @@ import (
 	"math/big"
 	"testing"
 
-	"S-gnark/test"
+	"Yoimiya/test"
 )
 
 func TestComposition(t *testing.T) {

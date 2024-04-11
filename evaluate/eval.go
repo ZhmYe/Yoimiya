@@ -1,12 +1,12 @@
 package evaluate
 
 import (
-	"S-gnark/Config"
-	"S-gnark/Record"
-	"S-gnark/backend/groth16"
-	"S-gnark/backend/witness"
-	"S-gnark/constraint"
-	Circuit4VerifyCircuit2 "S-gnark/evaluate/Circuit4VerifyCircuit"
+	"Yoimiya/Config"
+	"Yoimiya/Record"
+	"Yoimiya/backend/groth16"
+	"Yoimiya/backend/witness"
+	"Yoimiya/constraint"
+	Circuit4VerifyCircuit2 "Yoimiya/evaluate/Circuit4VerifyCircuit"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

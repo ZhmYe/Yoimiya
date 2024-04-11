@@ -17,10 +17,10 @@
 package groth16
 
 import (
-	"S-gnark/backend/groth16/internal"
-	"S-gnark/constraint"
-	cs "S-gnark/constraint/bn254"
-	"S-gnark/logger"
+	"Yoimiya/backend/groth16/internal"
+	"Yoimiya/constraint"
+	cs "Yoimiya/constraint/bn254"
+	"Yoimiya/logger"
 	"errors"
 	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"

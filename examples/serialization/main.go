@@ -3,12 +3,12 @@ package main
 import (
 	"bytes"
 
-	"S-gnark/backend/groth16"
-	"S-gnark/frontend"
-	"S-gnark/frontend/cs/r1cs"
+	"Yoimiya/backend/groth16"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/cs/r1cs"
 	"github.com/consensys/gnark-crypto/ecc"
 
-	"S-gnark/examples/cubic"
+	"Yoimiya/examples/cubic"
 )
 
 func main() {

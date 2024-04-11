@@ -1,9 +1,9 @@
 package cmp
 
 import (
-	"S-gnark/frontend"
-	"S-gnark/std/math/bits"
-	"S-gnark/test"
+	"Yoimiya/frontend"
+	"Yoimiya/std/math/bits"
+	"Yoimiya/test"
 	"github.com/consensys/gnark-crypto/ecc"
 	"math/big"
 	"testing"

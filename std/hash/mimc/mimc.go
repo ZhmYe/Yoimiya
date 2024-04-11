@@ -21,8 +21,8 @@ import (
 	"errors"
 	"math/big"
 
-	"S-gnark/frontend"
-	"S-gnark/internal/utils"
+	"Yoimiya/frontend"
+	"Yoimiya/internal/utils"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

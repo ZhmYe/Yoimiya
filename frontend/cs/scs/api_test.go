@@ -3,9 +3,9 @@ package scs_test
 import (
 	"testing"
 
-	"S-gnark/frontend"
-	"S-gnark/frontend/cs/scs"
-	"S-gnark/test"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/cs/scs"
+	"Yoimiya/test"
 	"github.com/consensys/gnark-crypto/ecc"
 	"github.com/stretchr/testify/require"
 )

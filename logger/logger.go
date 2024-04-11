@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"S-gnark/debug"
+	"Yoimiya/debug"
 	"github.com/rs/zerolog"
 )
 

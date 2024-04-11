@@ -5,8 +5,8 @@ import (
 	"math/big"
 	"math/bits"
 
-	"S-gnark/frontend"
-	"S-gnark/std/multicommit"
+	"Yoimiya/frontend"
+	"Yoimiya/std/multicommit"
 )
 
 // mulCheck represents a single multiplication check. Instead of doing a

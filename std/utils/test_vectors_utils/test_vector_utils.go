@@ -1,7 +1,7 @@
 package test_vector_utils
 
 import (
-	"S-gnark/frontend"
+	"Yoimiya/frontend"
 	"encoding/json"
 	"github.com/stretchr/testify/assert"
 	"os"

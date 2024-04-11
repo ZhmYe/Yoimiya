@@ -5,13 +5,13 @@ import (
 	"math/big"
 	"testing"
 
-	"S-gnark"
-	"S-gnark/backend"
-	"S-gnark/backend/groth16"
-	"S-gnark/constraint"
-	"S-gnark/frontend"
-	"S-gnark/frontend/cs/r1cs"
-	"S-gnark/test"
+	"Yoimiya"
+	"Yoimiya/backend"
+	"Yoimiya/backend/groth16"
+	"Yoimiya/constraint"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/cs/r1cs"
+	"Yoimiya/test"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

@@ -1,8 +1,8 @@
 package constraint
 
 import (
-	"S-gnark/constraint/solver"
-	"S-gnark/std/utils/algo_utils"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/std/utils/algo_utils"
 	"fmt"
 	"github.com/consensys/gnark-crypto/utils"
 	"sort"

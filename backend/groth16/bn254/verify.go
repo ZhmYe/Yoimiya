@@ -23,9 +23,9 @@ import (
 	"text/template"
 	"time"
 
-	"S-gnark/backend"
-	"S-gnark/constraint"
-	"S-gnark/logger"
+	"Yoimiya/backend"
+	"Yoimiya/constraint"
+	"Yoimiya/logger"
 	"github.com/consensys/gnark-crypto/ecc"
 	curve "github.com/consensys/gnark-crypto/ecc/bn254"
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr"
@@ -143,7 +143,7 @@ func Verify(proof *Proof, vk *VerifyingKey, publicWitness fr.Vector, opts ...bac
 // ExportSolidity writes a solidity Verifier contract on provided writer.
 // This is an experimental feature and gnark solidity generator as not been thoroughly tested.
 //
-// See https://S-gnark-tests for example usage.
+// See https://Yoimiya-tests for example usage.
 func (vk *VerifyingKey) ExportSolidity(w io.Writer) error {
 	helpers := template.FuncMap{
 		"sub": func(a, b int) int {

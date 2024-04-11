@@ -1,6 +1,6 @@
 {{- define "import_fr" }}
 	{{- if eq .Curve "tinyfield"}}
-	fr "S-gnark/internal/tinyfield"
+	fr "Yoimiya/internal/tinyfield"
 	{{- else}}
 	"github.com/consensys/gnark-crypto/ecc/{{toLower .Curve}}/fr"
 	{{- end}}
@@ -20,9 +20,9 @@
 
 {{- define "import_backend_cs" }}
 	{{- if eq .Curve "tinyfield"}}
-	"S-gnark/constraint/tinyfield"
+	"Yoimiya/constraint/tinyfield"
 	{{- else}}
-	cs "S-gnark/constraint/{{toLower .Curve}}"
+	cs "Yoimiya/constraint/{{toLower .Curve}}"
 	{{- end}}
 {{- end }}
 
@@ -32,18 +32,18 @@
 
 {{- define "import_witness" }}
 	{{- if eq .Curve "tinyfield"}}
-	{{toLower .CurveID}}witness "S-gnark/internal/tinyfield/witness"
+	{{toLower .CurveID}}witness "Yoimiya/internal/tinyfield/witness"
 	{{- else}}
-	{{toLower .CurveID}}witness "S-gnark/internal/backend/{{toLower .Curve}}/witness"
+	{{toLower .CurveID}}witness "Yoimiya/internal/backend/{{toLower .Curve}}/witness"
 	{{- end}}
 {{- end }}
 
 {{- define "import_groth16" }}
-	{{toLower .CurveID}}groth16 "S-gnark/internal/backend/{{toLower .Curve}}/groth16"
+	{{toLower .CurveID}}groth16 "Yoimiya/internal/backend/{{toLower .Curve}}/groth16"
 {{- end }}
 
 {{- define "import_plonk" }}
-	{{toLower .CurveID}}plonk "S-gnark/internal/backend/{{toLower .Curve}}/plonk"
+	{{toLower .CurveID}}plonk "Yoimiya/internal/backend/{{toLower .Curve}}/plonk"
 {{- end }}
 
 {{- define "import_polynomial" }}

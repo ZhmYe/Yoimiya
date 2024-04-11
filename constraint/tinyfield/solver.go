@@ -17,8 +17,8 @@
 package cs
 
 import (
-	"S-gnark/constraint"
-	csolver "S-gnark/constraint/solver"
+	"Yoimiya/constraint"
+	csolver "Yoimiya/constraint/solver"
 	"errors"
 	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"
@@ -32,7 +32,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	fr "S-gnark/internal/tinyfield"
+	fr "Yoimiya/internal/tinyfield"
 )
 
 // solver represent the state of the solver during a call to System.Solve(...)

@@ -17,9 +17,9 @@
 package plonk
 
 import (
-	"S-gnark/backend/plonk/internal"
-	"S-gnark/constraint"
-	cs "S-gnark/constraint/bls12-377"
+	"Yoimiya/backend/plonk/internal"
+	"Yoimiya/constraint"
+	cs "Yoimiya/constraint/bls12-377"
 	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"
 	"github.com/consensys/gnark-crypto/ecc/bls12-377/fr"

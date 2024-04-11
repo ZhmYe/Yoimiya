@@ -1,29 +1,14 @@
 package Circuit4VerifyCircuit
 
 import (
-	"S-gnark/backend/groth16"
-	"S-gnark/backend/witness"
-	"S-gnark/constraint"
+	"Yoimiya/backend/groth16"
 	"fmt"
-	"github.com/consensys/gnark-crypto/ecc"
 	"testing"
 	"time"
 )
 
 func Test4VerifyCircuit(t *testing.T) {
-
-	var innerCcsArray [LENGTH]constraint.ConstraintSystem
-	var innerVKArray [LENGTH]groth16.VerifyingKey
-	var innerWitnessArray [LENGTH]witness.Witness
-	var innerProofArray [LENGTH]groth16.Proof
-
-	for i := 0; i < LENGTH; i++ {
-		innerCcs, innerVK, innerWitness, innerProof := GetInner(ecc.BN254.ScalarField())
-		innerCcsArray[i] = innerCcs
-		innerVKArray[i] = innerVK
-		innerWitnessArray[i] = innerWitness
-		innerProofArray[i] = innerProof
-	}
+	innerCcsArray, innerVKArray, innerWitnessArray, innerProofArray := GetVerifyCircuitParam()
 
 	// outer proof
 	//outerCcs, outerPK, outerVK, full, public := getCircuitVkWitnessPublic(assert, innerCcsArray, innerVKArray, innerWitnessArray, innerProofArray)

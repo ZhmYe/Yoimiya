@@ -4,7 +4,7 @@ import (
 	"math/big"
 	"math/bits"
 
-	"S-gnark"
+	"Yoimiya"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

@@ -61,7 +61,7 @@ jobs:
     - name: install solc deps
       if: startsWith(matrix.os, 'ubuntu') == true
       run: |
-        go install S-gnark-solidity-checker@latest
+        go install Yoimiya-solidity-checker@latest
         sudo add-apt-repository ppa:ethereum/ethereum
         sudo apt-get update
         sudo apt-get install solc

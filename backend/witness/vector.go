@@ -5,8 +5,8 @@ import (
 	"math/big"
 	"reflect"
 
-	"S-gnark/internal/tinyfield"
-	"S-gnark/internal/utils"
+	"Yoimiya/internal/tinyfield"
+	"Yoimiya/internal/utils"
 	"github.com/consensys/gnark-crypto/ecc"
 	fr_bls12377 "github.com/consensys/gnark-crypto/ecc/bls12-377/fr"
 	fr_bls12381 "github.com/consensys/gnark-crypto/ecc/bls12-381/fr"

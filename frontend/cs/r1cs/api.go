@@ -24,17 +24,17 @@ import (
 	"runtime"
 	"strings"
 
-	"S-gnark/internal/utils"
+	"Yoimiya/internal/utils"
 
-	"S-gnark/debug"
-	"S-gnark/frontend/cs"
+	"Yoimiya/debug"
+	"Yoimiya/frontend/cs"
 
-	"S-gnark/constraint"
-	"S-gnark/constraint/solver"
-	"S-gnark/frontend"
-	"S-gnark/frontend/internal/expr"
-	"S-gnark/frontend/schema"
-	"S-gnark/std/math/bits"
+	"Yoimiya/constraint"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/internal/expr"
+	"Yoimiya/frontend/schema"
+	"Yoimiya/std/math/bits"
 )
 
 // ---------------------------------------------------------------------------------------------

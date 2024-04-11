@@ -1,14 +1,14 @@
 package constraint
 
 import (
-	"S-gnark"
-	"S-gnark/Config"
-	"S-gnark/constraint/solver"
-	"S-gnark/debug"
-	"S-gnark/internal/tinyfield"
-	"S-gnark/internal/utils"
-	"S-gnark/logger"
-	"S-gnark/profile"
+	"Yoimiya"
+	"Yoimiya/Config"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/debug"
+	"Yoimiya/internal/tinyfield"
+	"Yoimiya/internal/utils"
+	"Yoimiya/logger"
+	"Yoimiya/profile"
 	"fmt"
 	"github.com/blang/semver/v4"
 	"github.com/consensys/gnark-crypto/ecc"

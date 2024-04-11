@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"S-gnark/frontend"
-	"S-gnark/test"
+	"Yoimiya/frontend"
+	"Yoimiya/test"
 	"github.com/stretchr/testify/assert"
 )
 

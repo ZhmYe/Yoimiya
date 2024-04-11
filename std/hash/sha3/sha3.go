@@ -1,8 +1,8 @@
 package sha3
 
 import (
-	"S-gnark/std/math/uints"
-	"S-gnark/std/permutation/keccakf"
+	"Yoimiya/std/math/uints"
+	"Yoimiya/std/permutation/keccakf"
 )
 
 type digest struct {

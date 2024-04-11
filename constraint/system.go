@@ -4,8 +4,8 @@ import (
 	"io"
 	"math/big"
 
-	"S-gnark/backend/witness"
-	"S-gnark/constraint/solver"
+	"Yoimiya/backend/witness"
+	"Yoimiya/constraint/solver"
 )
 
 // ConstraintSystem interface that all constraint systems implement.

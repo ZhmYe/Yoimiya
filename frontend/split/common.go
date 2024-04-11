@@ -1,10 +1,10 @@
 package split
 
 import (
-	"S-gnark/backend/groth16"
-	"S-gnark/backend/witness"
-	"S-gnark/constraint"
-	cs_bn254 "S-gnark/constraint/bn254"
+	"Yoimiya/backend/groth16"
+	"Yoimiya/backend/witness"
+	"Yoimiya/constraint"
+	cs_bn254 "Yoimiya/constraint/bn254"
 )
 
 // 这里存放各种split算法公用的一些函数和结构

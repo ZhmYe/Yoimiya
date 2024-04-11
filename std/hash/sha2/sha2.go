@@ -7,10 +7,10 @@ package sha2
 import (
 	"encoding/binary"
 
-	"S-gnark/frontend"
-	"S-gnark/std/hash"
-	"S-gnark/std/math/uints"
-	"S-gnark/std/permutation/sha2"
+	"Yoimiya/frontend"
+	"Yoimiya/std/hash"
+	"Yoimiya/std/math/uints"
+	"Yoimiya/std/permutation/sha2"
 )
 
 var _seed = uints.NewU32Array([]uint32{

@@ -16,7 +16,7 @@ limitations under the License.
 
 package sw_bls12377
 
-import "S-gnark/std/algebra/native/fields_bls12377"
+import "Yoimiya/std/algebra/native/fields_bls12377"
 
 // precomputed lines going through Q and multiples of Q
 // where Q is the fixed canonical generator of G2

@@ -1,7 +1,7 @@
 package test
 
 import (
-	"S-gnark/frontend"
+	"Yoimiya/frontend"
 	"math/rand"
 )
 

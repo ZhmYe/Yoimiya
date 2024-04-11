@@ -1,8 +1,8 @@
 package circuit
 
 import (
-	"S-gnark/constraint/solver"
-	"S-gnark/frontend"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/frontend"
 	"fmt"
 	"math/big"
 )

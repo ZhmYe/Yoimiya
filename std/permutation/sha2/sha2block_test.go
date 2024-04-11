@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"S-gnark/frontend"
-	"S-gnark/std/math/uints"
-	"S-gnark/std/permutation/sha2"
-	"S-gnark/test"
+	"Yoimiya/frontend"
+	"Yoimiya/std/math/uints"
+	"Yoimiya/std/permutation/sha2"
+	"Yoimiya/test"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

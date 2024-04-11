@@ -3,9 +3,9 @@ package fields_bw6761
 import (
 	"testing"
 
-	"S-gnark/frontend"
-	"S-gnark/std/math/emulated"
-	"S-gnark/test"
+	"Yoimiya/frontend"
+	"Yoimiya/std/math/emulated"
+	"Yoimiya/test"
 	"github.com/consensys/gnark-crypto/ecc"
 	bw6761 "github.com/consensys/gnark-crypto/ecc/bw6-761"
 	"github.com/consensys/gnark-crypto/ecc/bw6-761/fp"

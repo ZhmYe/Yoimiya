@@ -26,8 +26,8 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"S-gnark/profile/internal/graph"
-	"S-gnark/profile/internal/measurement"
+	"Yoimiya/profile/internal/graph"
+	"Yoimiya/profile/internal/measurement"
 	"github.com/google/pprof/profile"
 )
 

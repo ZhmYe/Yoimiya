@@ -39,17 +39,17 @@ import (
 	"github.com/consensys/gnark-crypto/ecc/bw6-761/fr/hash_to_field"
 	"github.com/consensys/gnark-crypto/ecc/bw6-761/fr/iop"
 
-	"S-gnark/backend"
-	"S-gnark/backend/witness"
+	"Yoimiya/backend"
+	"Yoimiya/backend/witness"
 	"github.com/consensys/gnark-crypto/ecc/bw6-761/kzg"
 	fiatshamir "github.com/consensys/gnark-crypto/fiat-shamir"
 
-	"S-gnark/constraint"
-	cs "S-gnark/constraint/bw6-761"
-	"S-gnark/constraint/solver"
-	fcs "S-gnark/frontend/cs"
-	"S-gnark/internal/utils"
-	"S-gnark/logger"
+	"Yoimiya/constraint"
+	cs "Yoimiya/constraint/bw6-761"
+	"Yoimiya/constraint/solver"
+	fcs "Yoimiya/frontend/cs"
+	"Yoimiya/internal/utils"
+	"Yoimiya/logger"
 )
 
 // TODO in gnark-crypto:

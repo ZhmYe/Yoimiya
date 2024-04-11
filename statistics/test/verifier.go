@@ -1,8 +1,8 @@
 package test
 
 import (
-	"S-gnark/backend/groth16"
-	"S-gnark/backend/witness"
+	"Yoimiya/backend/groth16"
+	"Yoimiya/backend/witness"
 	"fmt"
 )
 

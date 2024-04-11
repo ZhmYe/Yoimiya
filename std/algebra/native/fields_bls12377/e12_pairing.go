@@ -1,6 +1,6 @@
 package fields_bls12377
 
-import "S-gnark/frontend"
+import "Yoimiya/frontend"
 
 // nSquareKarabina2345 repeated compressed cyclotmic square
 func (e *E12) nSquareKarabina2345(api frontend.API, n int) {

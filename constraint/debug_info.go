@@ -3,7 +3,7 @@ package constraint
 import (
 	"strings"
 
-	"S-gnark/internal/utils"
+	"Yoimiya/internal/utils"
 )
 
 type DebugInfo LogEntry

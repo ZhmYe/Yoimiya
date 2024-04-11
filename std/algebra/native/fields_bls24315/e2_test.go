@@ -19,8 +19,8 @@ package fields_bls24315
 import (
 	"testing"
 
-	"S-gnark/frontend"
-	"S-gnark/test"
+	"Yoimiya/frontend"
+	"Yoimiya/test"
 	"github.com/consensys/gnark-crypto/ecc"
 	bls24315 "github.com/consensys/gnark-crypto/ecc/bls24-315"
 	"github.com/consensys/gnark-crypto/ecc/bls24-315/fp"

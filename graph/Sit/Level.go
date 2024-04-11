@@ -1,7 +1,5 @@
 package Sit
 
-import "fmt"
-
 // ComputeDepth 计算某个stage的深度，由其所有父节点的深度最大值+1
 func (t *SITree) ComputeDepth(stage *Stage) {
 	if stage.GetCount() == 0 {
@@ -42,7 +40,6 @@ func (t *SITree) GenerateLEVEL() [][]int {
 func (t *SITree) AssignLayer() {
 	LEVEL := t.GenerateLEVEL()
 	totalStageNumber := t.GetStageNumber()
-	fmt.Println(t.maxDepth)
 	total := 0
 	splitDepth := -1
 	// 遍历所有level

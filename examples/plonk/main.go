@@ -18,13 +18,13 @@ import (
 	"fmt"
 	"log"
 
-	"S-gnark/backend/plonk"
-	cs "S-gnark/constraint/bn254"
-	"S-gnark/frontend/cs/scs"
+	"Yoimiya/backend/plonk"
+	cs "Yoimiya/constraint/bn254"
+	"Yoimiya/frontend/cs/scs"
 	"github.com/consensys/gnark-crypto/ecc"
 
-	"S-gnark/frontend"
-	"S-gnark/test/unsafekzg"
+	"Yoimiya/frontend"
+	"Yoimiya/test/unsafekzg"
 )
 
 // In this example we show how to use PLONK with KZG commitments. The circuit that is

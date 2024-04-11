@@ -21,7 +21,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"S-gnark/profile/internal/measurement"
+	"Yoimiya/profile/internal/measurement"
 )
 
 // DotAttributes contains details about the graph itself, giving

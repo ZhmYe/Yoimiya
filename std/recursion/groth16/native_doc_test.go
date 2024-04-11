@@ -1,11 +1,11 @@
 package groth16_test
 
 import (
-	"S-gnark/backend/groth16"
-	"S-gnark/frontend"
-	"S-gnark/frontend/cs/r1cs"
-	"S-gnark/std/algebra/native/sw_bls12377"
-	stdgroth16 "S-gnark/std/recursion/groth16"
+	"Yoimiya/backend/groth16"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/cs/r1cs"
+	"Yoimiya/std/algebra/native/sw_bls12377"
+	stdgroth16 "Yoimiya/std/recursion/groth16"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

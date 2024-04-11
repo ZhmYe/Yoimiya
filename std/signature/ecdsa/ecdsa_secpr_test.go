@@ -9,8 +9,8 @@ import (
 	"math/big"
 	"testing"
 
-	"S-gnark/std/math/emulated"
-	"S-gnark/test"
+	"Yoimiya/std/math/emulated"
+	"Yoimiya/test"
 	"github.com/consensys/gnark-crypto/ecc"
 	"golang.org/x/crypto/cryptobyte"
 	"golang.org/x/crypto/cryptobyte/asn1"

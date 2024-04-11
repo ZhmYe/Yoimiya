@@ -1,7 +1,7 @@
 package sw_bw6761
 
 import (
-	"S-gnark/std/math/emulated"
+	"Yoimiya/std/math/emulated"
 	bw6761 "github.com/consensys/gnark-crypto/ecc/bw6-761"
 )
 

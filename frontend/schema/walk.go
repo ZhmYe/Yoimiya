@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"S-gnark/frontend/schema/internal/reflectwalk"
+	"Yoimiya/frontend/schema/internal/reflectwalk"
 )
 
 // Walk walks through the provided object and stops when it encounters objects of type tLeaf

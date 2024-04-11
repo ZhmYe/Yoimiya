@@ -3,7 +3,7 @@ package bits
 import (
 	"math/big"
 
-	"S-gnark/frontend"
+	"Yoimiya/frontend"
 )
 
 // ToNAF returns the NAF decomposition of given input.

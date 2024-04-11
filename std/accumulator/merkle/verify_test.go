@@ -22,9 +22,9 @@ import (
 	"os"
 	"testing"
 
-	"S-gnark/frontend"
-	"S-gnark/std/hash/mimc"
-	"S-gnark/test"
+	"Yoimiya/frontend"
+	"Yoimiya/std/hash/mimc"
+	"Yoimiya/test"
 	"github.com/consensys/gnark-crypto/accumulator/merkletree"
 	"github.com/consensys/gnark-crypto/ecc"
 	"github.com/consensys/gnark-crypto/hash"

@@ -14,9 +14,9 @@ import (
 	"regexp"
 	"sync"
 
-	"S-gnark/constraint"
-	"S-gnark/internal/utils"
-	"S-gnark/logger"
+	"Yoimiya/constraint"
+	"Yoimiya/internal/utils"
+	"Yoimiya/logger"
 	"github.com/consensys/gnark-crypto/ecc"
 	"github.com/consensys/gnark-crypto/kzg"
 

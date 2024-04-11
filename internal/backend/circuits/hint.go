@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"math/big"
 
-	"S-gnark/frontend"
-	"S-gnark/std/math/bits"
+	"Yoimiya/frontend"
+	"Yoimiya/std/math/bits"
 )
 
 type hintCircuit struct {

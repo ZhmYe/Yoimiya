@@ -17,10 +17,10 @@
 package cs_test
 
 import (
-	"S-gnark/frontend"
-	"S-gnark/frontend/cs/r1cs"
-	"S-gnark/frontend/cs/scs"
-	"S-gnark/internal/backend/circuits"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/cs/r1cs"
+	"Yoimiya/frontend/cs/scs"
+	"Yoimiya/internal/backend/circuits"
 	"bytes"
 	"reflect"
 	"testing"
@@ -28,7 +28,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 
-	cs "S-gnark/constraint/bls12-377"
+	cs "Yoimiya/constraint/bls12-377"
 
 	"github.com/consensys/gnark-crypto/ecc/bls12-377/fr"
 )

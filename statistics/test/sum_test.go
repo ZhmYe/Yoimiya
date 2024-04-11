@@ -1,11 +1,11 @@
 package test
 
 import (
-	"S-gnark/backend/groth16"
-	"S-gnark/frontend"
-	"S-gnark/frontend/cs/r1cs"
-	"S-gnark/logger"
-	Circuit "S-gnark/statistics/circuit"
+	"Yoimiya/backend/groth16"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/cs/r1cs"
+	"Yoimiya/logger"
+	Circuit "Yoimiya/statistics/circuit"
 	"github.com/consensys/gnark-crypto/ecc"
 	"testing"
 )

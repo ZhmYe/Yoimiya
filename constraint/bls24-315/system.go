@@ -21,11 +21,11 @@ import (
 	"io"
 	"time"
 
-	"S-gnark/backend/witness"
-	"S-gnark/constraint"
-	csolver "S-gnark/constraint/solver"
-	"S-gnark/internal/backend/ioutils"
-	"S-gnark/logger"
+	"Yoimiya/backend/witness"
+	"Yoimiya/constraint"
+	csolver "Yoimiya/constraint/solver"
+	"Yoimiya/internal/backend/ioutils"
+	"Yoimiya/logger"
 	"reflect"
 
 	"github.com/consensys/gnark-crypto/ecc"

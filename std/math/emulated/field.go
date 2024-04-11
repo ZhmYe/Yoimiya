@@ -5,11 +5,11 @@ import (
 	"math/big"
 	"sync"
 
-	"S-gnark/frontend"
-	"S-gnark/internal/kvstore"
-	"S-gnark/internal/utils"
-	"S-gnark/logger"
-	"S-gnark/std/rangecheck"
+	"Yoimiya/frontend"
+	"Yoimiya/internal/kvstore"
+	"Yoimiya/internal/utils"
+	"Yoimiya/logger"
+	"Yoimiya/std/rangecheck"
 	"github.com/rs/zerolog"
 	"golang.org/x/exp/constraints"
 )

@@ -19,9 +19,9 @@
 package logderivlookup
 
 import (
-	"S-gnark/constraint"
-	"S-gnark/frontend"
-	"S-gnark/std/internal/logderivarg"
+	"Yoimiya/constraint"
+	"Yoimiya/frontend"
+	"Yoimiya/std/internal/logderivarg"
 )
 
 // Table holds all the entries and queries.

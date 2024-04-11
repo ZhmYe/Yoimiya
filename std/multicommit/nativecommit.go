@@ -18,8 +18,8 @@ package multicommit
 import (
 	"fmt"
 
-	"S-gnark/frontend"
-	"S-gnark/internal/kvstore"
+	"Yoimiya/frontend"
+	"Yoimiya/internal/kvstore"
 )
 
 type multicommitter struct {

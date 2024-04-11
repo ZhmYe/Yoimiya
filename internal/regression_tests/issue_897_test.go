@@ -3,9 +3,9 @@ package regressiontests
 import (
 	"testing"
 
-	"S-gnark/frontend"
-	"S-gnark/std/rangecheck"
-	"S-gnark/test"
+	"Yoimiya/frontend"
+	"Yoimiya/std/rangecheck"
+	"Yoimiya/test"
 )
 
 type TestRangeCheckCircuit struct {

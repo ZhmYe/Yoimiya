@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"S-gnark/frontend"
-	fiatshamir "S-gnark/std/fiat-shamir"
-	"S-gnark/std/polynomial"
+	"Yoimiya/frontend"
+	fiatshamir "Yoimiya/std/fiat-shamir"
+	"Yoimiya/std/polynomial"
 )
 
 // LazyClaims is the Claims data structure on the verifier side. It is "lazy" in that it has to compute fewer things.

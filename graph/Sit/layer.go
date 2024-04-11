@@ -1,7 +1,7 @@
 package Sit
 
 import (
-	"S-gnark/graph"
+	"Yoimiya/graph"
 	"math/rand"
 )
 

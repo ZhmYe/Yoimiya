@@ -1,7 +1,7 @@
 package std
 
 import (
-	"S-gnark/constraint"
+	"Yoimiya/constraint"
 )
 
 func ExampleRegisterHints() {

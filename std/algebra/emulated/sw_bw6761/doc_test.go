@@ -4,10 +4,10 @@ import (
 	"crypto/rand"
 	"fmt"
 
-	"S-gnark/backend/groth16"
-	"S-gnark/frontend"
-	"S-gnark/frontend/cs/r1cs"
-	"S-gnark/std/algebra/emulated/sw_bw6761"
+	"Yoimiya/backend/groth16"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/cs/r1cs"
+	"Yoimiya/std/algebra/emulated/sw_bw6761"
 	"github.com/consensys/gnark-crypto/ecc"
 	bw6761 "github.com/consensys/gnark-crypto/ecc/bw6-761"
 )

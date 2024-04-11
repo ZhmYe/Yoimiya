@@ -32,8 +32,8 @@ import (
 
 	"github.com/consensys/gnark-crypto/ecc/bls24-315/fr/hash_to_field"
 
-	"S-gnark/backend"
-	"S-gnark/logger"
+	"Yoimiya/backend"
+	"Yoimiya/logger"
 	"github.com/consensys/gnark-crypto/ecc/bls24-315/kzg"
 	fiatshamir "github.com/consensys/gnark-crypto/fiat-shamir"
 )

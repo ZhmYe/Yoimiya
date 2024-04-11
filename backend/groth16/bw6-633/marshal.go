@@ -19,7 +19,7 @@ package groth16
 import (
 	curve "github.com/consensys/gnark-crypto/ecc/bw6-633"
 
-	"S-gnark/internal/utils"
+	"Yoimiya/internal/utils"
 	"github.com/consensys/gnark-crypto/ecc/bw6-633/fr/pedersen"
 	"io"
 )

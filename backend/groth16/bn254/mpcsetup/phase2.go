@@ -21,8 +21,8 @@ import (
 	"errors"
 	"math/big"
 
-	"S-gnark/constraint"
-	cs "S-gnark/constraint/bn254"
+	"Yoimiya/constraint"
+	cs "Yoimiya/constraint/bn254"
 	curve "github.com/consensys/gnark-crypto/ecc/bn254"
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr"
 )

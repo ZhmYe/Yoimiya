@@ -3,7 +3,7 @@ package cs
 import (
 	"math/big"
 
-	"S-gnark/constraint"
+	"Yoimiya/constraint"
 )
 
 // CoeffTable helps build a constraint system but need not be serialized after compilation

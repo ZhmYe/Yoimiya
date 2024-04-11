@@ -1,8 +1,8 @@
 package rangecheck
 
 import (
-	"S-gnark/frontend"
-	"S-gnark/std/math/bits"
+	"Yoimiya/frontend"
+	"Yoimiya/std/math/bits"
 )
 
 type plainChecker struct {

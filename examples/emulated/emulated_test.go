@@ -3,10 +3,10 @@ package emulated
 import (
 	"testing"
 
-	"S-gnark/backend"
-	"S-gnark/std"
-	"S-gnark/std/math/emulated"
-	"S-gnark/test"
+	"Yoimiya/backend"
+	"Yoimiya/std"
+	"Yoimiya/std/math/emulated"
+	"Yoimiya/test"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

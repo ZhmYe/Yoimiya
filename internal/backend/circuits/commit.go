@@ -1,6 +1,6 @@
 package circuits
 
-import "S-gnark/frontend"
+import "Yoimiya/frontend"
 
 type commitCircuit struct {
 	Public frontend.Variable `gnark:",public"`

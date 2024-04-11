@@ -1,11 +1,11 @@
 package Circuit4VerifyCircuit
 
 import (
-	"S-gnark/backend/groth16"
-	"S-gnark/backend/witness"
-	"S-gnark/constraint"
-	"S-gnark/frontend"
-	"S-gnark/frontend/cs/r1cs"
+	"Yoimiya/backend/groth16"
+	"Yoimiya/backend/witness"
+	"Yoimiya/constraint"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/cs/r1cs"
 	"math/big"
 )
 

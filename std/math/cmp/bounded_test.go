@@ -1,9 +1,9 @@
 package cmp_test
 
 import (
-	"S-gnark/frontend"
-	"S-gnark/std/math/cmp"
-	"S-gnark/test"
+	"Yoimiya/frontend"
+	"Yoimiya/std/math/cmp"
+	"Yoimiya/test"
 	"math/big"
 	"testing"
 )

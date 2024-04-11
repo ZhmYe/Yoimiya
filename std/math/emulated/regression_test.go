@@ -3,9 +3,9 @@ package emulated
 import (
 	"testing"
 
-	"S-gnark/frontend"
-	"S-gnark/std/math/emulated/emparams"
-	"S-gnark/test"
+	"Yoimiya/frontend"
+	"Yoimiya/std/math/emulated/emparams"
+	"Yoimiya/test"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

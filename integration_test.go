@@ -20,10 +20,10 @@ import (
 	"sort"
 	"testing"
 
-	"S-gnark/backend"
-	"S-gnark/constraint/solver"
-	"S-gnark/internal/backend/circuits"
-	"S-gnark/test"
+	"Yoimiya/backend"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/internal/backend/circuits"
+	"Yoimiya/test"
 )
 
 func TestIntegrationAPI(t *testing.T) {

@@ -19,9 +19,9 @@ package sw_bls24315
 import (
 	"math/big"
 
-	"S-gnark/constraint/solver"
-	"S-gnark/frontend"
-	"S-gnark/std/algebra/native/fields_bls24315"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/frontend"
+	"Yoimiya/std/algebra/native/fields_bls24315"
 	"github.com/consensys/gnark-crypto/ecc"
 	bls24315 "github.com/consensys/gnark-crypto/ecc/bls24-315"
 )

@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"math/big"
 
-	"S-gnark/backend/groth16"
-	"S-gnark/frontend"
-	"S-gnark/frontend/cs/r1cs"
-	"S-gnark/std/math/cmp"
+	"Yoimiya/backend/groth16"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/cs/r1cs"
+	"Yoimiya/std/math/cmp"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

@@ -1,12 +1,12 @@
 package plonk_test
 
 import (
-	native_plonk "S-gnark/backend/plonk"
-	"S-gnark/frontend"
-	"S-gnark/frontend/cs/scs"
-	"S-gnark/std/algebra/native/sw_bls12377"
-	"S-gnark/std/recursion/plonk"
-	"S-gnark/test/unsafekzg"
+	native_plonk "Yoimiya/backend/plonk"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/cs/scs"
+	"Yoimiya/std/algebra/native/sw_bls12377"
+	"Yoimiya/std/recursion/plonk"
+	"Yoimiya/test/unsafekzg"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

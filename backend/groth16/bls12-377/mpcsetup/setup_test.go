@@ -17,15 +17,15 @@
 package mpcsetup
 
 import (
-	cs "S-gnark/constraint/bls12-377"
+	cs "Yoimiya/constraint/bls12-377"
 	curve "github.com/consensys/gnark-crypto/ecc/bls12-377"
 	"github.com/consensys/gnark-crypto/ecc/bls12-377/fr"
 	"testing"
 
-	"S-gnark/backend/groth16"
-	"S-gnark/frontend"
-	"S-gnark/frontend/cs/r1cs"
-	"S-gnark/std/hash/mimc"
+	"Yoimiya/backend/groth16"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/cs/r1cs"
+	"Yoimiya/std/hash/mimc"
 	"github.com/stretchr/testify/require"
 
 	native_mimc "github.com/consensys/gnark-crypto/ecc/bls12-377/fr/mimc"

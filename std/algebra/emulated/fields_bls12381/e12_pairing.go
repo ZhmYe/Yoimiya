@@ -1,6 +1,6 @@
 package fields_bls12381
 
-import "S-gnark/std/math/emulated"
+import "Yoimiya/std/math/emulated"
 
 func (e Ext12) nSquareTorus(z *E6, n int) *E6 {
 	for i := 0; i < n; i++ {

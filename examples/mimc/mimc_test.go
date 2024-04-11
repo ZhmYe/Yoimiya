@@ -17,7 +17,7 @@ package mimc
 import (
 	"testing"
 
-	"S-gnark/test"
+	"Yoimiya/test"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

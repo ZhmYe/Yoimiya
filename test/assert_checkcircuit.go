@@ -1,15 +1,15 @@
 package test
 
 import (
-	"S-gnark/backend"
-	"S-gnark/backend/groth16"
-	"S-gnark/backend/plonk"
-	"S-gnark/backend/plonkfri"
-	"S-gnark/backend/witness"
-	"S-gnark/constraint"
-	"S-gnark/frontend"
-	"S-gnark/frontend/schema"
-	"S-gnark/test/unsafekzg"
+	"Yoimiya/backend"
+	"Yoimiya/backend/groth16"
+	"Yoimiya/backend/plonk"
+	"Yoimiya/backend/plonkfri"
+	"Yoimiya/backend/witness"
+	"Yoimiya/constraint"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/schema"
+	"Yoimiya/test/unsafekzg"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

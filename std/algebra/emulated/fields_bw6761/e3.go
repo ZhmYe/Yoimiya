@@ -3,8 +3,8 @@ package fields_bw6761
 import (
 	"math/big"
 
-	"S-gnark/frontend"
-	"S-gnark/std/math/emulated"
+	"Yoimiya/frontend"
+	"Yoimiya/std/math/emulated"
 	bw6761 "github.com/consensys/gnark-crypto/ecc/bw6-761"
 )
 

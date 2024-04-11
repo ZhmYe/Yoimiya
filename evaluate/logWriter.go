@@ -18,7 +18,7 @@ func NewLogWriter(path string) *LogWriter {
 	logger := new(LogWriter)
 	format := "2006-01-02-15-04-05"
 	currentTime := time.Now()
-	filePath := "/root/S-gnark/evaluate/log/" + path + currentTime.Format(format) + ".txt"
+	filePath := "/root/Yoimiya/evaluate/log/" + path + currentTime.Format(format) + ".txt"
 	fmt.Println(filePath)
 	logger.path = filePath
 	var err error

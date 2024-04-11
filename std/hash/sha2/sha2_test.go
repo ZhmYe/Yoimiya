@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"testing"
 
-	"S-gnark/frontend"
-	"S-gnark/std/math/uints"
-	"S-gnark/test"
+	"Yoimiya/frontend"
+	"Yoimiya/std/math/uints"
+	"Yoimiya/test"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

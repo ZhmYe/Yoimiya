@@ -3,7 +3,7 @@ package bits
 import (
 	"math/big"
 
-	"S-gnark/frontend"
+	"Yoimiya/frontend"
 )
 
 // bitsComparatorConstant allows to use the built-in comparison against a

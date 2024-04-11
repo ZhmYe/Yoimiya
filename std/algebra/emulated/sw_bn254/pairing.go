@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"math/big"
 
-	"S-gnark/frontend"
-	"S-gnark/std/algebra/emulated/fields_bn254"
-	"S-gnark/std/algebra/emulated/sw_emulated"
-	"S-gnark/std/math/emulated"
+	"Yoimiya/frontend"
+	"Yoimiya/std/algebra/emulated/fields_bn254"
+	"Yoimiya/std/algebra/emulated/sw_emulated"
+	"Yoimiya/std/math/emulated"
 	"github.com/consensys/gnark-crypto/ecc/bn254"
 )
 

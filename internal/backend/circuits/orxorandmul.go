@@ -1,7 +1,7 @@
 package circuits
 
 import (
-	"S-gnark/frontend"
+	"Yoimiya/frontend"
 )
 
 // circuit designed to test if plonk compiler recognizes

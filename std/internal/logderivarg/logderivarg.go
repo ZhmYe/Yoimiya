@@ -42,10 +42,10 @@ import (
 	"fmt"
 	"math/big"
 
-	"S-gnark/constraint/solver"
-	"S-gnark/frontend"
-	"S-gnark/std/hash/mimc"
-	"S-gnark/std/multicommit"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/frontend"
+	"Yoimiya/std/hash/mimc"
+	"Yoimiya/std/multicommit"
 )
 
 func init() {

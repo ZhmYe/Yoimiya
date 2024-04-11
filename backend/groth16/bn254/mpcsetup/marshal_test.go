@@ -19,10 +19,10 @@ package mpcsetup
 import (
 	"testing"
 
-	cs "S-gnark/constraint/bn254"
-	"S-gnark/frontend"
-	"S-gnark/frontend/cs/r1cs"
-	gnarkio "S-gnark/io"
+	cs "Yoimiya/constraint/bn254"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/cs/r1cs"
+	gnarkio "Yoimiya/io"
 	curve "github.com/consensys/gnark-crypto/ecc/bn254"
 	"github.com/stretchr/testify/require"
 )

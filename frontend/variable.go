@@ -17,7 +17,7 @@ limitations under the License.
 package frontend
 
 import (
-	"S-gnark/frontend/internal/expr"
+	"Yoimiya/frontend/internal/expr"
 )
 
 // Variable represents a variable in the circuit. Any integer type (e.g. int, *big.Int, fr.Element)

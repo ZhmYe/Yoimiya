@@ -1,7 +1,7 @@
 package circuitdefer
 
 import (
-	"S-gnark/internal/kvstore"
+	"Yoimiya/internal/kvstore"
 )
 
 type deferKey struct{}

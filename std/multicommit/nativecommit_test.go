@@ -3,10 +3,10 @@ package multicommit
 import (
 	"testing"
 
-	"S-gnark/backend"
-	"S-gnark/frontend"
-	"S-gnark/frontend/cs/r1cs"
-	"S-gnark/test"
+	"Yoimiya/backend"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/cs/r1cs"
+	"Yoimiya/test"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

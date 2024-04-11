@@ -4,7 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"S-gnark/logger"
+	"Yoimiya/logger"
 )
 
 type Option func(*config) error

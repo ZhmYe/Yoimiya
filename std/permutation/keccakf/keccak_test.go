@@ -3,12 +3,12 @@ package keccakf_test
 import (
 	"testing"
 
-	"S-gnark/std/math/uints"
+	"Yoimiya/std/math/uints"
 
-	"S-gnark/backend"
-	"S-gnark/frontend"
-	"S-gnark/std/permutation/keccakf"
-	"S-gnark/test"
+	"Yoimiya/backend"
+	"Yoimiya/frontend"
+	"Yoimiya/std/permutation/keccakf"
+	"Yoimiya/test"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

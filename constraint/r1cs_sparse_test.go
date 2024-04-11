@@ -3,8 +3,8 @@ package constraint_test
 import (
 	"fmt"
 
-	"S-gnark/constraint"
-	cs "S-gnark/constraint/bn254"
+	"Yoimiya/constraint"
+	cs "Yoimiya/constraint/bn254"
 )
 
 func ExampleSparseR1CS_GetSparseR1Cs() {

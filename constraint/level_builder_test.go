@@ -5,9 +5,9 @@ import (
 	"math/big"
 	"testing"
 
-	"S-gnark/constraint/solver"
-	"S-gnark/frontend"
-	"S-gnark/test"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/frontend"
+	"Yoimiya/test"
 )
 
 func idHint(_ *big.Int, in []*big.Int, out []*big.Int) error {

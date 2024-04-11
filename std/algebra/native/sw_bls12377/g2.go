@@ -22,9 +22,9 @@ import (
 	"github.com/consensys/gnark-crypto/ecc"
 	bls12377 "github.com/consensys/gnark-crypto/ecc/bls12-377"
 
-	"S-gnark/constraint/solver"
-	"S-gnark/frontend"
-	"S-gnark/std/algebra/native/fields_bls12377"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/frontend"
+	"Yoimiya/std/algebra/native/fields_bls12377"
 )
 
 // G2Jac point in Jacobian coords

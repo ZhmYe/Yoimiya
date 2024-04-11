@@ -17,7 +17,7 @@
 package constant
 
 import (
-	"S-gnark/frontend"
+	"Yoimiya/frontend"
 	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"
 	bls12_377 "github.com/consensys/gnark-crypto/ecc/bls12-377/fr"

@@ -7,8 +7,8 @@ import (
 	"regexp"
 	"sync"
 
-	"S-gnark/backend"
-	"S-gnark/internal/stats"
+	"Yoimiya/backend"
+	"Yoimiya/internal/stats"
 )
 
 var (

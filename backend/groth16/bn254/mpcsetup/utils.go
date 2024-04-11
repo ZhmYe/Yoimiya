@@ -22,7 +22,7 @@ import (
 	"math/bits"
 	"runtime"
 
-	"S-gnark/internal/utils"
+	"Yoimiya/internal/utils"
 	"github.com/consensys/gnark-crypto/ecc"
 	curve "github.com/consensys/gnark-crypto/ecc/bn254"
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr"

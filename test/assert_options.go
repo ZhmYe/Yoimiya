@@ -3,9 +3,9 @@ package test
 import (
 	"testing"
 
-	"S-gnark/backend"
-	"S-gnark/constraint/solver"
-	"S-gnark/frontend"
+	"Yoimiya/backend"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/frontend"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 
@@ -131,7 +131,7 @@ func NoTestEngine() TestingOption {
 // When the tags are set; this requires gnark-solidity-checker to be installed, which in turns
 // requires solc and abigen to be reachable in the PATH.
 //
-// See https://S-gnark-solidity-checker for more details.
+// See https://Yoimiya-solidity-checker for more details.
 func NoSolidityChecks() TestingOption {
 	return func(opt *testingConfig) error {
 		opt.checkSolidity = false

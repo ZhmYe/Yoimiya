@@ -21,8 +21,8 @@ import (
 
 	bls12377 "github.com/consensys/gnark-crypto/ecc/bls12-377"
 
-	"S-gnark/constraint/solver"
-	"S-gnark/frontend"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/frontend"
 )
 
 // E6 element in a quadratic extension

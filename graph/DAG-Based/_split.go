@@ -1,8 +1,8 @@
 package DAG_Based
 
 import (
-	"S-gnark/Record"
-	"S-gnark/graph/Sit"
+	"Yoimiya/Record"
+	"Yoimiya/graph/Sit"
 	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"

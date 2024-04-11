@@ -17,7 +17,7 @@
 package plonkfri
 
 import (
-	cs "S-gnark/constraint/bls24-317"
+	cs "Yoimiya/constraint/bls24-317"
 	"crypto/sha256"
 	"github.com/consensys/gnark-crypto/ecc/bls24-317/fr"
 	"github.com/consensys/gnark-crypto/ecc/bls24-317/fr/fft"

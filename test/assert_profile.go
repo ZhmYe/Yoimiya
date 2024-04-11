@@ -1,7 +1,7 @@
 package test
 
 import (
-	"S-gnark/backend"
+	"Yoimiya/backend"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

@@ -3,10 +3,10 @@ package multicommit_test
 import (
 	"fmt"
 
-	"S-gnark/backend/groth16"
-	"S-gnark/frontend"
-	"S-gnark/frontend/cs/r1cs"
-	"S-gnark/std/multicommit"
+	"Yoimiya/backend/groth16"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/cs/r1cs"
+	"Yoimiya/std/multicommit"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

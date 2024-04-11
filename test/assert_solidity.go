@@ -9,10 +9,10 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"S-gnark/backend"
-	groth16_bn254 "S-gnark/backend/groth16/bn254"
-	plonk_bn254 "S-gnark/backend/plonk/bn254"
-	"S-gnark/backend/witness"
+	"Yoimiya/backend"
+	groth16_bn254 "Yoimiya/backend/groth16/bn254"
+	plonk_bn254 "Yoimiya/backend/plonk/bn254"
+	"Yoimiya/backend/witness"
 )
 
 type verifyingKey interface {

@@ -17,9 +17,9 @@
 package groth16
 
 import (
-	"S-gnark/backend/groth16/internal"
-	"S-gnark/constraint"
-	cs "S-gnark/constraint/bw6-633"
+	"Yoimiya/backend/groth16/internal"
+	"Yoimiya/constraint"
+	cs "Yoimiya/constraint/bw6-633"
 	"errors"
 	"github.com/consensys/gnark-crypto/ecc"
 	curve "github.com/consensys/gnark-crypto/ecc/bw6-633"

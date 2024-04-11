@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"S-gnark/frontend"
+	"Yoimiya/frontend"
 )
 
 // Div computes a/b and returns it. It uses [DivHint] as a hint function.

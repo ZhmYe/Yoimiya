@@ -3,9 +3,9 @@ package fields_bn254
 import (
 	"testing"
 
-	"S-gnark/frontend"
-	"S-gnark/std/math/emulated"
-	"S-gnark/test"
+	"Yoimiya/frontend"
+	"Yoimiya/std/math/emulated"
+	"Yoimiya/test"
 	"github.com/consensys/gnark-crypto/ecc"
 	"github.com/consensys/gnark-crypto/ecc/bn254"
 	"github.com/consensys/gnark-crypto/ecc/bn254/fp"

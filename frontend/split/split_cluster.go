@@ -1,10 +1,10 @@
 package split
 
 import (
-	"S-gnark/constraint"
-	cs_bn254 "S-gnark/constraint/bn254"
-	"S-gnark/frontend"
-	"S-gnark/graph/Sit"
+	"Yoimiya/constraint"
+	cs_bn254 "Yoimiya/constraint/bn254"
+	"Yoimiya/frontend"
+	"Yoimiya/graph/Sit"
 	"fmt"
 	"time"
 )

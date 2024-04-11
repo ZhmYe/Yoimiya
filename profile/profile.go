@@ -13,8 +13,8 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"S-gnark/logger"
-	"S-gnark/profile/internal/report"
+	"Yoimiya/logger"
+	"Yoimiya/profile/internal/report"
 	"github.com/google/pprof/profile"
 )
 

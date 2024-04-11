@@ -22,16 +22,16 @@ package groth16
 import (
 	"io"
 
-	"S-gnark/backend"
-	"S-gnark/backend/witness"
-	"S-gnark/constraint"
-	cs_bls12377 "S-gnark/constraint/bls12-377"
-	cs_bls12381 "S-gnark/constraint/bls12-381"
-	cs_bls24315 "S-gnark/constraint/bls24-315"
-	cs_bls24317 "S-gnark/constraint/bls24-317"
-	cs_bn254 "S-gnark/constraint/bn254"
-	cs_bw6633 "S-gnark/constraint/bw6-633"
-	cs_bw6761 "S-gnark/constraint/bw6-761"
+	"Yoimiya/backend"
+	"Yoimiya/backend/witness"
+	"Yoimiya/constraint"
+	cs_bls12377 "Yoimiya/constraint/bls12-377"
+	cs_bls12381 "Yoimiya/constraint/bls12-381"
+	cs_bls24315 "Yoimiya/constraint/bls24-315"
+	cs_bls24317 "Yoimiya/constraint/bls24-317"
+	cs_bn254 "Yoimiya/constraint/bn254"
+	cs_bw6633 "Yoimiya/constraint/bw6-633"
+	cs_bw6761 "Yoimiya/constraint/bw6-761"
 	"github.com/consensys/gnark-crypto/ecc"
 
 	fr_bls12377 "github.com/consensys/gnark-crypto/ecc/bls12-377/fr"
@@ -42,16 +42,16 @@ import (
 	fr_bw6633 "github.com/consensys/gnark-crypto/ecc/bw6-633/fr"
 	fr_bw6761 "github.com/consensys/gnark-crypto/ecc/bw6-761/fr"
 
-	gnarkio "S-gnark/io"
+	gnarkio "Yoimiya/io"
 
-	groth16_bls12377 "S-gnark/backend/groth16/bls12-377"
-	groth16_bls12381 "S-gnark/backend/groth16/bls12-381"
-	groth16_bls24315 "S-gnark/backend/groth16/bls24-315"
-	groth16_bls24317 "S-gnark/backend/groth16/bls24-317"
-	groth16_bn254 "S-gnark/backend/groth16/bn254"
-	icicle_bn254 "S-gnark/backend/groth16/bn254/icicle"
-	groth16_bw6633 "S-gnark/backend/groth16/bw6-633"
-	groth16_bw6761 "S-gnark/backend/groth16/bw6-761"
+	groth16_bls12377 "Yoimiya/backend/groth16/bls12-377"
+	groth16_bls12381 "Yoimiya/backend/groth16/bls12-381"
+	groth16_bls24315 "Yoimiya/backend/groth16/bls24-315"
+	groth16_bls24317 "Yoimiya/backend/groth16/bls24-317"
+	groth16_bn254 "Yoimiya/backend/groth16/bn254"
+	icicle_bn254 "Yoimiya/backend/groth16/bn254/icicle"
+	groth16_bw6633 "Yoimiya/backend/groth16/bw6-633"
+	groth16_bw6761 "Yoimiya/backend/groth16/bw6-761"
 )
 
 type groth16Object interface {

@@ -4,13 +4,13 @@ import (
 	"math"
 	"sync"
 
-	"S-gnark"
-	"S-gnark/frontend"
-	"S-gnark/std/algebra/native/sw_bls12377"
-	"S-gnark/std/algebra/native/sw_bls24315"
-	"S-gnark/std/hash/mimc"
-	"S-gnark/std/math/bits"
-	"S-gnark/std/math/emulated"
+	"Yoimiya"
+	"Yoimiya/frontend"
+	"Yoimiya/std/algebra/native/sw_bls12377"
+	"Yoimiya/std/algebra/native/sw_bls24315"
+	"Yoimiya/std/hash/mimc"
+	"Yoimiya/std/math/bits"
+	"Yoimiya/std/math/emulated"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

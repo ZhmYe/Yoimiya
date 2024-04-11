@@ -1,10 +1,10 @@
 package lzss
 
 import (
-	"S-gnark/backend"
-	"S-gnark/frontend"
-	test_vector_utils "S-gnark/std/utils/test_vectors_utils"
-	"S-gnark/test"
+	"Yoimiya/backend"
+	"Yoimiya/frontend"
+	test_vector_utils "Yoimiya/std/utils/test_vectors_utils"
+	"Yoimiya/test"
 	goCompress "github.com/consensys/compress"
 	"github.com/consensys/compress/lzss"
 	"github.com/consensys/gnark-crypto/ecc"

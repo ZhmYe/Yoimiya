@@ -1,6 +1,6 @@
 package Circuit4Loops
 
-import "S-gnark/frontend"
+import "Yoimiya/frontend"
 
 type LoopCircuit struct {
 	//x frontend.Variable

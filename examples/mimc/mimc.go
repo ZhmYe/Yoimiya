@@ -15,8 +15,8 @@
 package mimc
 
 import (
-	"S-gnark/frontend"
-	"S-gnark/std/hash/mimc"
+	"Yoimiya/frontend"
+	"Yoimiya/std/hash/mimc"
 )
 
 // Circuit defines a pre-image knowledge proof

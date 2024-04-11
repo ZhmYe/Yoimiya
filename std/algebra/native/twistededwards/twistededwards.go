@@ -20,7 +20,7 @@ import (
 	"errors"
 	"math/big"
 
-	"S-gnark/frontend"
+	"Yoimiya/frontend"
 	"github.com/consensys/gnark-crypto/ecc"
 	edbls12377 "github.com/consensys/gnark-crypto/ecc/bls12-377/twistededwards"
 	edbls12381_bandersnatch "github.com/consensys/gnark-crypto/ecc/bls12-381/bandersnatch"

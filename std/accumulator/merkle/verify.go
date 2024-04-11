@@ -46,8 +46,8 @@ limitations under the License.
 package merkle
 
 import (
-	"S-gnark/frontend"
-	"S-gnark/std/hash"
+	"Yoimiya/frontend"
+	"Yoimiya/std/hash"
 )
 
 // MerkleProof stores the path, the root hash and an helper for the Merkle proof.

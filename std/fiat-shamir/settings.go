@@ -1,8 +1,8 @@
 package fiatshamir
 
 import (
-	"S-gnark/frontend"
-	"S-gnark/std/hash"
+	"Yoimiya/frontend"
+	"Yoimiya/std/hash"
 )
 
 type Settings struct {

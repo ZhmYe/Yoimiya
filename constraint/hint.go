@@ -1,7 +1,7 @@
 package constraint
 
 import (
-	"S-gnark/constraint/solver"
+	"Yoimiya/constraint/solver"
 )
 
 // HintMapping mark a list of output variables to be computed using provided hint and inputs.

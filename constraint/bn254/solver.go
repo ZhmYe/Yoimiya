@@ -17,13 +17,13 @@
 package cs
 
 import (
-	"S-gnark/Config"
-	"S-gnark/Record"
-	"S-gnark/constraint"
-	csolver "S-gnark/constraint/solver"
-	"S-gnark/graph/PackedLevel"
-	"S-gnark/graph/Sit"
-	"S-gnark/logger"
+	"Yoimiya/Config"
+	"Yoimiya/Record"
+	"Yoimiya/constraint"
+	csolver "Yoimiya/constraint/solver"
+	"Yoimiya/graph/PackedLevel"
+	"Yoimiya/graph/Sit"
+	"Yoimiya/logger"
 	"errors"
 	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"

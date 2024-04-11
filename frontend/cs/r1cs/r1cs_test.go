@@ -22,8 +22,8 @@ import (
 	"testing"
 	"time"
 
-	"S-gnark/frontend"
-	"S-gnark/frontend/internal/expr"
+	"Yoimiya/frontend"
+	"Yoimiya/frontend/internal/expr"
 	"github.com/consensys/gnark-crypto/ecc"
 )
 

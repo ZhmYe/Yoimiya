@@ -3,8 +3,8 @@ package fri
 import (
 	"math/big"
 
-	"S-gnark/constraint/solver"
-	"S-gnark/frontend"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/frontend"
 )
 
 // exp helper function that returns x^{e}

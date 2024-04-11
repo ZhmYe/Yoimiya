@@ -7,9 +7,9 @@ import (
 	"os"
 	"strings"
 
-	"S-gnark/constraint/solver"
-	"S-gnark/debug"
-	"S-gnark/logger"
+	"Yoimiya/constraint/solver"
+	"Yoimiya/debug"
+	"Yoimiya/logger"
 )
 
 func Bsb22CommitmentComputePlaceholder(mod *big.Int, _ []*big.Int, output []*big.Int) (err error) {

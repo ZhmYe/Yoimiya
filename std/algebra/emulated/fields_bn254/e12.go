@@ -1,7 +1,7 @@
 package fields_bn254
 
 import (
-	"S-gnark/frontend"
+	"Yoimiya/frontend"
 	"github.com/consensys/gnark-crypto/ecc/bn254"
 )
 
