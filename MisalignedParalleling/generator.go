@@ -17,7 +17,7 @@ func (g *Generator) generate(assignmentInterface func() frontend.Circuit) []*Tas
 	for i := 0; i < g.nbTask; i++ {
 		assignment := assignmentInterface()
 		//assignment, _ := Circuit4VerifyCircuit.GetVerifyCircuitAssignment(Circuit4VerifyCircuit.GetVerifyCircuitParam())
-		task := NewTask(2, assignment)
+		task := NewTask(i, 2, assignment)
 		tasks = append(tasks, task)
 	}
 	return tasks

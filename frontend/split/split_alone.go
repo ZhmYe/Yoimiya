@@ -26,7 +26,7 @@ func SplitAndProve(cs constraint.ConstraintSystem, assignment frontend.Circuit) 
 	switch _r1cs := cs.(type) {
 	case *cs_bn254.R1CS:
 		_r1cs.SplitEngine.AssignLayer()
-		structureRoundLog(_r1cs, 0)
+		StructureRoundLog(_r1cs, 0)
 		top, bottom := _r1cs.SplitEngine.GetSubCircuitInstructionIDs()
 		_r1cs.UpdateForwardOutput() // 这里从原电路中获得middle对应的wireIDs
 		forwardOutput := _r1cs.GetForwardOutputs()
@@ -80,7 +80,7 @@ func buildConstraintSystemFromIds(iIDs []int, record *DataRecord, assignment fro
 	for _, iID := range iIDs {
 		pi := record.GetPackedInstruction(iID)
 		bID := cs.AddBlueprint(record.GetBluePrint(pi.BlueprintID))
-		cs.AddInstructionInSpilt(bID, unpack(pi, record))
+		cs.AddInstructionInSpilt(bID, Unpack(pi, record))
 		//// 由于instruction变化，所以在这里需要重新映射stage内部的iID
 		//sit.ModifyiID(i, j, len(cs.Instructions)) // 这里是串行添加的，新的Instruction id就是当前的长度
 	}

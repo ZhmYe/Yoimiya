@@ -21,6 +21,7 @@ type Task struct {
 	assignment  frontend.Circuit        // 输入
 	extra       []constraint.ExtraValue // 所有的extra
 	mutex       sync.Mutex
+	id          int // Task id,用于debug
 }
 type Tasks []*Task
 
@@ -30,8 +31,9 @@ func (t *Tasks) SetProcessTime() {
 		(*t)[i] = task
 	}
 }
-func NewTask(cut int, assignment frontend.Circuit) *Task {
+func NewTask(id int, cut int, assignment frontend.Circuit) *Task {
 	task := &Task{
+		id:         id,
 		cut:        cut,
 		assignment: assignment,
 		extra:      make([]constraint.ExtraValue, 0),

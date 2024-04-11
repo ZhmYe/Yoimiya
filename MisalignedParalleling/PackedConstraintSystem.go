@@ -26,7 +26,13 @@ func (p *PackedConstraintSystem) SetForwardOutput(forwardOutput []constraint.Ext
 
 // SetCommitment 设置commitment，这里暂定就是第一个电路需要设置commitment
 func (p *PackedConstraintSystem) SetCommitment(commitment constraint.Commitments) {
-	p.cs.CommitmentInfo = commitment
+	switch _r1cs := p.cs.(type) {
+	case *cs_bn254.R1CS:
+		_r1cs.CommitmentInfo = commitment
+	default:
+		panic("Only Support bn254 r1cs now...")
+	}
+	//p.cs.CommitmentInfo = commitment
 }
 
 // GetForwardOutput 该接口由Task调用，不断更新extra，然后将extra传入process接口

@@ -25,7 +25,7 @@ func Split(cs constraint.ConstraintSystem, assignment frontend.Circuit, param Pa
 	}
 }
 
-func structureRoundLog(_r1cs *cs_bn254.R1CS, round int) {
+func StructureRoundLog(_r1cs *cs_bn254.R1CS, round int) {
 	fmt.Println("Round ", round)
 	fmt.Println("	Circuit Structure: ")
 	fmt.Println("		Layers Number: ", _r1cs.SplitEngine.GetLayersInfo())
@@ -100,8 +100,8 @@ func GetSplitProof(split constraint.ConstraintSystem,
 	return NewPackedProof(proof, vk, publicWitness)
 }
 
-// unpack 用于提取PackedInstruction中的信息,返回callData
-func unpack(pi constraint.PackedInstruction, record *DataRecord) []uint32 {
+// Unpack 用于提取PackedInstruction中的信息,返回callData
+func Unpack(pi constraint.PackedInstruction, record *DataRecord) []uint32 {
 	blueprint := record.GetBluePrint(pi.BlueprintID)
 	cSize := blueprint.CalldataSize()
 	if cSize < 0 {

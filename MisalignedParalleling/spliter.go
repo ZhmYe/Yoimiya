@@ -22,7 +22,7 @@ func (b *CsSpliter) Split(cs constraint.ConstraintSystem, assignment frontend.Ci
 	switch _r1cs := cs.(type) {
 	case *cs_bn254.R1CS:
 		_r1cs.SplitEngine.AssignLayer()
-		structureRoundLog(_r1cs, 0)
+		split.StructureRoundLog(_r1cs, 0)
 		top, bottom := _r1cs.SplitEngine.GetSubCircuitInstructionIDs()
 		_r1cs.UpdateForwardOutput()                // 这里从原电路中获得middle对应的wireIDs
 		forwardOutput := _r1cs.GetForwardOutputs() // 这里就是PackedConstraintSystem上半电路需要Set的forwardOutput
@@ -83,7 +83,7 @@ func buildConstraintSystemFromIds(iIDs []int, record *split.DataRecord,
 	for _, iID := range iIDs {
 		pi := record.GetPackedInstruction(iID)
 		bID := cs.AddBlueprint(record.GetBluePrint(pi.BlueprintID))
-		cs.AddInstructionInSpilt(bID, unpack(pi, record))
+		cs.AddInstructionInSpilt(bID, split.Unpack(pi, record))
 	}
 	cs.CoeffTable = record.GetCoeffTable()
 	fmt.Println("Compile Result: ")
