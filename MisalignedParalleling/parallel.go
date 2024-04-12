@@ -12,6 +12,12 @@ import (
 // 这里的并行包括setup和prove
 // todo setup能否进一步并行，setup的时间占了运行的大部分
 // todo 这里有效果的前提是，上下半分别setup+prove的时间小于原电路setup+prove的时间
+// 在本地12核上
+// SetUp时间
+// 变量数    时间
+// 2399207   2m29.1111371s
+// 1876269   1m9.4599315s
+// 2884420   3m20.4227137s
 
 type MParallelingMaster struct {
 	Tasks  []*Task   // 所有任务
