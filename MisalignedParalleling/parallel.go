@@ -1,10 +1,13 @@
 package MisalignedParalleling
 
 import (
+	"Yoimiya/backend/groth16"
 	"Yoimiya/constraint"
 	"Yoimiya/frontend"
 	"fmt"
+	"strconv"
 	"sync"
+	"time"
 )
 
 // 这里写n个电路错位并行的逻辑
@@ -15,9 +18,9 @@ import (
 // 在本地12核上
 // SetUp时间
 // 变量数    时间
-// 2399207   2m29.1111371s
-// 1876269   1m9.4599315s
-// 2884420   3m20.4227137s
+// 2399207   2m29.1111371s 149s
+// 1876269   1m9.4599315s  69s
+// 2884420   3m20.4227137s 200s
 
 type MParallelingMaster struct {
 	Tasks  []*Task   // 所有任务
@@ -53,6 +56,10 @@ func (m *MParallelingMaster) Initialize(nbTasks int, cut int, csGenerator func()
 
 func (m *MParallelingMaster) Start() {
 	// todo 这里的逻辑
+	// 启动monitor用于debug
+	go func() {
+		m.monitor()
+	}()
 	// 启动slot对应的coordinator
 	var wg4Slot sync.WaitGroup
 	wg4Slot.Add(len(m.slots))
@@ -63,6 +70,41 @@ func (m *MParallelingMaster) Start() {
 		}(tmp, &wg4Slot)
 	}
 	wg4Slot.Wait()
+	flag := true
+	for _, task := range m.Tasks {
+		//task.Verify()
+		for i, packedProof := range task.proofs {
+			proof := packedProof.GetProof()
+			verifyKey := packedProof.GetVerifyingKey()
+			publicWitness := packedProof.GetPublicWitness()
+			err := groth16.Verify(proof, verifyKey, publicWitness)
+			if err != nil {
+				flag = false
+				fmt.Println("Task ", task.id, " Proof ", i, "Not Pass...", "Err: ", err)
+			} else {
+				fmt.Println("Task ", task.id, " Proof ", i, "Verify Success...")
+			}
+		}
+
+	}
+	if !flag {
+		panic("Verify Failed!!!")
+	}
+}
+
+// monitor 监控每个Task的进展
+func (m *MParallelingMaster) monitor() {
+	startTime := time.Now()
+	for {
+		if time.Since(startTime) >= time.Duration(1)*time.Minute {
+			str := "Monitor Output\n"
+			for _, task := range m.Tasks {
+				str += strconv.Itoa(task.phase+1) + "/" + strconv.Itoa(len(m.slots)) + "\n"
+			}
+			fmt.Println(str)
+			startTime = time.Now()
+		}
+	}
 }
 
 // coordinator 对某个buffer进行协调
