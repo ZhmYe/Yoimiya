@@ -1,6 +1,7 @@
 package MisalignedParalleling
 
 import (
+	"Yoimiya/Record"
 	"Yoimiya/backend/groth16"
 	"Yoimiya/constraint"
 	"Yoimiya/frontend"
@@ -15,12 +16,13 @@ import (
 // 这里的并行包括setup和prove
 // todo setup能否进一步并行，setup的时间占了运行的大部分
 // todo 这里有效果的前提是，上下半分别setup+prove的时间小于原电路setup+prove的时间
+// todo 另外，两半电路的时间要接近，不然相当于受限于某个较大电路的串行
 // 在本地12核上
 // SetUp时间
 // 变量数    时间
-// 2399207   2m29.1111371s 149s
-// 1876269   1m9.4599315s  69s
-// 2884420   3m20.4227137s 200s
+// 2399207   2m29.1111371s 149s ||  2m9s
+// 1876269   1m9.4599315s  69s  || 18s
+// 2884420   3m20.4227137s 200s || 2m24s
 
 type MParallelingMaster struct {
 	Tasks  []*Task   // 所有任务
@@ -63,6 +65,7 @@ func (m *MParallelingMaster) Start() {
 	// 启动slot对应的coordinator
 	var wg4Slot sync.WaitGroup
 	wg4Slot.Add(len(m.slots))
+	startTime := time.Now()
 	for _, slot := range m.slots {
 		tmp := slot.id
 		go func(id int, wg *sync.WaitGroup) {
@@ -70,6 +73,7 @@ func (m *MParallelingMaster) Start() {
 		}(tmp, &wg4Slot)
 	}
 	wg4Slot.Wait()
+	Record.GlobalRecord.SetSlotTime(time.Since(startTime))
 	flag := true
 	for _, task := range m.Tasks {
 		//task.Verify()

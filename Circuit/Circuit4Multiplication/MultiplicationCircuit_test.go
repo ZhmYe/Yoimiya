@@ -1,4 +1,4 @@
-package Circuit4Loops
+package Circuit4Multiplication
 
 import (
 	"Yoimiya/backend/groth16"
@@ -14,8 +14,8 @@ import (
 // }
 func TestLoop(t *testing.T) {
 	startTime := time.Now()
-	var circuit LoopCircuit
-	assignment := LoopCircuit{V: 20365011074, X1: 0, X2: 1}
+	var circuit MultiplicationCircuit
+	assignment := MultiplicationCircuit{X: 1, Y: 1}
 	ccs, err := frontend.Compile(ecc.BN254.ScalarField(), r1cs.NewBuilder, &circuit)
 	if err != nil {
 		panic(err)

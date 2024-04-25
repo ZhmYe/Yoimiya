@@ -133,12 +133,10 @@ func GenerateWitness(assignment Circuit, extra []constraint.ExtraValue, field *b
 
 // SetUpSplit 给定电路 进行SetUp操作并给出ProveingKey和VerifyingKey
 func SetUpSplit(cs constraint.ConstraintSystem) (groth16.ProvingKey, groth16.VerifyingKey) {
-	//startTime := time.Now()
 	outerPK, outerVK, err := groth16.Setup(cs)
 	if err != nil {
 		panic(err)
 	}
-	//fmt.Println("SetUp Time:", time.Since(startTime))
 	//full, err := NewWitness(outerAssignment, ecc.BN254.ScalarField())
 	//public, err := NewWitness(outerAssignment, ecc.BN254.ScalarField(), frontend.PublicOnly())
 	return outerPK, outerVK

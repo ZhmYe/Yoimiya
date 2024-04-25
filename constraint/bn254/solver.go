@@ -18,7 +18,6 @@ package cs
 
 import (
 	"Yoimiya/Config"
-	"Yoimiya/Record"
 	"Yoimiya/constraint"
 	csolver "Yoimiya/constraint/solver"
 	"Yoimiya/graph/PackedLevel"
@@ -773,8 +772,7 @@ func (solver *solver) run() error {
 	//	return errors.New("solver didn't assign a value to all wires")
 	//}
 	logger.Info().Str("Run Function Time", time.Since(startTime).String()).Int("Solve Value Number", len(solver.values)).Msg("YZM TEST")
-	fmt.Println("Run Function Time: ", time.Since(startTime))
-	Record.GlobalRecord.AddRunTime(time.Since(startTime))
+	//fmt.Println("Run Function Time: ", time.Since(startTime))
 	return nil
 }
 

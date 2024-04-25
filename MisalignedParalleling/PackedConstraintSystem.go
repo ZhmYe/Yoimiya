@@ -6,9 +6,7 @@ import (
 	cs_bn254 "Yoimiya/constraint/bn254"
 	"Yoimiya/frontend"
 	"Yoimiya/frontend/split"
-	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"
-	"time"
 )
 
 // PackedConstraintSystem 这里封装cs,并记录一些内部数据
@@ -53,9 +51,9 @@ func (p *PackedConstraintSystem) GetForwardOutput() []constraint.ExtraValue {
 
 // Process 根据前面的电路计算结果extra，运行当前电路
 func (p *PackedConstraintSystem) Process(extra []constraint.ExtraValue, assignment frontend.Circuit) split.PackedProof {
-	startTime := time.Now()
+	//startTime := time.Now()
 	pk, vk := frontend.SetUpSplit(p.cs)
-	fmt.Println("Set Up Time: ", time.Since(startTime))
+	//fmt.Println("Set Up Time: ", time.Since(startTime))
 	fullWitness, _ := frontend.GenerateWitness(assignment, extra, ecc.BN254.ScalarField())
 	publicWitness, _ := frontend.GenerateWitness(assignment, extra, ecc.BN254.ScalarField(), frontend.PublicOnly())
 	proof, err := groth16.Prove(p.cs, pk.(groth16.ProvingKey), fullWitness)

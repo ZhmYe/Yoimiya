@@ -108,7 +108,7 @@ func Setup(r1cs *cs.R1CS, pk *ProvingKey, vk *VerifyingKey) error {
 	nbWires := r1cs.NbInternalVariables + r1cs.GetNbPublicVariables() + r1cs.GetNbSecretVariables()
 	// modify by ZhmYe
 	//commitmentInfo := r1cs.CommitmentInfo.(constraint.Groth16Commitments)
-	commitmentInfo := r1cs.GetCommitmentInfoInSplit()
+	commitmentInfo := r1cs.GetCommitmentInfoInSplit() // 这里在r1cs内部把偏移量加上了
 	commitmentWires := commitmentInfo.CommitmentIndexes()
 	// add by ZhmYe
 	// 这里commitment的commitIndex是wire id，在split部分应该是bias

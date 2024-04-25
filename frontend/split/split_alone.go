@@ -1,6 +1,7 @@
 package split
 
 import (
+	"Yoimiya/Record"
 	"Yoimiya/constraint"
 	cs_bn254 "Yoimiya/constraint/bn254"
 	"Yoimiya/frontend"
@@ -30,9 +31,11 @@ func SplitAndProve(cs constraint.ConstraintSystem, assignment frontend.Circuit) 
 		top, bottom := _r1cs.SplitEngine.GetSubCircuitInstructionIDs()
 		_r1cs.UpdateForwardOutput() // 这里从原电路中获得middle对应的wireIDs
 		forwardOutput := _r1cs.GetForwardOutputs()
+		Record.GlobalRecord.SetSplitTime(time.Since(startTime)) // 设置SplitTime
 		//if err != nil {
 		//	panic(err)
 		//}
+		buildStartTime := time.Now()
 		var err error
 		record := NewDataRecord(_r1cs)
 		fmt.Print("	Top Circuit ")
@@ -40,15 +43,17 @@ func SplitAndProve(cs constraint.ConstraintSystem, assignment frontend.Circuit) 
 		if err != nil {
 			panic(err)
 		}
-
+		Record.GlobalRecord.SetBuildTime(time.Since(buildStartTime))
 		proof := GetSplitProof(topCs, assignment, &extras, false)
 		proofs = append(proofs, proof)
 		//fmt.Println("bottom=", len(bottom))
 		fmt.Print("	Bottom Circuit ")
+		buildStartTime = time.Now()
 		bottomCs, err := buildConstraintSystemFromIds(bottom, record, assignment, forwardOutput, extras, false)
 		if err != nil {
 			panic(err)
 		}
+		Record.GlobalRecord.SetBuildTime(time.Since(buildStartTime))
 		proofs = append(proofs, GetSplitProof(bottomCs, assignment, &extras, false))
 	default:
 		panic("Only Support bn254 r1cs now...")
@@ -89,6 +94,7 @@ func buildConstraintSystemFromIds(iIDs []int, record *DataRecord, assignment fro
 	fmt.Println("		NbPublic=", cs.GetNbPublicVariables(), " NbSecret=", cs.GetNbSecretVariables(), " NbInternal=", cs.GetNbInternalVariables())
 	fmt.Println("		NbCoeff=", cs.GetNbConstraints())
 	fmt.Println("		NbWires=", cs.GetNbPublicVariables()+cs.GetNbSecretVariables()+cs.GetNbInternalVariables())
+
 	//fmt.Println(cs.Sit.GetStageNumber())
 	return cs, nil
 }

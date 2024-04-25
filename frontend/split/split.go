@@ -1,12 +1,14 @@
 package split
 
 import (
+	"Yoimiya/Record"
 	"Yoimiya/backend/groth16"
 	"Yoimiya/constraint"
 	cs_bn254 "Yoimiya/constraint/bn254"
 	"Yoimiya/frontend"
 	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"
+	"time"
 )
 
 // Split 将传入的电路(constraintSystem)切分为多份,统一接口
@@ -64,10 +66,14 @@ func GetSplitProof(split constraint.ConstraintSystem,
 	//if err != nil {
 	//panic(err)
 	//}
+	startTime := time.Now()
 	pk, vk := frontend.SetUpSplit(split)
 	fullWitness, _ := frontend.GenerateWitness(assignment, *extra, ecc.BN254.ScalarField())
 	publicWitness, _ := frontend.GenerateWitness(assignment, *extra, ecc.BN254.ScalarField(), frontend.PublicOnly())
+	Record.GlobalRecord.SetSetUpTime(time.Since(startTime))
+	startTime = time.Now()
 	proof, err := groth16.Prove(split, pk.(groth16.ProvingKey), fullWitness)
+	Record.GlobalRecord.SetSolveTime(time.Since(startTime))
 	if err != nil {
 		panic(err)
 	}

@@ -118,7 +118,7 @@ func (l *PackedLevel) AssignLayer() {
 	for i := 0; i < len(l.Levels); i++ {
 		level := l.Levels[i]
 		if 2*(total+len(level)) > totalInstructionNumber {
-			splitDepth = i
+			splitDepth = i - 1
 			break
 		}
 		total += len(level)
