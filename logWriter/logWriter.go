@@ -1,4 +1,4 @@
-package evaluate
+package logWriter
 
 import (
 	"bufio"
@@ -18,8 +18,8 @@ func NewLogWriter(path string) *LogWriter {
 	logger := new(LogWriter)
 	format := "2006-01-02-15-04-05"
 	currentTime := time.Now()
-	filePath := "/root/Yoimiya/evaluate/log/" + path + currentTime.Format(format) + ".txt"
-	fmt.Println(filePath)
+	filePath := "/root/Yoimiya/logWriter/log/" + path + "_" + currentTime.Format(format) + ".txt"
+	//fmt.Println(filePath)
 	logger.path = filePath
 	var err error
 	logger.file, err = os.OpenFile(logger.path, os.O_WRONLY|os.O_CREATE, 0666)
@@ -36,6 +36,13 @@ func (l *LogWriter) Write(str string) {
 	if err != nil {
 		return
 	}
+}
+func (l *LogWriter) Writeln(str string) {
+	_, err := l.writer.WriteString(str)
+	if err != nil {
+		return
+	}
+	l.Wrap()
 }
 func (l *LogWriter) Finish() {
 	err := l.writer.Flush()

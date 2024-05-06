@@ -44,9 +44,8 @@ func SplitAndProve(cs constraint.ConstraintSystem, assignment frontend.Circuit) 
 			panic(err)
 		}
 		Record.GlobalRecord.SetBuildTime(time.Since(buildStartTime))
-		proof := GetSplitProof(topCs, assignment, &extras, false)
-		proofs = append(proofs, proof)
-		//fmt.Println("bottom=", len(bottom))
+		GetSplitProof(topCs, assignment, &extras, false)
+		//proofs = append(proofs, proof)
 		fmt.Print("	Bottom Circuit ")
 		buildStartTime = time.Now()
 		bottomCs, err := buildConstraintSystemFromIds(bottom, record, assignment, forwardOutput, extras, false)
@@ -54,7 +53,8 @@ func SplitAndProve(cs constraint.ConstraintSystem, assignment frontend.Circuit) 
 			panic(err)
 		}
 		Record.GlobalRecord.SetBuildTime(time.Since(buildStartTime))
-		proofs = append(proofs, GetSplitProof(bottomCs, assignment, &extras, false))
+		GetSplitProof(bottomCs, assignment, &extras, false)
+		//proofs = append(proofs, GetSplitProof(bottomCs, assignment, &extras, false))
 	default:
 		panic("Only Support bn254 r1cs now...")
 	}

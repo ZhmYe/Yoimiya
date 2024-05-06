@@ -1,6 +1,11 @@
 package Record
 
-import "time"
+import (
+	"Yoimiya/logWriter"
+	"fmt"
+	"strconv"
+	"time"
+)
 
 // PackedTime 可能有很多时间需要设置
 type PackedTime struct {
@@ -28,10 +33,6 @@ func (t *PackedTime) SetCompileTime(compileTime time.Duration) {
 	t.CompileTime = t.CompileTime + compileTime
 }
 
-//func (t *PackedTime) SetRunTime(runTime time.Duration) {
-//	t.RunTime = t.RunTime + runTime
-//}
-
 func (t *PackedTime) SetSplitTime(splitTime time.Duration) {
 	t.SplitTime = t.SplitTime + splitTime
 }
@@ -50,6 +51,7 @@ func (t *PackedTime) ClearTime() {
 	//t.RunTime = 0
 	t.CompileTime = 0
 	t.SplitTime = 0
+	t.BuildTime = 0
 }
 
 // Record 记录运行时的一些数据
@@ -62,6 +64,7 @@ type Record struct {
 func (r *Record) SetMemory(m int) {
 	r.memory = m
 }
+
 func (r *Record) SetSlotTime(slotTime time.Duration) {
 	r.slotTime = slotTime
 }
@@ -69,6 +72,34 @@ func (r *Record) Clear() {
 	r.ClearTime()
 	r.memory = 0
 	r.slotTime = 0
+}
+func (r *Record) Sprintf(log bool, path string) {
+	if log {
+		r.Log(path)
+		return
+	}
+	fmt.Println("[Record]: ")
+	fmt.Println("	[Memory Used]: ", float32(r.memory)/1024/1024/1024, "GB")
+	fmt.Println("	[Total Time]: ", r.slotTime)
+	fmt.Println("	[Detailed Time]: ")
+	fmt.Println("		[Compile Time]: ", r.PackedTime.CompileTime)
+	fmt.Println("		[Set Up Time]: ", r.PackedTime.SetUpTime)
+	fmt.Println("		[Solve Time]: ", r.PackedTime.SolveTime)
+	fmt.Println("		[Split Time]: ", r.PackedTime.SplitTime)
+	fmt.Println("		[Build Time]: ", r.PackedTime.BuildTime)
+}
+func (r *Record) Log(path string) {
+	lw := logWriter.NewLogWriter("record_log_" + path)
+	lw.Writeln("[Record]: ")
+	lw.Writeln("	[Memory Used]: " + strconv.FormatFloat(float64(r.memory)/1024/1024/1024, 'f', -1, 32) + "GB")
+	lw.Writeln("	[Total Time]: " + r.slotTime.String())
+	lw.Writeln("	[Detailed Time]: ")
+	lw.Writeln("		[Compile Time]: " + r.PackedTime.CompileTime.String())
+	lw.Writeln("		[Set Up Time]: " + r.PackedTime.SetUpTime.String())
+	lw.Writeln("		[Solve Time]: " + r.PackedTime.SolveTime.String())
+	lw.Writeln("		[Split Time]: " + r.PackedTime.SplitTime.String())
+	lw.Writeln("		[Build Time]: " + r.PackedTime.BuildTime.String())
+	lw.Finish()
 }
 func NewRecord() *Record {
 	return &Record{

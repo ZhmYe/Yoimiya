@@ -6,7 +6,6 @@ import (
 	"Yoimiya/Record"
 	"Yoimiya/constraint"
 	"Yoimiya/frontend/split"
-	"fmt"
 	"runtime"
 	"time"
 )
@@ -33,8 +32,9 @@ func (i *Instance) StartMemoryMonitor() {
 			nowAlloc := m.Alloc
 			if nowAlloc > i.memoryAlloc {
 				i.memoryAlloc = nowAlloc
-				fmt.Println(nowAlloc)
+				//fmt.Println(nowAlloc)
 			}
+			startTime = time.Now()
 		}
 
 	}
@@ -45,17 +45,53 @@ func (i *Instance) GetTotalMemoryAlloc() uint64 {
 func (i *Instance) StartTest() {
 	i.test = true
 	go func() {
-		//i.StartMemoryMonitor()
+		i.StartMemoryMonitor()
 	}()
 	//defer func() {
 	//	i.test = false
 	//}()
 }
 
+func (i *Instance) TestNormal() Record.Record {
+	i.StartTest()
+	defer func() {
+		i.test = false
+	}()
+	c := i.circuit
+	Record.GlobalRecord.Clear()
+	startTime := time.Now()
+	cs, compileTime := c.Compile()
+	Record.GlobalRecord.SetCompileTime(compileTime) // 记录compile时间
+	// todo 这里目前只有alone模式加了record
+	_, err := split.Split(cs, c.GetAssignment(), split.NewParam(false, Config.Config.IsCluster(), -1, false))
+	if err != nil {
+		panic(err)
+	}
+	// todo 这里加上内存的测试逻辑
+	Record.GlobalRecord.SetMemory(int(i.GetTotalMemoryAlloc()))
+	Record.GlobalRecord.SetSlotTime(time.Since(startTime))
+	//for i, packedProof := range proofs {
+	//	proof := packedProof.GetProof()
+	//	verifyKey := packedProof.GetVerifyingKey()
+	//	publicWitness := packedProof.GetPublicWitness()
+	//	err := groth16.Verify(proof, verifyKey, publicWitness)
+	//	if err != nil {
+	//		fmt.Println(err)
+	//	} else {
+	//		fmt.Println("Proof ", i, " Verify Success...")
+	//	}
+	//}
+	return *Record.GlobalRecord
+
+}
+
 // TestNSplit 测试N split带来的内存减少和时间损耗
 func (i *Instance) TestNSplit(n int) Record.Record {
 	// 这里暂时无视n，n=2
 	i.StartTest()
+	defer func() {
+		i.test = false
+	}()
 	c := i.circuit
 	Record.GlobalRecord.Clear() // 清除record
 	startTime := time.Now()
@@ -68,8 +104,8 @@ func (i *Instance) TestNSplit(n int) Record.Record {
 	}
 	// todo 这里加上内存的测试逻辑
 	Record.GlobalRecord.SetMemory(int(i.GetTotalMemoryAlloc()))
-
-	fmt.Println("Split Circuit Time:", time.Since(startTime))
+	Record.GlobalRecord.SetSlotTime(time.Since(startTime))
+	//fmt.Println("Split Circuit Time:", time.Since(startTime))
 	//for i, packedProof := range proofs {
 	//	proof := packedProof.GetProof()
 	//	verifyKey := packedProof.GetVerifyingKey()
@@ -87,6 +123,9 @@ func (i *Instance) TestNSplit(n int) Record.Record {
 // TestMisalignedParalleling 测试错位并行的总运行时间和内存
 func (i *Instance) TestMisalignedParalleling(nbTask int, cut int) Record.Record {
 	i.StartTest()
+	defer func() {
+		i.test = false
+	}()
 	c := i.circuit
 	Record.GlobalRecord.Clear() // 清除record
 	master := MisalignedParalleling.NewMParallelingMaster()
@@ -106,6 +145,9 @@ func (i *Instance) TestMisalignedParalleling(nbTask int, cut int) Record.Record 
 // TestSerialRunning 测试串行运行的总时间和内存使用
 func (i *Instance) TestSerialRunning(nbTask int) Record.Record {
 	i.StartTest()
+	defer func() {
+		i.test = false
+	}()
 	c := i.circuit
 	Record.GlobalRecord.Clear() // 清除record
 	assignmentGenerator := c.GetAssignment

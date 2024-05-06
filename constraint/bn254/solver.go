@@ -564,18 +564,6 @@ func (solver *solver) runStage(stage *Sit.Stage, wg *sync.WaitGroup, chTasks *ch
 
 	}
 	//fmt.Println(len(stage.GetSubStages()))
-
-	//for i := 0; i < len(stage.GetSubStages())/evaluate.Config.MaxParallelingNumber+1; i++ {
-	//	_start := i * evaluate.Config.MaxParallelingNumber
-	//	_end := int(math.Min(float64((i+1)*evaluate.Config.MaxParallelingNumber), float64(len(stage.GetSubStages()))))
-	//	for _, stage := range stage.GetSubStages()[_start:_end] {
-	//		tmp := stage
-	//		go func() {
-	//			solver.runStage(tmp, wg)
-	//		}()
-	//	}
-	//}
-	//wg.Done()
 }
 func (solver *solver) runInStage() error {
 	var wg sync.WaitGroup
@@ -623,16 +611,6 @@ func (solver *solver) runInStage() error {
 				solver.runStage(tmp, &wg, &chTasks)
 			}()
 		}
-		//for i := 0; i < len(rootStages)/evaluate.Config.MaxParallelingNumber+1; i++ {
-		//	_start := i * evaluate.Config.MaxParallelingNumber
-		//	_end := int(math.Min(float64((i+1)*evaluate.Config.MaxParallelingNumber), float64(len(rootStages))))
-		//	for _, stage := range rootStages[_start:_end] {
-		//		tmp := stage
-		//		go func() {
-		//			solver.runStage(tmp, &wg)
-		//		}()
-		//	}
-		//}
 		wg.Wait()
 		//log.Debug().Int("total run number", total).Msg("YZM DEBUG")
 		return nil

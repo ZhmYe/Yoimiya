@@ -22,19 +22,21 @@ const (
 )
 
 type GlobalConfig struct {
-	Split                SPLIT_METHOD // 对于DAG的划分方式
-	MaxParallelingNumber int          // 最大并发数
-	MinWorkPerCPU        int
-	Mode                 CODE_MODE
-	SplitMode            SPLIT_MODE
+	Split SPLIT_METHOD // 对于DAG的划分方式
+	//MaxParallelingNumber int          // 最大并发数
+	MinWorkPerCPU int
+	Mode          CODE_MODE
+	SplitMode     SPLIT_MODE
+	rootPath      string
 }
 
 var Config = GlobalConfig{
-	Split:                SPLIT_LEVELS,
-	MaxParallelingNumber: 100,
-	MinWorkPerCPU:        50,
-	Mode:                 NORMAL,
-	SplitMode:            ALONE,
+	Split: SPLIT_LEVELS,
+	//MaxParallelingNumber: 100,
+	MinWorkPerCPU: 50,
+	Mode:          NORMAL,
+	SplitMode:     ALONE,
+	rootPath:      "/root/Yoimiya/logWriter/log/",
 }
 
 func (c *GlobalConfig) IsCluster() bool {

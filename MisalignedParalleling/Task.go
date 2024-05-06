@@ -116,7 +116,7 @@ func (t *Task) Advance() {
 	t.mutex.Unlock()
 }
 func (t *Task) AppendProof(proof split.PackedProof) {
-	t.proofs = append(t.proofs, proof)
+	//t.proofs = append(t.proofs, proof)
 }
 
 func (t *Task) UpdateExtra(forwardOutput []constraint.ExtraValue) {
