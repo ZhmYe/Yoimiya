@@ -16,7 +16,7 @@ type CsSpliter struct {
 }
 
 // Split 将传入的原生电路cs分割为cut个电路，通过PackedConstraintSystem封装
-// 这里暂时就写Cut=2的逻辑
+// 这里暂时就写Cut=2的逻辑 todo
 func (b *CsSpliter) Split(cs constraint.ConstraintSystem, assignment frontend.Circuit) []PackedConstraintSystem {
 	result := make([]PackedConstraintSystem, 0)
 	switch _r1cs := cs.(type) {

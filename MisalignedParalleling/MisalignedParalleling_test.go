@@ -18,6 +18,6 @@ func Test4MisalignedParalleling(t *testing.T) {
 		_, outerCircuit := Circuit4VerifyCircuit2.GetVerifyCircuitAssignment(p1, p2, p3, p4)
 		return Circuit4VerifyCircuit2.GetVerifyCircuitCs(outerCircuit)
 	}
-	master.Initialize(2, 2, csGenerator, assignmentGenerator)
+	master.Initialize(4, 2, csGenerator, assignmentGenerator)
 	master.Start()
 }

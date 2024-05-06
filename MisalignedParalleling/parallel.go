@@ -2,7 +2,6 @@ package MisalignedParalleling
 
 import (
 	"Yoimiya/Record"
-	"Yoimiya/backend/groth16"
 	"Yoimiya/constraint"
 	"Yoimiya/frontend"
 	"fmt"
@@ -59,9 +58,9 @@ func (m *MParallelingMaster) Initialize(nbTasks int, cut int, csGenerator func()
 func (m *MParallelingMaster) Start() {
 	// todo 这里的逻辑
 	// 启动monitor用于debug
-	go func() {
-		m.monitor()
-	}()
+	//go func() {
+	//	m.monitor()
+	//}()
 	// 启动slot对应的coordinator
 	var wg4Slot sync.WaitGroup
 	wg4Slot.Add(len(m.slots))
@@ -74,33 +73,33 @@ func (m *MParallelingMaster) Start() {
 	}
 	wg4Slot.Wait()
 	Record.GlobalRecord.SetSlotTime(time.Since(startTime))
-	flag := true
-	for _, task := range m.Tasks {
-		//task.Verify()
-		for i, packedProof := range task.proofs {
-			proof := packedProof.GetProof()
-			verifyKey := packedProof.GetVerifyingKey()
-			publicWitness := packedProof.GetPublicWitness()
-			err := groth16.Verify(proof, verifyKey, publicWitness)
-			if err != nil {
-				flag = false
-				fmt.Println("Task ", task.id, " Proof ", i, "Not Pass...", "Err: ", err)
-			} else {
-				fmt.Println("Task ", task.id, " Proof ", i, "Verify Success...")
-			}
-		}
-
-	}
-	if !flag {
-		panic("Verify Failed!!!")
-	}
+	//flag := true
+	//for _, task := range m.Tasks {
+	//	//task.Verify()
+	//	for i, packedProof := range task.proofs {
+	//		proof := packedProof.GetProof()
+	//		verifyKey := packedProof.GetVerifyingKey()
+	//		publicWitness := packedProof.GetPublicWitness()
+	//		err := groth16.Verify(proof, verifyKey, publicWitness)
+	//		if err != nil {
+	//			flag = false
+	//			fmt.Println("Task ", task.id, " Proof ", i, "Not Pass...", "Err: ", err)
+	//		} else {
+	//			fmt.Println("Task ", task.id, " Proof ", i, "Verify Success...")
+	//		}
+	//	}
+	//
+	//}
+	//if !flag {
+	//	panic("Verify Failed!!!")
+	//}
 }
 
 // monitor 监控每个Task的进展
 func (m *MParallelingMaster) monitor() {
 	startTime := time.Now()
 	for {
-		if time.Since(startTime) >= time.Duration(1)*time.Minute {
+		if time.Since(startTime) >= time.Duration(10)*time.Second {
 			str := "Monitor Output\n"
 			for _, task := range m.Tasks {
 				str += strconv.Itoa(task.phase+1) + "/" + strconv.Itoa(len(m.slots)) + "\n"

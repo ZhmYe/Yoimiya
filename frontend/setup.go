@@ -7,9 +7,11 @@ import (
 	cs_bn254 "Yoimiya/constraint/bn254"
 	"Yoimiya/frontend/schema"
 	"errors"
+	"fmt"
 	"math/big"
 	"reflect"
 	"strconv"
+	"time"
 )
 
 // SetNbLeaf 设置nbPublic、nbSecret
@@ -133,7 +135,9 @@ func GenerateWitness(assignment Circuit, extra []constraint.ExtraValue, field *b
 
 // SetUpSplit 给定电路 进行SetUp操作并给出ProveingKey和VerifyingKey
 func SetUpSplit(cs constraint.ConstraintSystem) (groth16.ProvingKey, groth16.VerifyingKey) {
+	startTime := time.Now()
 	outerPK, outerVK, err := groth16.Setup(cs)
+	fmt.Println("Setup Time: ", time.Since(startTime))
 	if err != nil {
 		panic(err)
 	}
