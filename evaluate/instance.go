@@ -19,6 +19,7 @@ type Instance struct {
 
 // StartMemoryMonitor 监听内存使用情况
 // todo 这里的逻辑
+// 目前这里的实现方式是每1s通过runtime.MemStats得到alloc
 func (i *Instance) StartMemoryMonitor() {
 	startTime := time.Now()
 	for {
@@ -47,9 +48,6 @@ func (i *Instance) StartTest() {
 	go func() {
 		i.StartMemoryMonitor()
 	}()
-	//defer func() {
-	//	i.test = false
-	//}()
 }
 
 func (i *Instance) TestNormal() Record.Record {

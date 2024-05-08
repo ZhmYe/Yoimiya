@@ -1,6 +1,7 @@
 package frontend
 
 import (
+	"Yoimiya/Config"
 	"Yoimiya/constraint"
 	"Yoimiya/debug"
 	"Yoimiya/frontend/schema"
@@ -167,7 +168,7 @@ type CompileOption func(opt *CompileConfig) error
 
 func DefaultCompileConfig() CompileConfig {
 	return CompileConfig{
-		CompressThreshold: 300,
+		CompressThreshold: Config.Config.CompressThreshold, // todo Modify by ZhmYe，这里修改成2看看
 	}
 }
 

@@ -1,0 +1,9 @@
+[Record]: 
+	[Memory Used]: 3.8930295GB
+	[Total Time]: 2m38.059184445s
+	[Detailed Time]: 
+		[Compile Time]: 5.685868364s
+		[Set Up Time]: 0s
+		[Solve Time]: 0s
+		[Split Time]: 0s
+		[Build Time]: 0s

@@ -807,13 +807,13 @@ func (cs *System) AddInstruction(bID BlueprintID, calldata []uint32) []uint32 {
 	//case Config.SPLIT_STAGES:
 	//	blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, false, false)
 	//case Config.SPLIT_LEVELS:
-	//	level := blueprint.UpdateInstructionTree(inst, cs)
-	//	// we can't skip levels, so appending is fine.
-	//	if int(level) >= len(cs.Levels) {
-	//		cs.Levels = append(cs.Levels, []int{iID})
-	//	} else {
-	//		cs.Levels[level] = append(cs.Levels[level], iID)
-	//	}
+	//level := blueprint.UpdateInstructionTree(inst, cs)
+	//// we can't skip levels, so appending is fine.
+	//if int(level) >= len(cs.Levels) {
+	//	cs.Levels = append(cs.Levels, []int{iID})
+	//} else {
+	//	cs.Levels[level] = append(cs.Levels[level], iID)
+	//}
 	//default:
 	//	blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, false, false)
 	//}

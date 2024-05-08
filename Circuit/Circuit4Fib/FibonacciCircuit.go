@@ -4,23 +4,23 @@ import "Yoimiya/frontend"
 
 // FibonacciCircuit 斐波那契数列，循环计算
 type FibonacciCircuit struct {
-	//x frontend.Variable
-	X1, X2 frontend.Variable `gnark:"public"` // a_1,a_2
-	////N      frontend.Variable `gnark:"public"` // 循环的次数
+	X1 frontend.Variable `gnark:",public"` // a_1,a_2
+	X2 frontend.Variable `gnark:",public"`
 	V1 frontend.Variable `gnark:"v1"` // an-1
 	V2 frontend.Variable `gnark:"v2"` // an
-	//X frontend.Variable `gnark:"public"`
-	//Y frontend.Variable `gnark:"y"`
 }
 
+// 这里简单起见，测试时X1,X2初始化为0，0，不然数字太大
+// 这里如果按照斐波那契数列正常的通项，加法不会产生约束
+// 简单的乘法，如果有常数会作为复制约束而不是产生约束
+// 因此这里只能将通项改成了a_n^2 + a_{n+1}^2
+
 func (c *FibonacciCircuit) Define(api frontend.API) error {
-	var fib [1000000]frontend.Variable // 记录fib的整个序列
-	fib[0] = api.Add(c.X1, 0)
-	fib[1] = api.Add(c.X2, 0)
-	for i := 2; i < 1000000; i++ {
-		fib[i] = api.Add(fib[i-2], fib[i-1])
+	for i := 0; i < 1000000; i++ {
+		c.X1 = api.Add(api.Mul(c.X1, c.X1), api.Mul(c.X2, c.X2))
+		c.X2 = api.Add(api.Mul(c.X1, c.X1), api.Mul(c.X2, c.X2))
 	}
-	api.AssertIsEqual(c.V1, fib[len(fib)-2])
-	api.AssertIsEqual(c.V2, fib[len(fib)-1])
+	api.AssertIsEqual(c.V1, c.X1)
+	api.AssertIsEqual(c.V2, c.X2)
 	return nil
 }

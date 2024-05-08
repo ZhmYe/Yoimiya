@@ -8,13 +8,9 @@ type MultiplicationCircuit struct {
 	////N      frontend.Variable `gnark:"public"` // 循环的次数
 	//V1 frontend.Variable `gnark:"v1"` // an-1
 	//V2 frontend.Variable `gnark:"v2"`
-	X frontend.Variable `gnark:"public"`
+	X frontend.Variable `gnark:",public"`
 	Y frontend.Variable `gnark:"y"`
 }
-
-// TODO 这里是累乘，写一个斐波那契
-// 然后把这个电路用misaligned测一下效果
-// 内存测试
 
 func (c *MultiplicationCircuit) Define(api frontend.API) error {
 	for i := 0; i < 1000000; i++ {

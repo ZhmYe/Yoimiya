@@ -496,10 +496,11 @@ func (builder *builder) newDebugInfo(errName string, in ...interface{}) constrai
 // expression of one term. In that case it adds an equality constraint enforcing
 // the correctness of the returned linear expression.
 func (builder *builder) compress(le expr.LinearExpression) expr.LinearExpression {
+	//fmt.Println(builder.config.CompressThreshold, len(le)) // 300 2
+	// todo modify by ZhmYe 这里导致fib没有internal但删掉以后verifyCircuit过不了
 	if builder.config.CompressThreshold <= 0 || len(le) < builder.config.CompressThreshold {
 		return le
 	}
-
 	one := builder.cstOne()
 	t := builder.newInternalVariable()
 	builder.cs.AddR1C(builder.newR1C(le, one, t), builder.genericGate)
