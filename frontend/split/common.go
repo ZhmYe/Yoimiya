@@ -11,34 +11,31 @@ import (
 
 // DataRecord 记录Instruction, CallData, BluePrint
 // 为了切割完可以将原来的cs直接扔掉
-// 这三部分数据需要被切割出的电路分别继承一部分，使用map比较方便
 type DataRecord struct {
-	Instructions   map[int]constraint.PackedInstruction
-	CallData       map[int]uint32
-	Blueprints     map[constraint.BlueprintID]constraint.Blueprint
+	Instructions   []constraint.PackedInstruction
+	CallData       []uint32
+	Blueprints     []constraint.Blueprint
 	CoeffTable     cs_bn254.CoeffTable
 	CommitmentInfo constraint.Commitments
 }
 
 func NewDataRecord(cs *cs_bn254.R1CS) *DataRecord {
 	record := DataRecord{
-		CallData:       make(map[int]uint32),
-		Instructions:   make(map[int]constraint.PackedInstruction),
-		Blueprints:     make(map[constraint.BlueprintID]constraint.Blueprint),
+		CallData:       make([]uint32, 0),
+		Instructions:   make([]constraint.PackedInstruction, 0),
+		Blueprints:     make([]constraint.Blueprint, 0),
 		CoeffTable:     cs_bn254.NewCoeffTable(0),
 		CommitmentInfo: cs.CommitmentInfo,
 	}
-	for i, data := range cs.CallData {
-		record.CallData[i] = data
+	for _, data := range cs.CallData {
+		record.CallData = append(record.CallData, data)
 	}
-	for i, instruction := range cs.Instructions {
-		record.Instructions[i] = instruction
+	for _, instruction := range cs.Instructions {
+		record.Instructions = append(record.Instructions, instruction)
 	}
-	for i, blueprint := range cs.Blueprints {
-		record.Blueprints[constraint.BlueprintID(i)] = blueprint
+	for _, blueprint := range cs.Blueprints {
+		record.Blueprints = append(record.Blueprints, blueprint)
 	}
-	record.CoeffTable = cs.CoeffTable
-	record.CommitmentInfo = cs.CommitmentInfo
 	return &record
 }
 
@@ -52,7 +49,7 @@ func (r *DataRecord) GetBluePrint(index constraint.BlueprintID) constraint.Bluep
 }
 func (r *DataRecord) GetCallDatas(start int, end int) []uint32 {
 	callData := make([]uint32, 0)
-	for i := start; i <= end+1; i++ {
+	for i := start; i < end; i++ {
 		callData = append(callData, r.CallData[i])
 	}
 	return callData

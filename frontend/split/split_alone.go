@@ -29,12 +29,10 @@ func SplitAndProve(cs constraint.ConstraintSystem, assignment frontend.Circuit) 
 		_r1cs.SplitEngine.AssignLayer()
 		StructureRoundLog(_r1cs, 0)
 		top, bottom := _r1cs.SplitEngine.GetSubCircuitInstructionIDs()
+		//_r1cs.SplitEngine.GetSubCircuitInstructionIDs()
 		_r1cs.UpdateForwardOutput() // 这里从原电路中获得middle对应的wireIDs
 		forwardOutput := _r1cs.GetForwardOutputs()
 		Record.GlobalRecord.SetSplitTime(time.Since(startTime)) // 设置SplitTime
-		//if err != nil {
-		//	panic(err)
-		//}
 		buildStartTime := time.Now()
 		var err error
 		record := NewDataRecord(_r1cs)
@@ -44,6 +42,12 @@ func SplitAndProve(cs constraint.ConstraintSystem, assignment frontend.Circuit) 
 			panic(err)
 		}
 		Record.GlobalRecord.SetBuildTime(time.Since(buildStartTime))
+		//testTime := time.Now()
+		//for {
+		//	if time.Since(testTime) >= time.Duration(20)*time.Second {
+		//		break
+		//	}
+		//}
 		proof := GetSplitProof(topCs, assignment, &extras, false)
 		proofs = append(proofs, proof)
 		fmt.Print("	Bottom Circuit ")
@@ -53,7 +57,7 @@ func SplitAndProve(cs constraint.ConstraintSystem, assignment frontend.Circuit) 
 			panic(err)
 		}
 		Record.GlobalRecord.SetBuildTime(time.Since(buildStartTime))
-		GetSplitProof(bottomCs, assignment, &extras, false)
+		//GetSplitProof(bottomCs, assignment, &extras, false)
 		proofs = append(proofs, GetSplitProof(bottomCs, assignment, &extras, false))
 	default:
 		panic("Only Support bn254 r1cs now...")

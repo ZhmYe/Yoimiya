@@ -17,12 +17,14 @@ import (
 type VerifyCircuit struct {
 	assignmentGenerator func() frontend.Circuit // 生成assignment
 	outerCircuit        frontend.Circuit
+	name                string
 }
 
 func NewVerifyCircuit() VerifyCircuit {
 	c := VerifyCircuit{
 		assignmentGenerator: nil,
 		outerCircuit:        nil,
+		name:                "loop_verify",
 	}
 	c.Init()
 	return c
@@ -118,4 +120,7 @@ func (c *VerifyCircuit) Compile() (constraint.ConstraintSystem, time.Duration) {
 	}
 	compileTime := time.Since(startTime)
 	return outerCcs, compileTime
+}
+func (c *VerifyCircuit) Name() string {
+	return c.name
 }

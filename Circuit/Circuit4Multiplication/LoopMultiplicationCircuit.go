@@ -12,12 +12,14 @@ import (
 type LoopMultiplicationCircuit struct {
 	assignmentGenerator func() frontend.Circuit // 生成assignment
 	outerCircuit        frontend.Circuit
+	name                string
 }
 
 func NewLoopMultiplicationCircuit() LoopMultiplicationCircuit {
 	c := LoopMultiplicationCircuit{
 		assignmentGenerator: nil,
 		outerCircuit:        nil,
+		name:                "loop_multiplication",
 	}
 	c.Init()
 	return c
@@ -47,3 +49,4 @@ func (c *LoopMultiplicationCircuit) Compile() (constraint.ConstraintSystem, time
 	fmt.Println("Compile Time:", compileTime)
 	return outerCcs, compileTime
 }
+func (c *LoopMultiplicationCircuit) Name() string { return c.name }

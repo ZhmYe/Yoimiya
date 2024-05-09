@@ -12,12 +12,14 @@ import (
 type LoopFibonacciCircuit struct {
 	assignmentGenerator func() frontend.Circuit // 生成assignment
 	outerCircuit        frontend.Circuit
+	name                string // 电路名称，用于format log
 }
 
 func NewLoopFibonacciCircuit() LoopFibonacciCircuit {
 	c := LoopFibonacciCircuit{
 		assignmentGenerator: nil,
 		outerCircuit:        nil,
+		name:                "loop_fib",
 	}
 	c.Init()
 	return c
@@ -47,3 +49,4 @@ func (c *LoopFibonacciCircuit) Compile() (constraint.ConstraintSystem, time.Dura
 	fmt.Println("Compile Time:", compileTime)
 	return outerCcs, compileTime
 }
+func (c *LoopFibonacciCircuit) Name() string { return c.name }
