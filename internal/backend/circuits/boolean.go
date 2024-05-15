@@ -19,7 +19,7 @@ func (circuit *checkAssertIsBooleanCircuit) Define(api frontend.API) error {
 	// linear expression SUB
 	api.AssertIsBoolean(api.Sub(circuit.A, circuit.B))
 
-	// mul by constant
+	// loop_multiplication by constant
 	api.AssertIsBoolean(api.Mul(circuit.D, 2))
 
 	return nil

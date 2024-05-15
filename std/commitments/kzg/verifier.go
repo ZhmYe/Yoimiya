@@ -620,7 +620,7 @@ func (v *Verifier[FR, G1El, G2El, GTEl]) FoldProof(digests []Commitment[G1El], b
 	}
 	foldedDigests, err := v.curve.MultiScalarMul(digestsP, []*emulated.Element[FR]{gamma}, algopts.WithNbScalarBits(nbScalarBits), algopts.WithFoldingScalarMul())
 	if err != nil {
-		return retP, retC, fmt.Errorf("multi scalar mul: %w", err)
+		return retP, retC, fmt.Errorf("multi scalar loop_multiplication: %w", err)
 	}
 
 	// gammai = [1,γ,γ²,..,γⁿ⁻¹]

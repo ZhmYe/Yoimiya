@@ -189,6 +189,8 @@ type System struct {
 	genericHint BlueprintID
 
 	// add by ZhmYe
+	//Wire2Instruction []int
+	//Bias             []int
 	Wires2Instruction map[uint32]int // an output wire "w" first compute in Instruction "I", then store "w" -> "i"
 	Bias              map[uint32]int // 记录wireID在切割后的电路里对应的下标
 	// 这些是自底向上建SIT所需要的
@@ -223,12 +225,14 @@ func NewSystem(scalarField *big.Int, capacity int, t SystemType) System {
 
 		// add by ZhmYe
 		Wires2Instruction: make(map[uint32]int),
+		//Wire2Instruction: make([]int, 0),
 		//InstructionForwardDAG:  graph.NewDAG(),
 		//InstructionBackwardDAG: graph.NewDAG(),
 		//degree:                 make(map[int]int),
 		SplitEngine: InitSplitEngine(),
 		//Sit:           Sit.NewSITree(),
 		forwardOutput: make([]ExtraValue, 0),
+		//Bias:          make([]int, 0),
 		//extra:         make([]fr.Element, 0),
 		Bias:  make(map[uint32]int),
 		extra: 0,
@@ -312,7 +316,11 @@ func (system *System) GetNbForwardOutput() int {
 //	}
 
 func (system *System) GetForwardOutputs() []ExtraValue {
-	return system.forwardOutput
+	result := make([]ExtraValue, len(system.forwardOutput))
+	for i, value := range system.forwardOutput {
+		result[i] = value
+	}
+	return result
 }
 func (system *System) GetForwardOutputIds() []int {
 	result := make([]int, 0)
@@ -321,17 +329,6 @@ func (system *System) GetForwardOutputIds() []int {
 	}
 	return result
 }
-
-//func (system *System) AddExtra(value fr.Element) {
-//	system.extra = append(system.extra, value)
-//}
-//func (system *System) GetExtra() []fr.Element {
-//	return system.extra
-//}
-
-// add by ZhmYe
-
-// UpdateForwardOutput 这里返回传给下一个电路的 WireID
 func (system *System) UpdateForwardOutput() {
 	middleInstructions := system.SplitEngine.GetMiddleOutputs()
 	// 这里我们要得到Instruction里的所有WireID
@@ -358,79 +355,6 @@ func (system *System) AppendWire2Instruction(wireId uint32, iID int) {
 	system.Wires2Instruction[wireId] = iID
 }
 
-// GetDegree add by ZhmYe
-//func (system *System) GetDegree(id int) int {
-//	d, exist := system.degree[id]
-//	if !exist {
-//		return -1
-//	} else {
-//		return d
-//	}
-//}
-//func (system *System) initDegree(id int) {
-//	_, exist := system.degree[id]
-//	if !exist {
-//		system.degree[id] = 0
-//	}
-//}
-//
-//// UpdateDegree add by ZhmYe
-//func (system *System) UpdateDegree(sub bool, ids ...int) {
-//	for _, id := range ids {
-//		_, exist := system.degree[id]
-//		if !exist && sub {
-//			// 没有这个内容无法减一
-//			fmt.Errorf("can't update sub operation to an undefined id")
-//			return
-//		}
-//		if !exist && !sub {
-//			system.degree[id] = 1
-//		}
-//		if exist {
-//			if sub {
-//				system.degree[id]--
-//			} else {
-//				system.degree[id]++
-//			}
-//		}
-//	}
-//}
-//
-//// GetZeroDegree add by ZhmYe
-//func (system *System) GetZeroDegree() (result []int) {
-//	for id, d := range system.degree {
-//		if d == 0 {
-//			result = append(result, id)
-//		}
-//	}
-//	return result
-//}
-//
-//// GetDAGs add by ZhmYe
-//func (system *System) GetDAGs() (*graph.DAG, *graph.DAG) {
-//	return system.InstructionForwardDAG, system.InstructionBackwardDAG
-//}
-//
-//// GetOrder add by ZhmYe
-//// 相当于对DAG进行拓扑排序
-//// 这里由于后续修改，需要把degree修改回前向的degree才可以使用，这里的拓扑排序分层结果等价于源代码中的Levels
-//func (system *System) GetOrder() (order [][]int) {
-//	for {
-//		zeroList := system.GetZeroDegree()
-//		if len(zeroList) == 0 {
-//			break
-//		}
-//		order = append(order, zeroList)
-//		for _, id := range zeroList {
-//			links := system.InstructionForwardDAG.GetLinks(id)
-//			links = append(links, id)
-//			system.UpdateDegree(true, links...)
-//		}
-//	}
-//	//fmt.Println(len(order))
-//	return order
-//}
-
 // GetNbInstructions returns the number of instructions in the system
 func (system *System) GetNbInstructions() int {
 	return len(system.Instructions)
@@ -439,6 +363,28 @@ func (system *System) GetNbInstructions() int {
 // GetInstruction returns the instruction at index id
 func (system *System) GetInstruction(id int) Instruction {
 	return system.Instructions[id].Unpack(system)
+}
+
+// GetDataRecords add by ZhmYe 获取split后各部分的DataRecord
+func (system *System) GetDataRecords(top []int, bottom []int) (IBR, IBR) {
+	topIBR := NewIBR()
+	bottomIBR := NewIBR()
+	// 根据传入的各部分的instruction id，获取对应的原始instruction，然后构建全新的calldata和blueprint
+	for _, id := range top {
+		// 根据id获取对应的PackedInstruction
+		pi := system.Instructions[id]
+		blueprint := system.Blueprints[pi.BlueprintID] // 获得blueprint
+		instruction := pi.Unpack(system)               // 解压得到原始的instruction
+		topIBR.Append(instruction.Calldata, blueprint)
+	}
+	for _, id := range bottom {
+		// 根据id获取对应的PackedInstruction
+		pi := system.Instructions[id]
+		blueprint := system.Blueprints[pi.BlueprintID] // 获得blueprint
+		instruction := pi.Unpack(system)               // 解压得到原始的instruction
+		bottomIBR.Append(instruction.Calldata, blueprint)
+	}
+	return *topIBR, *bottomIBR
 }
 
 // AddBlueprint adds a blueprint to the system and returns its ID
@@ -578,16 +524,15 @@ func (system *System) AddSolverHint(f solver.Hint, id solver.HintID, input []Lin
 	}
 
 	blueprint := system.Blueprints[system.genericHint]
-
 	// get []uint32 from the pool
 	calldata := getBuffer()
-
+	//calldata := make([]uint32, 0)
 	blueprint.(BlueprintHint).CompressHint(hm, calldata)
 
 	system.AddInstruction(system.genericHint, *calldata)
 
 	// return []uint32 to the pool
-	putBuffer(calldata)
+	//putBuffer(calldata)
 
 	return
 }
@@ -667,10 +612,9 @@ func (system *System) VariableToString(vID int) string {
 func (cs *System) AddR1C(c R1C, bID BlueprintID) int {
 	profile.RecordConstraint()
 	blueprint := cs.Blueprints[bID]
-
 	// get a []uint32 from a pool
 	calldata := getBuffer()
-
+	//calldata := make([]uint32, 0)
 	// compress the R1C into a []uint32 and add the instruction
 	blueprint.(BlueprintR1C).CompressR1C(&c, calldata)
 	/***
@@ -680,10 +624,11 @@ func (cs *System) AddR1C(c R1C, bID BlueprintID) int {
 			4: len, len(L), len(R), len(O)
 			2* len(L)/len(R)/len(O): 2 * (CoeffID(), WireID())
 	***/
+	//cs.AddInstruction(bID, *calldata)
 	cs.AddInstruction(bID, *calldata)
 
 	// release the []uint32 to the pool
-	putBuffer(calldata)
+	//putBuffer(calldata)
 
 	return cs.NbConstraints - 1
 }

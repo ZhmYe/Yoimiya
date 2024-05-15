@@ -28,7 +28,7 @@ func InterpolateOnRange(api frontend.API, at frontend.Variable, values ...fronte
 		// Is it important to cache inverses of numbers, or does the compiler do that for you?
 		removeFromNumeratorAddToDenominator := api.Mul(i, api.Sub(at, i))
 		removeFromDenominatorAddToNumerator := api.Mul(api.Sub(at, i-1), i-len(values))
-		adjustment := api.DivUnchecked(removeFromDenominatorAddToNumerator, removeFromNumeratorAddToDenominator) //TODO: May be shallower to mul removeFromDenominator and δᵢ₋₁ first and THEN divide
+		adjustment := api.DivUnchecked(removeFromDenominatorAddToNumerator, removeFromNumeratorAddToDenominator) //TODO: May be shallower to loop_multiplication removeFromDenominator and δᵢ₋₁ first and THEN divide
 		deltaAt[i] = api.Mul(deltaAt[i-1], adjustment)
 	}
 

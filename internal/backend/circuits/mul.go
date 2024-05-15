@@ -37,5 +37,5 @@ func init() {
 	bad.Z = 1
 	bad.ZZ = 1
 
-	addEntry("mul", &circuit, &good, &bad, nil)
+	addEntry("loop_multiplication", &circuit, &good, &bad, nil)
 }

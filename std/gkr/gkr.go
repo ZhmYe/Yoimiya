@@ -535,7 +535,7 @@ type MulGate struct{}
 
 func (g MulGate) Evaluate(api frontend.API, x ...frontend.Variable) frontend.Variable {
 	if len(x) != 2 {
-		panic("mul has fan-in 2")
+		panic("loop_multiplication has fan-in 2")
 	}
 	return api.Mul(x[0], x[1])
 }
@@ -563,7 +563,7 @@ func (a AddGate) Degree() int {
 }
 
 var Gates = map[string]Gate{
-	"identity": IdentityGate{},
-	"add":      AddGate{},
-	"mul":      MulGate{},
+	"identity":            IdentityGate{},
+	"add":                 AddGate{},
+	"loop_multiplication": MulGate{},
 }

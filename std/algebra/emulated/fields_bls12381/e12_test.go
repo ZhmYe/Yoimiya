@@ -411,7 +411,7 @@ func TestTorusMul(t *testing.T) {
 	tmp.Mul(&tmp, &b)
 	b.FrobeniusSquare(&tmp).Mul(&b, &tmp)
 
-	// uncompressed mul
+	// uncompressed loop_multiplication
 	c.Mul(&a, &b)
 
 	witness := torusMul{

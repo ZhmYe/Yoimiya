@@ -380,7 +380,7 @@ func (f *Field[T]) mulPreCond(a, b *Element[T]) (nextOverflow uint, err error) {
 	}
 	nextOverflow = f.fParams.BitsPerLimb() + nbLimbsOverflow + a.overflow + b.overflow
 	if nextOverflow > f.maxOverflow() {
-		err = overflowError{op: "mul", nextOverflow: nextOverflow, maxOverflow: f.maxOverflow(), reduceRight: reduceRight}
+		err = overflowError{op: "loop_multiplication", nextOverflow: nextOverflow, maxOverflow: f.maxOverflow(), reduceRight: reduceRight}
 	}
 	return
 }
@@ -402,7 +402,7 @@ func (f *Field[T]) mul(a, b *Element[T], nextOverflow uint) *Element[T] {
 		panic(fmt.Sprintf("multiplication hint: %s", err))
 	}
 
-	// we computed the result of the mul outside the circuit (mulResult)
+	// we computed the result of the loop_multiplication outside the circuit (mulResult)
 	// and we want to constrain inside the circuit that this injected value
 	// actually matches the in-circuit a * b values
 	// create constraints (\sum_{i=0}^{m-1} a_i c^i) * (\sum_{i=0}^{m-1} b_i

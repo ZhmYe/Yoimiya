@@ -665,7 +665,6 @@ func (solver *solver) runInLevels() error {
 			var scratch Scratch
 			// max CPU to use
 			maxCPU := float64(len(level)) / float64(minWorkPerCPU)
-
 			if maxCPU <= 1.0 {
 				// we do it sequentially
 				for _, i := range level {

@@ -387,7 +387,7 @@ contract Verifier {
             {{- if eq $i 0 }}
             s :=  calldataload(input)
             {{- else }}
-            s :=  calldataload(add(input, {{mul $i 0x20}}))
+            s :=  calldataload(add(input, {{loop_multiplication $i 0x20}}))
             {{- end }}
             mstore(add(g, 0x40), s)
             success := and(success, lt(s, R))

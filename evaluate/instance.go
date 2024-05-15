@@ -23,13 +23,13 @@ type Instance struct {
 // 目前这里的实现方式是每1s通过runtime.MemStats得到alloc
 func (i *Instance) StartMemoryMonitor() {
 	startTime := time.Now()
-	//memorySeq := make([]uint64, 0)
+	memorySeq := make([]uint64, 0)
 	for {
 		if !i.test {
 			i.memoryAlloc = uint64(0)
 			break
 		}
-		if time.Since(startTime) >= time.Duration(1)*time.Second {
+		if time.Since(startTime) >= time.Duration(100)*time.Millisecond {
 			var m runtime.MemStats
 			runtime.ReadMemStats(&m)
 			nowAlloc := m.Alloc
@@ -37,11 +37,11 @@ func (i *Instance) StartMemoryMonitor() {
 				i.memoryAlloc = nowAlloc
 				//fmt.Println(nowAlloc)
 			}
-			//memorySeq = append(memorySeq, nowAlloc)
+			memorySeq = append(memorySeq, nowAlloc)
 			startTime = time.Now()
 		}
 	}
-	//fmt.Println(memorySeq)
+	fmt.Println(memorySeq)
 }
 func (i *Instance) GetTotalMemoryAlloc() uint64 {
 	return i.memoryAlloc

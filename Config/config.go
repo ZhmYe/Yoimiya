@@ -27,8 +27,9 @@ type GlobalConfig struct {
 	MinWorkPerCPU     int
 	Mode              CODE_MODE
 	SplitMode         SPLIT_MODE
-	rootPath          string
+	RootPath          string
 	CompressThreshold int
+	NbLoop            int
 }
 
 var Config = GlobalConfig{
@@ -37,8 +38,9 @@ var Config = GlobalConfig{
 	MinWorkPerCPU:     50,
 	Mode:              NORMAL,
 	SplitMode:         ALONE,
-	rootPath:          "/root/Yoimiya/logWriter/log/",
+	RootPath:          "/root/Yoimiya/logWriter/log/",
 	CompressThreshold: 3,
+	NbLoop:            1000000,
 }
 
 func (c *GlobalConfig) IsCluster() bool {

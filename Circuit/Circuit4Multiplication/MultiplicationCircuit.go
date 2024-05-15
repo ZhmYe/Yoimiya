@@ -1,6 +1,9 @@
 package Circuit4Multiplication
 
-import "Yoimiya/frontend"
+import (
+	"Yoimiya/Config"
+	"Yoimiya/frontend"
+)
 
 type MultiplicationCircuit struct {
 	//x frontend.Variable
@@ -13,7 +16,7 @@ type MultiplicationCircuit struct {
 }
 
 func (c *MultiplicationCircuit) Define(api frontend.API) error {
-	for i := 0; i < 1000000; i++ {
+	for i := 0; i < Config.Config.NbLoop; i++ {
 		c.X = api.Mul(c.X, c.X)
 	}
 	api.AssertIsEqual(c.X, c.Y)

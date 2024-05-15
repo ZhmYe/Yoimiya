@@ -298,7 +298,7 @@ func TestInverseFp3(t *testing.T) {
 		B: FromE3(&b),
 	}
 
-	// add=50605 equals=769 fromBinary=0 mul=50315 sub=558 toBinary=0
+	// add=50605 equals=769 fromBinary=0 loop_multiplication=50315 sub=558 toBinary=0
 	err := test.IsSolved(&e3Inverse{}, &witness, ecc.BN254.ScalarField())
 	assert.NoError(err)
 }

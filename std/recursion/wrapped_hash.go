@@ -210,7 +210,7 @@ func (h *shortCircuitHash) Sum() frontend.Variable {
 	// XXX(ivokub): when changing the number of bits we construct the sum from
 	// then consider downstream users of short-hash which may assume the number
 	// of non-zero bits in the output. Most notably, we have the assumption in
-	// the KZG FoldProof method to avoid doing full scalar mul.
+	// the KZG FoldProof method to avoid doing full scalar loop_multiplication.
 	res = bits.FromBinary(h.api, resBts[:((h.outSize+7)/8-1)*8])
 	return res
 }

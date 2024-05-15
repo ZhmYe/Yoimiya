@@ -204,7 +204,7 @@ func toLagrange(canonicalSRS kzg.SRS, tau *big.Int) kzg.SRS {
 		d.FFTInverse(pAlpha, fft_bn254.DIF)
 		fft_bn254.BitReverse(pAlpha)
 
-		// bath scalar mul
+		// bath scalar loop_multiplication
 		_, _, g1gen, _ := bn254.Generators()
 		newSRS.Pk.G1 = bn254.BatchScalarMultiplicationG1(&g1gen, pAlpha)
 
@@ -226,7 +226,7 @@ func toLagrange(canonicalSRS kzg.SRS, tau *big.Int) kzg.SRS {
 		d.FFTInverse(pAlpha, fft_bls12381.DIF)
 		fft_bls12381.BitReverse(pAlpha)
 
-		// bath scalar mul
+		// bath scalar loop_multiplication
 		_, _, g1gen, _ := bls12381.Generators()
 		newSRS.Pk.G1 = bls12381.BatchScalarMultiplicationG1(&g1gen, pAlpha)
 
@@ -248,7 +248,7 @@ func toLagrange(canonicalSRS kzg.SRS, tau *big.Int) kzg.SRS {
 		d.FFTInverse(pAlpha, fft_bls12377.DIF)
 		fft_bls12377.BitReverse(pAlpha)
 
-		// bath scalar mul
+		// bath scalar loop_multiplication
 		_, _, g1gen, _ := bls12377.Generators()
 		newSRS.Pk.G1 = bls12377.BatchScalarMultiplicationG1(&g1gen, pAlpha)
 
@@ -271,7 +271,7 @@ func toLagrange(canonicalSRS kzg.SRS, tau *big.Int) kzg.SRS {
 		d.FFTInverse(pAlpha, fft_bw6761.DIF)
 		fft_bw6761.BitReverse(pAlpha)
 
-		// bath scalar mul
+		// bath scalar loop_multiplication
 		_, _, g1gen, _ := bw6761.Generators()
 		newSRS.Pk.G1 = bw6761.BatchScalarMultiplicationG1(&g1gen, pAlpha)
 
@@ -294,7 +294,7 @@ func toLagrange(canonicalSRS kzg.SRS, tau *big.Int) kzg.SRS {
 		d.FFTInverse(pAlpha, fft_bls24317.DIF)
 		fft_bls24317.BitReverse(pAlpha)
 
-		// bath scalar mul
+		// bath scalar loop_multiplication
 		_, _, g1gen, _ := bls24317.Generators()
 		newSRS.Pk.G1 = bls24317.BatchScalarMultiplicationG1(&g1gen, pAlpha)
 
@@ -317,7 +317,7 @@ func toLagrange(canonicalSRS kzg.SRS, tau *big.Int) kzg.SRS {
 		d.FFTInverse(pAlpha, fft_bls24315.DIF)
 		fft_bls24315.BitReverse(pAlpha)
 
-		// bath scalar mul
+		// bath scalar loop_multiplication
 		_, _, g1gen, _ := bls24315.Generators()
 		newSRS.Pk.G1 = bls24315.BatchScalarMultiplicationG1(&g1gen, pAlpha)
 
@@ -340,7 +340,7 @@ func toLagrange(canonicalSRS kzg.SRS, tau *big.Int) kzg.SRS {
 		d.FFTInverse(pAlpha, fft_bw6633.DIF)
 		fft_bw6633.BitReverse(pAlpha)
 
-		// bath scalar mul
+		// bath scalar loop_multiplication
 		_, _, g1gen, _ := bw6633.Generators()
 		newSRS.Pk.G1 = bw6633.BatchScalarMultiplicationG1(&g1gen, pAlpha)
 

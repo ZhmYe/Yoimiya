@@ -73,9 +73,9 @@ func (r *Record) Clear() {
 	r.memory = 0
 	r.slotTime = 0
 }
-func (r *Record) Sprintf(log bool, path string) {
+func (r *Record) Sprintf(log bool, dir string, path string) {
 	if log {
-		r.Log(path)
+		r.Log(dir, path)
 		return
 	}
 	fmt.Println("[Record]: ")
@@ -88,8 +88,8 @@ func (r *Record) Sprintf(log bool, path string) {
 	fmt.Println("		[Split Time]: ", r.PackedTime.SplitTime)
 	fmt.Println("		[Build Time]: ", r.PackedTime.BuildTime)
 }
-func (r *Record) Log(path string) {
-	lw := logWriter.NewLogWriter("record_log_" + path)
+func (r *Record) Log(dir string, path string) {
+	lw := logWriter.NewLogWriter(dir + "/" + "record_log_" + path)
 	lw.Writeln("[Record]: ")
 	lw.Writeln("	[Memory Used]: " + strconv.FormatFloat(float64(r.memory)/1024/1024/1024, 'f', -1, 32) + "GB")
 	lw.Writeln("	[Total Time]: " + r.slotTime.String())

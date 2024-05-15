@@ -1,6 +1,9 @@
 package Circuit4Fib
 
-import "Yoimiya/frontend"
+import (
+	"Yoimiya/Config"
+	"Yoimiya/frontend"
+)
 
 // FibonacciCircuit 斐波那契数列，循环计算
 type FibonacciCircuit struct {
@@ -16,7 +19,7 @@ type FibonacciCircuit struct {
 // 因此这里只能将通项改成了a_n^2 + a_{n+1}^2
 
 func (c *FibonacciCircuit) Define(api frontend.API) error {
-	for i := 0; i < 1000000; i++ {
+	for i := 0; i < Config.Config.NbLoop; i++ {
 		c.X1 = api.Add(api.Mul(c.X1, c.X1), api.Mul(c.X2, c.X2))
 		c.X2 = api.Add(api.Mul(c.X1, c.X1), api.Mul(c.X2, c.X2))
 	}

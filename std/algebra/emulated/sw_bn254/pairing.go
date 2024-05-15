@@ -485,7 +485,7 @@ func (pr Pairing) MillerLoop(P []*G1Affine, Q []*G2Affine) (*GTEl, error) {
 
 			}
 
-			// if number of lines is odd, mul last line by res
+			// if number of lines is odd, loop_multiplication last line by res
 			// works for n=1 as well
 			if n%2 != 0 {
 				// ℓ × res
@@ -493,7 +493,7 @@ func (pr Pairing) MillerLoop(P []*G1Affine, Q []*G2Affine) (*GTEl, error) {
 
 			}
 
-			// mul lines 2-by-2
+			// loop_multiplication lines 2-by-2
 			for k := 1; k < n; k += 2 {
 				// ℓ × ℓ
 				prodLines = pr.Mul034By034(&l1s[k].R0, &l1s[k].R1, &l1s[k-1].R0, &l1s[k-1].R1)

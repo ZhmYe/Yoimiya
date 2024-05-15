@@ -1,6 +1,7 @@
 package logWriter
 
 import (
+	"Yoimiya/Config"
 	"bufio"
 	"fmt"
 	//"main/src/Config"
@@ -18,7 +19,7 @@ func NewLogWriter(path string) *LogWriter {
 	logger := new(LogWriter)
 	format := "2006-01-02-15-04-05"
 	currentTime := time.Now()
-	filePath := "/root/Yoimiya/logWriter/log/" + path + "_" + currentTime.Format(format) + ".txt"
+	filePath := Config.Config.RootPath + path + "_" + currentTime.Format(format) + ".txt"
 	//fmt.Println(filePath)
 	logger.path = filePath
 	var err error

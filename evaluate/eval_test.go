@@ -14,13 +14,13 @@ func TestMisalignedParalleling(t *testing.T) {
 		instance := Instance{circuit: circuit}
 		runtime.GOMAXPROCS(runtime.NumCPU())
 		record := instance.TestMisalignedParalleling(nbTask, cut)
-		record.Sprintf(log, format(circuit.Name(), "misaligned_paralleling_"+"task_"+strconv.Itoa(nbTask)))
+		record.Sprintf(log, "MisalignedParallelingTest/"+circuit.Name(), format(circuit.Name(), "misaligned_paralleling_"+"task_"+strconv.Itoa(nbTask)))
 	}
 	serialRunningTest := func(nbTask int, circuit testCircuit, log bool) {
 		runtime.GOMAXPROCS(runtime.NumCPU() / 2)
 		instance := Instance{circuit: circuit}
 		record := instance.TestSerialRunning(nbTask)
-		record.Sprintf(log, format(circuit.Name(), "serial_running_"+"task_"+strconv.Itoa(nbTask)))
+		record.Sprintf(log, "MisalignedParallelingTest/"+circuit.Name(), format(circuit.Name(), "serial_running_"+"task_"+strconv.Itoa(nbTask)))
 	}
 	nbTask := 10
 	circuit := getCircuit(Mul)
@@ -34,18 +34,43 @@ func TestMemoryReduceByNSplit(t *testing.T) {
 		runtime.GOMAXPROCS(runtime.NumCPU())
 		instance := Instance{circuit: circuit}
 		record := instance.TestNSplit(cut)
-		record.Sprintf(log, format(circuit.Name(), "n_split"))
+		record.Sprintf(log, "N-Split-Test/"+circuit.Name(), format(circuit.Name(), "n_split"))
 	}
 	NormalRunningTest := func(circuit testCircuit, log bool) {
 		runtime.GOMAXPROCS(runtime.NumCPU())
 		instance := Instance{circuit: circuit}
 		record := instance.TestNormal()
-		record.Sprintf(log, format(circuit.Name(), "normal_running"))
+		record.Sprintf(log, "N-Split-Test/"+circuit.Name(), format(circuit.Name(), "normal_running"))
 	}
-	circuit := getCircuit(Mul)
-	NSplitTest(2, circuit, true)
-	NormalRunningTest(circuit, true)
+	circuit := getCircuit(Fib)
+	NSplitTest(2, circuit, false)
+	NormalRunningTest(circuit, false)
 }
 
 // todo 扩大约束数，查看内存数量减少变化，形成不同电路
+func TestMemoryReduceInDifferentNbLoop(t *testing.T) {
+
+}
+
 // todo 扩大task数，查看misaligned效果
+func TestMisalignedParallelingInDifferentNbTasks(t *testing.T) {
+	misalignParallelingTest := func(nbTask int, cut int, circuit testCircuit, log bool) {
+		instance := Instance{circuit: circuit}
+		runtime.GOMAXPROCS(runtime.NumCPU())
+		record := instance.TestMisalignedParalleling(nbTask, cut)
+		record.Sprintf(log, "MisalignedParalleling_nbTask_Test/"+circuit.Name()+"/nbTask_"+strconv.Itoa(nbTask), format(circuit.Name(), "misaligned_paralleling_"+"task_"+strconv.Itoa(nbTask)))
+	}
+	serialRunningTest := func(nbTask int, circuit testCircuit, log bool) {
+		runtime.GOMAXPROCS(runtime.NumCPU() / 2)
+		instance := Instance{circuit: circuit}
+		record := instance.TestSerialRunning(nbTask)
+		record.Sprintf(log, "MisalignedParalleling_nbTask_Test/"+circuit.Name()+"/nbTask_"+strconv.Itoa(nbTask), format(circuit.Name(), "serial_running_"+"task_"+strconv.Itoa(nbTask)))
+	}
+	nbTaskList := []int{2, 4, 8, 16, 32, 64, 128}
+
+	circuit := getCircuit(Mul)
+	for _, nbTask := range nbTaskList {
+		misalignParallelingTest(nbTask, 2, circuit, true)
+		serialRunningTest(nbTask, circuit, true)
+	}
+}

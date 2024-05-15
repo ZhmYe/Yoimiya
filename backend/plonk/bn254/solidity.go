@@ -108,7 +108,7 @@ contract PlonkVerifier {
   uint256 private constant PROOF_OPENING_AT_ZETA_OMEGA_Y = 0x320;
 
   uint256 private constant PROOF_OPENING_QCP_AT_ZETA = 0x340;
-  uint256 private constant PROOF_COMMITMENTS_WIRES_CUSTOM_GATES = {{ hex (add 832 (mul (len .CommitmentConstraintIndexes) 32 ) )}};
+  uint256 private constant PROOF_COMMITMENTS_WIRES_CUSTOM_GATES = {{ hex (add 832 (loop_multiplication (len .CommitmentConstraintIndexes) 32 ) )}};
 
   // -> next part of proof is
   // [ openings_selector_commits || commitments_wires_commit_api]
@@ -312,7 +312,7 @@ contract PlonkVerifier {
       /// Checks if the proof is of the correct size
       /// @param actual_proof_size size of the proof (not the expected size)
       function check_proof_size(actual_proof_size) {
-        let expected_proof_size := add(0x340, mul(VK_NB_CUSTOM_GATES,0x60))
+        let expected_proof_size := add(0x340, loop_multiplication(VK_NB_CUSTOM_GATES,0x60))
         if iszero(eq(actual_proof_size, expected_proof_size)) {
          error_proof_size() 
         }
@@ -431,12 +431,12 @@ contract PlonkVerifier {
         mstore(add(mPtr, 0x1e0), VK_QK_COM_X)
         mstore(add(mPtr, 0x200), VK_QK_COM_Y)
         {{ range $index, $element := .CommitmentConstraintIndexes}}
-        mstore(add(mPtr, {{ hex (add 544 (mul $index 64)) }}), VK_QCP_{{ $index }}_X)
-        mstore(add(mPtr, {{ hex (add 576 (mul $index 64)) }}), VK_QCP_{{ $index }}_Y)
+        mstore(add(mPtr, {{ hex (add 544 (loop_multiplication $index 64)) }}), VK_QCP_{{ $index }}_X)
+        mstore(add(mPtr, {{ hex (add 576 (loop_multiplication $index 64)) }}), VK_QCP_{{ $index }}_Y)
         {{ end }}
         // public inputs
-        let _mPtr := add(mPtr, {{ hex (add (mul (len .CommitmentConstraintIndexes) 64) 544) }})
-        let size_pi_in_bytes := mul(nb_pi, 0x20)
+        let _mPtr := add(mPtr, {{ hex (add (loop_multiplication (len .CommitmentConstraintIndexes) 64) 544) }})
+        let size_pi_in_bytes := loop_multiplication(nb_pi, 0x20)
         calldatacopy(_mPtr, pi, size_pi_in_bytes)
         _mPtr := add(_mPtr, size_pi_in_bytes)
 
@@ -451,7 +451,7 @@ contract PlonkVerifier {
         // + nb_custom gates*0x40
         let size := add(0x2c5, size_pi_in_bytes)
         {{ if (gt (len .CommitmentConstraintIndexes) 0 )}}
-        size := add(size, mul(VK_NB_CUSTOM_GATES, 0x40))
+        size := add(size, loop_multiplication(VK_NB_CUSTOM_GATES, 0x40))
         {{ end -}}
         let l_success := staticcall(gas(), 0x2, add(mPtr, 0x1b), size, mPtr, 0x20) //0x1b -> 000.."gamma"
         if iszero(l_success) {
@@ -503,7 +503,7 @@ contract PlonkVerifier {
         {{ if (gt (len .CommitmentConstraintIndexes) 0 )}}
         // Bsb22Commitments
         let proof_bsb_commitments := add(aproof, PROOF_COMMITMENTS_WIRES_CUSTOM_GATES)
-        let size_bsb_commitments := mul(0x40, VK_NB_CUSTOM_GATES)
+        let size_bsb_commitments := loop_multiplication(0x40, VK_NB_CUSTOM_GATES)
         calldatacopy(_mPtr, proof_bsb_commitments, size_bsb_commitments)
         _mPtr := add(_mPtr, size_bsb_commitments)
         full_size := add(full_size, size_bsb_commitments)
@@ -1022,8 +1022,8 @@ contract PlonkVerifier {
         mstore(_mPtr, calldataload(add(aproof, PROOF_GRAND_PRODUCT_AT_ZETA_OMEGA)))
 
         let start_input := 0x1b // 00.."gamma"
-        let size_input := add(0x17, mul(VK_NB_CUSTOM_GATES,3)) // number of 32bytes elmts = 0x17 (zeta+2*7+7 for the digests+openings) + 2*VK_NB_CUSTOM_GATES (for the commitments of the selectors) + VK_NB_CUSTOM_GATES (for the openings of the selectors)
-        size_input := add(0x5, mul(size_input, 0x20)) // size in bytes: 15*32 bytes + 5 bytes for gamma
+        let size_input := add(0x17, loop_multiplication(VK_NB_CUSTOM_GATES,3)) // number of 32bytes elmts = 0x17 (zeta+2*7+7 for the digests+openings) + 2*VK_NB_CUSTOM_GATES (for the commitments of the selectors) + VK_NB_CUSTOM_GATES (for the openings of the selectors)
+        size_input := add(0x5, loop_multiplication(size_input, 0x20)) // size in bytes: 15*32 bytes + 5 bytes for gamma
         let check_staticcall := staticcall(gas(), 0x2, add(mPtr,start_input), size_input, add(state, STATE_GAMMA_KZG), 0x20)
         if iszero(check_staticcall) {
           error_verify()

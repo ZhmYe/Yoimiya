@@ -145,7 +145,7 @@ func IsSolved(circuit, witness frontend.Circuit, field *big.Int, opts ...TestEng
 
 	log.Debug().Uint64("add", cptAdd).
 		Uint64("sub", cptSub).
-		Uint64("mul", cptMul).
+		Uint64("loop_multiplication", cptMul).
 		Uint64("equals", cptAssertIsEqual).
 		Uint64("toBinary", cptToBinary).
 		Uint64("fromBinary", cptFromBinary).Msg("counters")

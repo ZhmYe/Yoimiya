@@ -36,6 +36,8 @@ func NewDataRecord(cs *cs_bn254.R1CS) *DataRecord {
 	for _, blueprint := range cs.Blueprints {
 		record.Blueprints = append(record.Blueprints, blueprint)
 	}
+	record.CoeffTable = cs.CoeffTable
+	record.CommitmentInfo = cs.CommitmentInfo
 	return &record
 }
 

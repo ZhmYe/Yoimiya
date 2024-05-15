@@ -461,7 +461,7 @@ func (v *Verifier[FR, G1El, G2El, GtEl]) AssertProof(vk VerifyingKey[G1El, G2El,
 	}
 	kSum, err := v.curve.MultiScalarMul(inP, inS)
 	if err != nil {
-		return fmt.Errorf("multi scalar mul: %w", err)
+		return fmt.Errorf("multi scalar loop_multiplication: %w", err)
 	}
 	kSum = v.curve.Add(kSum, &vk.G1.K[0])
 	pairing, err := v.pairing.Pair([]*G1El{kSum, &proof.Krs, &proof.Ar}, []*G2El{&vk.G2.GammaNeg, &vk.G2.DeltaNeg, &proof.Bs})

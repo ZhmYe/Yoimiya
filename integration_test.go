@@ -58,8 +58,8 @@ func TestIntegrationAPI(t *testing.T) {
 				opts = append(opts, test.WithInvalidAssignment(tData.InvalidAssignments[i]))
 			}
 
-			// for "mul" only we test with PLONKFRI
-			if name == "mul" {
+			// for "loop_multiplication" only we test with PLONKFRI
+			if name == "loop_multiplication" {
 				opts = append(opts, test.WithBackends(backend.PLONK, backend.GROTH16, backend.PLONKFRI))
 			}
 

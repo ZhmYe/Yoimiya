@@ -374,7 +374,7 @@ func (vk *VerifyingKey) ExportSolidity(w io.Writer) error {
 		"hex": func(i int) string {
 			return fmt.Sprintf("0x%x", i)
 		},
-		"mul": func(a, b int) int {
+		"loop_multiplication": func(a, b int) int {
 			return a * b
 		},
 		"inc": func(i int) int {

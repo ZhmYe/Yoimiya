@@ -19,7 +19,7 @@ func NewLoopFibonacciCircuit() LoopFibonacciCircuit {
 	c := LoopFibonacciCircuit{
 		assignmentGenerator: nil,
 		outerCircuit:        nil,
-		name:                "loop_fib",
+		name:                "fib_square",
 	}
 	c.Init()
 	return c

@@ -367,7 +367,7 @@ func (e Ext3) DivUnchecked(x, y *E3) *E3 {
 
 }
 
-// MulByNonResidue mul x by (0,1,0)
+// MulByNonResidue loop_multiplication x by (0,1,0)
 func (e Ext3) MulByNonResidue(x *E3) *E3 {
 	z := &E3{
 		A0: x.A2,

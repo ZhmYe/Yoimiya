@@ -149,7 +149,7 @@ func (vk *VerifyingKey) ExportSolidity(w io.Writer) error {
 		"sub": func(a, b int) int {
 			return a - b
 		},
-		"mul": func(a, b int) int {
+		"loop_multiplication": func(a, b int) int {
 			return a * b
 		},
 		"intRange": func(max int) []int {

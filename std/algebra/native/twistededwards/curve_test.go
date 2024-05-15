@@ -139,21 +139,21 @@ func (circuit *addCircuit) Define(api frontend.API) error {
 	}
 
 	{
-		// scalar mul
+		// scalar loop_multiplication
 		res := curve.ScalarMul(circuit.P2, circuit.S2)
 		api.AssertIsEqual(res.X, circuit.ScalarMulResult.X)
 		api.AssertIsEqual(res.Y, circuit.ScalarMulResult.Y)
 	}
 
 	{
-		// scalar mul fixed
+		// scalar loop_multiplication fixed
 		res := curve.ScalarMul(circuit.fixedPoint, circuit.S2)
 		api.AssertIsEqual(res.X, circuit.ScalarMulResult.X)
 		api.AssertIsEqual(res.Y, circuit.ScalarMulResult.Y)
 	}
 
 	{
-		// double scalar mul
+		// double scalar loop_multiplication
 		res := curve.DoubleBaseScalarMul(circuit.P1, circuit.P2, circuit.S1, circuit.S2)
 		api.AssertIsEqual(res.X, circuit.DoubleScalarMulResult.X)
 		api.AssertIsEqual(res.Y, circuit.DoubleScalarMulResult.Y)

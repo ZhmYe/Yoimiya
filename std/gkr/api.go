@@ -41,7 +41,7 @@ func (api *API) Sub(i1, i2 constraint.GkrVariable, in ...constraint.GkrVariable)
 }
 
 func (api *API) Mul(i1, i2 constraint.GkrVariable, in ...constraint.GkrVariable) constraint.GkrVariable {
-	return api.namedGate2PlusIn("mul", i1, i2, in...)
+	return api.namedGate2PlusIn("loop_multiplication", i1, i2, in...)
 }
 
 // TODO @Tabaie This can be useful
