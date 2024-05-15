@@ -40,7 +40,7 @@ var Config = GlobalConfig{
 	SplitMode:         ALONE,
 	RootPath:          "/root/Yoimiya/logWriter/log/",
 	CompressThreshold: 3,
-	NbLoop:            1000000,
+	NbLoop:            10000000,
 }
 
 func (c *GlobalConfig) IsCluster() bool {

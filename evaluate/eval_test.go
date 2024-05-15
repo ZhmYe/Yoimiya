@@ -43,13 +43,13 @@ func TestMemoryReduceByNSplit(t *testing.T) {
 		record.Sprintf(log, "N-Split-Test/"+circuit.Name(), format(circuit.Name(), "normal_running"))
 	}
 	circuit := getCircuit(Fib)
-	NSplitTest(2, circuit, false)
-	NormalRunningTest(circuit, false)
+	NSplitTest(2, circuit, true)
+	NormalRunningTest(circuit, true)
 }
 
 // todo 扩大约束数，查看内存数量减少变化，形成不同电路
 func TestMemoryReduceInDifferentNbLoop(t *testing.T) {
-
+	NSplitInDifferentNbLoopTest := func()
 }
 
 // todo 扩大task数，查看misaligned效果
