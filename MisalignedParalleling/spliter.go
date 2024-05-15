@@ -75,7 +75,8 @@ func buildConstraintSystemFromIds(iIDs []int, record *split.DataRecord,
 	//	cs.CommitmentInfo = record.GetCommitmentInfo()
 	//}
 	// 这里主要是添加Public和private变量，extra需要有具体的wireID
-	err := frontend.SetNbLeaf(assignment, cs, extra)
+	pli := frontend.GetNbLeaf(assignment)
+	err := frontend.SetNbLeaf(pli, cs, extra)
 	if err != nil {
 		return nil, err
 	}

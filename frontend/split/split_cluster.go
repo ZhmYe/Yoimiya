@@ -48,7 +48,8 @@ func (p *ProveConstraintSystem) SetExtra(extra []constraint.ExtraValue) {
 	switch _toProveR1cs := toProveCs.(type) {
 	case *cs_bn254.R1CS:
 		// 这里不更新extra
-		err := frontend.SetNbLeaf(p.assignment, _toProveR1cs, p.extra)
+		pli := frontend.GetNbLeaf(p.assignment)
+		err := frontend.SetNbLeaf(pli, _toProveR1cs, p.extra)
 		if err != nil {
 			panic(err)
 		}
@@ -96,7 +97,8 @@ func buildBottomConstraintSystem(
 	//	SetForwardOutput(cs, forwardOutput) // 设置应该传到bottom的wireID
 	//}
 	// 下半电路的extra就是toProve的forwardOutput + extra
-	err := frontend.SetNbLeaf(assignment, cs, toProveCs.Forward())
+	pli := frontend.GetNbLeaf(assignment)
+	err := frontend.SetNbLeaf(pli, cs, toProveCs.Forward())
 	if err != nil {
 		return nil, err
 	}

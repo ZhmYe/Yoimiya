@@ -13,6 +13,8 @@ require (
 	github.com/google/pprof v0.0.0-20230817174616-7a8ec2ada47b
 	github.com/ingonyama-zk/iciclegnark v0.1.0
 	github.com/leanovate/gopter v0.2.9
+	github.com/mkevac/debugcharts v0.0.0-20191222103121-ae1c48aa8615
+	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
 	github.com/rs/zerolog v1.30.0
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/crypto v0.12.0
@@ -29,7 +31,6 @@ require (
 	github.com/ingonyama-zk/icicle v0.0.0-20230928131117-97f0079e5c71 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
-	github.com/mkevac/debugcharts v0.0.0-20191222103121-ae1c48aa8615 // indirect
 	github.com/mmcloughlin/addchain v0.4.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect

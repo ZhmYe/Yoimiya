@@ -14,12 +14,52 @@ import (
 	"time"
 )
 
-// SetNbLeaf 设置nbPublic、nbSecret
-// todo 这里还需要加上extra
-func SetNbLeaf(assignment Circuit, cs *cs_bn254.R1CS, extra []constraint.ExtraValue) error {
-	(*cs).AddPublicVariable("1")
-	idx := (*cs).GetNbWires() - 1
-	(*cs).SetBias(uint32(idx), idx)
+// PackedLeafInfo 这里直接统一得到assignment得到的public和private信息
+type PackedValue struct {
+	name       string
+	visibility bool
+}
+
+func (v *PackedValue) IsPublic() bool {
+	return v.visibility
+}
+
+type PackedLeafInfo struct {
+	value []PackedValue
+}
+
+func (i *PackedLeafInfo) AddPublic(name string) {
+	i.value = append(i.value, PackedValue{
+		name:       name,
+		visibility: true,
+	})
+}
+func (i *PackedLeafInfo) AddSecret(name string) {
+	i.value = append(i.value, PackedValue{
+		name:       name,
+		visibility: false,
+	})
+}
+
+//func (i *PackedLeafInfo) Copy() PackedLeafInfo {
+//	p := make([]string, len(i.PUBLIC))
+//	copy(p, i.PUBLIC)
+//	s := make([]string, len(i.SECRET))
+//	copy(s, i.SECRET)
+//	return PackedLeafInfo{
+//		PUBLIC: p,
+//		SECRET: s,
+//	}
+//}
+
+func NewPackedLeafInfo() PackedLeafInfo {
+	return PackedLeafInfo{
+		value: make([]PackedValue, 0),
+	}
+}
+func GetNbLeaf(assignment Circuit) PackedLeafInfo {
+	pli := NewPackedLeafInfo()
+	pli.AddPublic("1")
 	variableAdder := func() func(f schema.LeafInfo, tInput reflect.Value) error {
 		return func(f schema.LeafInfo, tInput reflect.Value) error {
 			if tInput.CanSet() {
@@ -27,20 +67,10 @@ func SetNbLeaf(assignment Circuit, cs *cs_bn254.R1CS, extra []constraint.ExtraVa
 					return errors.New("can't set val " + f.FullName() + " visibility is unset")
 				}
 				if f.Visibility == schema.Public {
-					(*cs).AddPublicVariable(f.FullName())
+					pli.AddPublic(f.FullName())
 				} else if f.Visibility == schema.Secret {
-					(*cs).AddSecretVariable(f.FullName())
+					pli.AddSecret(f.FullName())
 				}
-			}
-			// 这里后续witness的排序是按照先public然后private的顺序来的，下面有extra作为public，因此private的bias应该要靠后
-			if f.Visibility == schema.Public {
-				// 如果是public，那么wireID和bias是一样的
-				idx := (*cs).GetNbWires() - 1
-				(*cs).SetBias(uint32(idx), idx)
-			} else if f.Visibility == schema.Secret {
-				// 如果是secret， 那么bias上还需要加上extra的数量
-				idx := (*cs).GetNbWires() - 1
-				(*cs).SetBias(uint32(idx), idx+len(extra))
 			}
 			return nil
 		}
@@ -48,8 +78,59 @@ func SetNbLeaf(assignment Circuit, cs *cs_bn254.R1CS, extra []constraint.ExtraVa
 	}
 	_, err := schema.Walk(assignment, tVariable, variableAdder())
 	if err != nil {
-		return err
+		panic(err)
 	}
+	return pli
+}
+
+// SetNbLeaf 设置nbPublic、nbSecret
+// todo 这里还需要加上extra
+func SetNbLeaf(pli PackedLeafInfo, cs *cs_bn254.R1CS, extra []constraint.ExtraValue) error {
+	for _, v := range pli.value {
+		if v.IsPublic() {
+			(*cs).AddPublicVariable(v.name)
+			idx := (*cs).GetNbWires() - 1
+			(*cs).SetBias(uint32(idx), idx)
+		} else {
+			(*cs).AddSecretVariable(v.name)
+			idx := (*cs).GetNbWires() - 1
+			(*cs).SetBias(uint32(idx), idx+len(extra))
+		}
+	}
+
+	//(*cs).AddPublicVariable("1")
+	//idx := (*cs).GetNbWires() - 1
+	//(*cs).SetBias(uint32(idx), idx)
+	//variableAdder := func() func(f schema.LeafInfo, tInput reflect.Value) error {
+	//	return func(f schema.LeafInfo, tInput reflect.Value) error {
+	//		if tInput.CanSet() {
+	//			if f.Visibility == schema.Unset {
+	//				return errors.New("can't set val " + f.FullName() + " visibility is unset")
+	//			}
+	//			if f.Visibility == schema.Public {
+	//				(*cs).AddPublicVariable(f.FullName())
+	//			} else if f.Visibility == schema.Secret {
+	//				(*cs).AddSecretVariable(f.FullName())
+	//			}
+	//		}
+	//		// 这里后续witness的排序是按照先public然后private的顺序来的，下面有extra作为public，因此private的bias应该要靠后
+	//		if f.Visibility == schema.Public {
+	//			// 如果是public，那么wireID和bias是一样的
+	//			idx := (*cs).GetNbWires() - 1
+	//			(*cs).SetBias(uint32(idx), idx)
+	//		} else if f.Visibility == schema.Secret {
+	//			// 如果是secret， 那么bias上还需要加上extra的数量
+	//			idx := (*cs).GetNbWires() - 1
+	//			(*cs).SetBias(uint32(idx), idx+len(extra))
+	//		}
+	//		return nil
+	//	}
+	//	//return errors.New("can't set val ")
+	//}
+	//_, err := schema.Walk(assignment, tVariable, variableAdder())
+	//if err != nil {
+	//	return err
+	//}
 	// 这里设置了extra的偏移
 	//fmt.Println("len ForwardOutput", len(cs.GetForwardOutputs()))
 	for _, e := range extra {

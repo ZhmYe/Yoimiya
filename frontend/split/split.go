@@ -83,26 +83,11 @@ func GetSplitProof(split constraint.ConstraintSystem,
 		newExtra := GetExtra(split)
 		//*extra = make([]any, 0)
 		for _, e := range newExtra {
-			*extra = append(*extra, e)
+			newE := constraint.NewExtraValue(e.GetWireID())
+			newE.SetValue(e.GetValue())
+			*extra = append(*extra, newE)
 		}
-		//for i, e := range *extra {
-		//	count, isUsed := usedExtra[e.GetWireID()]
-		//	if isUsed {
-		//		//e.Consume(count)
-		//		(*extra)[i].Consume(count)
-		//	}
-		//}
 	}
-	//*extra = newExtra
-	//for _, f := range nextForwardOutput {
-	//	*forwardOutput = append(*forwardOutput, f)
-	//}
-	//err := groth16.Verify(proof, vk, publicWitness)
-	//if err != nil {
-	//	panic(err)
-	//} else {
-	//	fmt.Println("PASS")
-	//}
 	return NewPackedProof(proof, vk, publicWitness)
 }
 

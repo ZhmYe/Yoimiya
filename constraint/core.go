@@ -102,7 +102,7 @@ func (v *ExtraValue) SignToSet() {
 }
 func (v *ExtraValue) SetValue(value fr.Element) {
 	v.value = value
-	v.isSet = true
+	v.SignToSet()
 }
 
 //func (v *ExtraValue) SetCount(count int) {
@@ -317,9 +317,7 @@ func (system *System) GetNbForwardOutput() int {
 
 func (system *System) GetForwardOutputs() []ExtraValue {
 	result := make([]ExtraValue, len(system.forwardOutput))
-	for i, value := range system.forwardOutput {
-		result[i] = value
-	}
+	copy(result, system.forwardOutput)
 	return result
 }
 func (system *System) GetForwardOutputIds() []int {
@@ -375,6 +373,8 @@ func (system *System) GetDataRecords(top []int, bottom []int) (IBR, IBR) {
 		pi := system.Instructions[id]
 		blueprint := system.Blueprints[pi.BlueprintID] // 获得blueprint
 		instruction := pi.Unpack(system)               // 解压得到原始的instruction
+		//calldata := make([]uint32, len(instruction.Calldata))
+		//copy(calldata, instruction.Calldata)
 		topIBR.Append(instruction.Calldata, blueprint)
 	}
 	for _, id := range bottom {
