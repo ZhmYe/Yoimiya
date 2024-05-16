@@ -321,7 +321,7 @@ func (e *E12) MulByE4(api frontend.API, e1 E12, e2 E4) *E12 {
 	return e
 }
 
-// MulBy01 multiplication by sparse element (c0,c1,0)
+// MulBy01 loop_multiplication by sparse element (c0,c1,0)
 func (e *E12) MulBy01(api frontend.API, c0, c1 E4) *E12 {
 
 	var a, b, tmp, t0, t1, t2 E4

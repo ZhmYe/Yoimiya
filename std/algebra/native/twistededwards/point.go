@@ -95,7 +95,7 @@ func (p *Point) double(api frontend.API, p1 *Point, curve *CurveParams) *Point {
 	return p
 }
 
-// scalarMul computes the scalar multiplication of a point on a twisted Edwards curve
+// scalarMul computes the scalar loop_multiplication of a point on a twisted Edwards curve
 // p1: base point (as snark point)
 // curve: parameters of the Edwards curve
 // scal: scalar as a SNARK constraint

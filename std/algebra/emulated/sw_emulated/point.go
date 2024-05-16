@@ -644,7 +644,7 @@ func (c *Curve[B, S]) JointScalarMulBase(p *AffinePoint[B], s2, s1 *emulated.Ele
 	return c.add(res1, R0)
 }
 
-// MultiScalarMul computes the multi scalar multiplication of the points P and
+// MultiScalarMul computes the multi scalar loop_multiplication of the points P and
 // scalars s. It returns an error if the length of the slices mismatch. If the
 // input slices are empty, then returns point at infinity.
 //

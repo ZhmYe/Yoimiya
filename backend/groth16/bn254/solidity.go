@@ -360,7 +360,7 @@ contract Verifier {
 
     /// Compute the public input linear combination.
     /// @notice Reverts with PublicInputNotInField if the input is not in the field.
-    /// @notice Computes the multi-scalar-multiplication of the public input
+    /// @notice Computes the multi-scalar-loop_multiplication of the public input
     /// elements and the verification key including the constant term.
     /// @param input The public inputs. These are elements of the scalar field Fr.
     /// @return x The X coordinate of the resulting G1 point.

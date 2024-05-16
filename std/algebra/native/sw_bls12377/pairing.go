@@ -31,7 +31,7 @@ var loopCounter = [64]int8{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 
 // lineEvaluation represents a sparse Fp12 Elmt (result of the line evaluation)
 // line: 1 + R0(x/y) + R1(1/y) = 0 instead of R0'*y + R1'*x + R2' = 0 This
-// makes the multiplication by lines (MulBy034) and between lines (Mul034By034)
+// makes the loop_multiplication by lines (MulBy034) and between lines (Mul034By034)
 // circuit-efficient.
 type lineEvaluation struct {
 	R0, R1 fields_bls12377.E2

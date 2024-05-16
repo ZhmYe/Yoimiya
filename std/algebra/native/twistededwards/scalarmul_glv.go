@@ -85,7 +85,7 @@ func init() {
 	solver.RegisterHint(DecomposeScalar)
 }
 
-// ScalarMul computes the scalar multiplication of a point on a twisted Edwards curve
+// ScalarMul computes the scalar loop_multiplication of a point on a twisted Edwards curve
 // p1: base point (as snark point)
 // curve: parameters of the Edwards curve
 // scal: scalar as a SNARK constraint

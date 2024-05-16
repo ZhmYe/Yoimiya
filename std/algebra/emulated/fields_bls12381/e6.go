@@ -159,7 +159,7 @@ func (e Ext6) MulByE2(x *E6, y *E2) *E6 {
 	}
 }
 
-// MulBy12 multiplication by sparse element (0,b1,b2)
+// MulBy12 loop_multiplication by sparse element (0,b1,b2)
 func (e Ext6) MulBy12(x *E6, b1, b2 *E2) *E6 {
 	t1 := e.Ext2.Mul(&x.B1, b1)
 	t2 := e.Ext2.Mul(&x.B2, b2)
@@ -207,7 +207,7 @@ func (e Ext6) MulBy0(z *E6, c0 *E2) *E6 {
 	}
 }
 
-// MulBy01 multiplication by sparse element (c0,c1,0)
+// MulBy01 loop_multiplication by sparse element (c0,c1,0)
 func (e Ext6) MulBy01(z *E6, c0, c1 *E2) *E6 {
 	a := e.Ext2.Mul(&z.B0, c0)
 	b := e.Ext2.Mul(&z.B1, c1)

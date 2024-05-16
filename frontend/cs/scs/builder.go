@@ -545,11 +545,11 @@ func (builder *builder) addConstraintExist(a, b expr.Term, k constraint.Element)
 // qM*xa*xb - xc == 0
 //
 // if we find one, this function returns the xc wire with the correct coefficients.
-// if we don't, and no previous multiplication was recorded with xa and xb, add an entry in the map
+// if we don't, and no previous loop_multiplication was recorded with xa and xb, add an entry in the map
 // (this assumes that the caller will add a constraint just after this call if it's not found!)
 //
 // idea:
-// 1. take (xa | (xb << 32)) as a identifier of a multiplication that used wires xa and xb.
+// 1. take (xa | (xb << 32)) as a identifier of a loop_multiplication that used wires xa and xb.
 // 2. look for an entry in builder.mMulConstraints for a previously added constraint that matches.
 // 3. if so, compute correct coefficient N for xc wire that matches qM'*xa*xb - N*xc == 0
 //

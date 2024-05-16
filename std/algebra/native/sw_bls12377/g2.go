@@ -253,7 +253,7 @@ func (P *G2Affine) varScalarMul(api frontend.API, Q G2Affine, s frontend.Variabl
 	// of added constraints - first, instead of classical double-and-add, we use
 	// the optimized version from https://github.com/zcash/zcash/issues/3924
 	// which allows to omit computation of several intermediate values.
-	// Secondly, we use the GLV scalar multiplication to reduce the number
+	// Secondly, we use the GLV scalar loop_multiplication to reduce the number
 	// iterations in the main loop. There is a small difference though - as
 	// two-bit select takes three constraints, then it takes as many constraints
 	// to compute ± Q ± Φ(Q) every iteration instead of selecting the value

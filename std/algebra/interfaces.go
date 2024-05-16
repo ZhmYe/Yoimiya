@@ -24,11 +24,11 @@ type Curve[FR emulated.FieldParams, G1El G1ElementT] interface {
 	// the input.
 	Neg(*G1El) *G1El
 
-	// ScalarMul returns the scalar multiplication of the point by a scalar. It
+	// ScalarMul returns the scalar loop_multiplication of the point by a scalar. It
 	// does not modify the inputs.
 	ScalarMul(*G1El, *emulated.Element[FR], ...algopts.AlgebraOption) *G1El
 
-	// ScalarMulBase returns the scalar multiplication of the curve base point
+	// ScalarMulBase returns the scalar loop_multiplication of the curve base point
 	// by a scalar. It does not modify the scalar.
 	ScalarMulBase(*emulated.Element[FR], ...algopts.AlgebraOption) *G1El
 

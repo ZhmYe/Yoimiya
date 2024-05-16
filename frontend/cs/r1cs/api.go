@@ -48,7 +48,7 @@ func (builder *builder) Add(i1, i2 frontend.Variable, in ...frontend.Variable) f
 }
 
 func (builder *builder) MulAcc(a, b, c frontend.Variable) frontend.Variable {
-	// do the multiplication into builder.mbuf1
+	// do the loop_multiplication into builder.mbuf1
 	mulBC := func() {
 		// reset the buffer
 		builder.mbuf1 = builder.mbuf1[:0]

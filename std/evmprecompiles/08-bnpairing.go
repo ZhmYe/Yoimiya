@@ -10,7 +10,7 @@ import (
 // [ALT_BN128_PAIRING_CHECK]: https://ethereum.github.io/execution-specs/autoapi/ethereum/paris/vm/precompiled_contracts/alt_bn128/index.html#alt-bn128-pairing-check
 //
 // To have a fixed-circuit regardless of the number of inputs, we need 2 fixed circuits:
-// - A Miller loop of fixed size 1 followed with a multiplication in 𝔽p¹² (MillerLoopAndMul)
+// - A Miller loop of fixed size 1 followed with a loop_multiplication in 𝔽p¹² (MillerLoopAndMul)
 // - A final exponentiation followed with an equality check in GT (FinalExponentiationIsOne)
 //
 //   N.B.: This is a sub-optimal routine but defines a fixed circuit regardless

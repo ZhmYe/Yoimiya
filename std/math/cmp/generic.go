@@ -52,7 +52,7 @@ func IsLessOrEqualBinary(api frontend.API, aBits, bBits []frontend.Variable) fro
 }
 
 // isLessRecursive compares binary numbers a and b. When useBoundedCmp is false
-// it performs normal bit by bit comparison which defines 2*n multiplication
+// it performs normal bit by bit comparison which defines 2*n loop_multiplication
 // constraints. When useBoundedCmp is true, bit by bit comparison will be used
 // for a few high order bits and the rest of bits will be compared by
 // BoundedComparator. If addition is free, this will define n + 5 constraints

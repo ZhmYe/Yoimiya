@@ -40,7 +40,7 @@ func (e *E12) Square034(api frontend.API, x E12) *E12 {
 	return e
 }
 
-// MulBy034 multiplication by sparse element
+// MulBy034 loop_multiplication by sparse element
 func (e *E12) MulBy034(api frontend.API, c3, c4 E2) *E12 {
 
 	var d E6
@@ -60,7 +60,7 @@ func (e *E12) MulBy034(api frontend.API, c3, c4 E2) *E12 {
 	return e
 }
 
-// Mul034By034 multiplication of sparse element (1,0,0,c3,c4,0) by sparse element (1,0,0,d3,d4,0)
+// Mul034By034 loop_multiplication of sparse element (1,0,0,c3,c4,0) by sparse element (1,0,0,d3,d4,0)
 func Mul034By034(api frontend.API, d3, d4, c3, c4 E2) *[5]E2 {
 	var one, tmp, x00, x3, x4, x04, x03, x34 E2
 	one.SetOne()

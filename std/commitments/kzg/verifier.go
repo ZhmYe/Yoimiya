@@ -613,7 +613,7 @@ func (v *Verifier[FR, G1El, G2El, GTEl]) FoldProof(digests []Commitment[G1El], b
 	}
 
 	// fold the claimed values and digests
-	// compute ∑ᵢ γ^i C_i = C_0 + γ(C_1 + γ(C2 ...)), allowing to bound the scalar multiplication iterations
+	// compute ∑ᵢ γ^i C_i = C_0 + γ(C_1 + γ(C2 ...)), allowing to bound the scalar loop_multiplication iterations
 	digestsP := make([]*G1El, len(digests))
 	for i := range digestsP {
 		digestsP[i] = &digests[i].G1El

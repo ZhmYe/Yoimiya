@@ -1,6 +1,7 @@
 package evaluate
 
 import (
+	"Yoimiya/Config"
 	_ "github.com/mkevac/debugcharts" // 可选，添加后可以查看几个实时图表数据
 	_ "net/http/pprof"                // 必须，引入 pprof 模块
 	"runtime"
@@ -49,7 +50,26 @@ func TestMemoryReduceByNSplit(t *testing.T) {
 
 // todo 扩大约束数，查看内存数量减少变化，形成不同电路
 func TestMemoryReduceInDifferentNbLoop(t *testing.T) {
-	NSplitInDifferentNbLoopTest := func()
+	NSplitInDifferentNbLoopTest := func(nbLoop int, cut int, circuit testCircuit, log bool) {
+		Config.Config.NbLoop = nbLoop
+		instance := Instance{circuit: circuit}
+		runtime.GOMAXPROCS(runtime.NumCPU())
+		record := instance.TestNSplit(cut)
+		record.Sprintf(log, "N-Split-nbLoop_Test/"+circuit.Name()+"/nbLoop_"+strconv.Itoa(nbLoop), format(circuit.Name(), "n_split_"+"loop_"+strconv.Itoa(nbLoop)))
+	}
+	NormalRunningTest := func(nbLoop int, circuit testCircuit, log bool) {
+		Config.Config.NbLoop = nbLoop
+		runtime.GOMAXPROCS(runtime.NumCPU())
+		instance := Instance{circuit: circuit}
+		record := instance.TestNormal()
+		record.Sprintf(log, "N-Split-nbLoop_Test/"+circuit.Name()+"/nbLoop_"+strconv.Itoa(nbLoop), format(circuit.Name(), "normal_running_"+"loop_"+strconv.Itoa(nbLoop)))
+	}
+	nbLoopList := []int{1000, 10000, 100000, 500000, 1000000, 5000000, 10000000, 50000000}
+	circuit := getCircuit(Mul)
+	for _, nbLoop := range nbLoopList {
+		NSplitInDifferentNbLoopTest(nbLoop, 2, circuit, true)
+		NormalRunningTest(nbLoop, circuit, true)
+	}
 }
 
 // todo 扩大task数，查看misaligned效果

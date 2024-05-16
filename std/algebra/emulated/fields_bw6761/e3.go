@@ -142,7 +142,7 @@ func (e Ext3) MulByConstElement(x *E3, y *big.Int) *E3 {
 	}
 }
 
-// MulBy01 multiplication by sparse element (c0,c1,0)
+// MulBy01 loop_multiplication by sparse element (c0,c1,0)
 func (e Ext3) MulBy01(z *E3, c0, c1 *baseEl) *E3 {
 
 	a := e.fp.Mul(&z.A0, c0)
@@ -172,7 +172,7 @@ func (e Ext3) MulBy01(z *E3, c0, c1 *baseEl) *E3 {
 	}
 }
 
-// MulBy1 multiplication of E6 by sparse element (0, c1, 0)
+// MulBy1 loop_multiplication of E6 by sparse element (0, c1, 0)
 func (e Ext3) MulBy1(z *E3, c1 *baseEl) *E3 {
 
 	b := e.fp.Mul(&z.A1, c1)
@@ -193,7 +193,7 @@ func (e Ext3) MulBy1(z *E3, c1 *baseEl) *E3 {
 	}
 }
 
-// MulBy12 multiplication by sparse element (0,b1,b2)
+// MulBy12 loop_multiplication by sparse element (0,b1,b2)
 func (e Ext3) MulBy12(x *E3, b1, b2 *baseEl) *E3 {
 	t1 := e.fp.Mul(&x.A1, b1)
 	t2 := e.fp.Mul(&x.A2, b2)

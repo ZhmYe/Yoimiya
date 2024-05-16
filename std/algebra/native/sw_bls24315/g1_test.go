@@ -342,7 +342,7 @@ func TestNegG1(t *testing.T) {
 }
 
 // -------------------------------------------------------------------------------------------------
-// Scalar multiplication
+// Scalar loop_multiplication
 
 type g1constantScalarMul struct {
 	A G1Affine

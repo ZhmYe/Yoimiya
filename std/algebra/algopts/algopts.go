@@ -15,9 +15,9 @@ type algebraCfg struct {
 // AlgebraOption allows modifying algebraic operation behaviour.
 type AlgebraOption func(*algebraCfg) error
 
-// WithNbScalarBits defines the number bits when doing scalar multiplication.
+// WithNbScalarBits defines the number bits when doing scalar loop_multiplication.
 // May be used when it is known that only bits least significant bits are
-// non-zero. Reduces the cost for scalar multiplication. If not set then full
+// non-zero. Reduces the cost for scalar loop_multiplication. If not set then full
 // width of scalars used.
 func WithNbScalarBits(bits int) AlgebraOption {
 	return func(ac *algebraCfg) error {
@@ -32,7 +32,7 @@ func WithNbScalarBits(bits int) AlgebraOption {
 // WithFoldingScalarMul can be used when calling MultiScalarMul. By using this
 // option we assume that the scalars are `1, scalar, scalar^2, ...`. We use the
 // first element as the scalar to be used as a folding coefficients. By using
-// this option we avoid one scalar multiplication and do not need to compute the
+// this option we avoid one scalar loop_multiplication and do not need to compute the
 // powers of the folding coefficient.
 func WithFoldingScalarMul() AlgebraOption {
 	return func(ac *algebraCfg) error {

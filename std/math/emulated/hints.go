@@ -41,7 +41,7 @@ func (f *Field[T]) computeMultiplicationHint(leftLimbs, rightLimbs []frontend.Va
 }
 
 // nbMultiplicationResLimbs returns the number of limbs which fit the
-// multiplication result.
+// loop_multiplication result.
 func nbMultiplicationResLimbs(lenLeft, lenRight int) int {
 	res := lenLeft + lenRight - 1
 	if res < 0 {
@@ -59,10 +59,10 @@ func MultiplicationHint(mod *big.Int, inputs []*big.Int, outputs []*big.Int) err
 	}
 	nbBits := int(inputs[0].Int64())
 	if 2*nbBits+1 >= mod.BitLen() {
-		return fmt.Errorf("can not fit multiplication result into limb of length %d", nbBits)
+		return fmt.Errorf("can not fit loop_multiplication result into limb of length %d", nbBits)
 	}
 	// TODO: check that the scalar field fits 2*nbBits + nbLimbs. 2*nbBits comes
-	// from multiplication and nbLimbs comes from additions.
+	// from loop_multiplication and nbLimbs comes from additions.
 	// TODO: check that all limbs all fully reduced
 	nbLimbsLeft := int(inputs[1].Int64())
 	// TODO: get the limb length from the input instead of packing into input
@@ -71,7 +71,7 @@ func MultiplicationHint(mod *big.Int, inputs []*big.Int, outputs []*big.Int) err
 		return fmt.Errorf("input invalid")
 	}
 	if len(outputs) < nbLimbsLeft+nbLimbsRight-1 {
-		return fmt.Errorf("can not fit multiplication result into %d limbs", len(outputs))
+		return fmt.Errorf("can not fit loop_multiplication result into %d limbs", len(outputs))
 	}
 	for _, oi := range outputs {
 		if oi == nil {

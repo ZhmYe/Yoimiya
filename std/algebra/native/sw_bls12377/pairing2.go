@@ -301,7 +301,7 @@ func NewScalar(v fr_bls12377.Element) Scalar {
 
 // packScalarToVar packs the limbs of emulated scalar to a frontend.Variable.
 //
-// The method is for compatibility for existing scalar multiplication
+// The method is for compatibility for existing scalar loop_multiplication
 // implementation which assumes as an input frontend.Variable.
 func (c *Curve) packScalarToVar(s *Scalar) frontend.Variable {
 	var fr ScalarField

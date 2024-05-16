@@ -404,7 +404,7 @@ func (z *Element) Select(c int, x0 *Element, x1 *Element) *Element {
 // and is used for testing purposes.
 func _mulGeneric(z, x, y *Element) {
 
-	// Implements CIOS multiplication -- section 2.3.2 of Tolga Acar's thesis
+	// Implements CIOS loop_multiplication -- section 2.3.2 of Tolga Acar's thesis
 	// https://www.microsoft.com/en-us/research/wp-content/uploads/1998/06/97Acar.pdf
 	//
 	// The algorithm:
@@ -468,7 +468,7 @@ func _mulGeneric(z, x, y *Element) {
 
 func _fromMontGeneric(z *Element) {
 	// the following lines implement z = z * 1
-	// with a modified CIOS montgomery multiplication
+	// with a modified CIOS montgomery loop_multiplication
 	// see Mul for algorithm documentation
 	{
 		// m = z[0]n'[0] mod W

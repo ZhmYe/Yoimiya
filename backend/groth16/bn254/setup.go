@@ -157,7 +157,7 @@ func Setup(r1cs *cs.R1CS, pk *ProvingKey, vk *VerifyingKey) error {
 	// Setup coeffs to compute pk.G1.A, pk.G1.B, pk.G1.K
 	A, B, C := setupABC(r1cs, domain, toxicWaste)
 
-	// To fill in the Proving and Verifying keys, we need to perform a lot of ecc scalar multiplication (with generator)
+	// To fill in the Proving and Verifying keys, we need to perform a lot of ecc scalar loop_multiplication (with generator)
 	// and convert the resulting points to affine
 	// this is done using the curve.BatchScalarMultiplicationGX API, which takes as input the base point
 	// (in our case the generator) and the list of scalars, and outputs a list of points (len(points) == len(scalars))
@@ -274,7 +274,7 @@ func Setup(r1cs *cs.R1CS, pk *ProvingKey, vk *VerifyingKey) error {
 	B = B[:n]
 	pk.NbInfinityB = uint64(nbWires - n)
 
-	// compute our batch scalar multiplication with g1 elements
+	// compute our batch scalar loop_multiplication with g1 elements
 	g1Scalars := make([]fr.Element, 0, (nbWires*3)+int(domain.Cardinality)+3)
 	g1Scalars = append(g1Scalars, toxicWaste.alpha, toxicWaste.beta, toxicWaste.delta)
 	g1Scalars = append(g1Scalars, A...)
@@ -350,7 +350,7 @@ func Setup(r1cs *cs.R1CS, pk *ProvingKey, vk *VerifyingKey) error {
 	// [[B(i)], [β], [δ], [γ]]
 	// len(B) == nbWires
 
-	// compute our batch scalar multiplication with g2 elements
+	// compute our batch scalar loop_multiplication with g2 elements
 	g2Scalars := append(B, toxicWaste.beta, toxicWaste.delta, toxicWaste.gamma)
 
 	g2PointsAff := curve.BatchScalarMultiplicationG2(&g2, g2Scalars)

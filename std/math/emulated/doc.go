@@ -15,7 +15,7 @@ make compile-time distinction between different emulated fields.
 
 This package defines [Element] type which stores the element value in graph
 limbs. On top of the Element instance, this package defines typical arithmetic
-as addition, multiplication and subtraction. If the modulus is a prime (i.e.
+as addition, loop_multiplication and subtraction. If the modulus is a prime (i.e.
 defines a finite field), then inversion and division operations are also
 possible.
 
@@ -61,7 +61,7 @@ and composing an element from limbs -- [decompose] and [recompose]. The
 # Elements in non-normal form
 
 When an element is initialized, the limbs are in normal form, i.e. the values of
-the limbs have bitwidth strictly less than w. As addition and multiplication are
+the limbs have bitwidth strictly less than w. As addition and loop_multiplication are
 performed on limbs natively, then the bitwidths of the limbs of the result may
 be larger than w. We track the number of bits which may exceed the initial width
 of the limbs. We denote the number of such excess bits as 'f' and call it
@@ -84,11 +84,11 @@ then the overflow value f' for the sum is computed as
 
 # Multiplication
 
-The complexity of native limb-wise multiplication is k^2. This translates
+The complexity of native limb-wise loop_multiplication is k^2. This translates
 directly to the complexity in the number of constraints in the constraint
 system.
 
-For multiplication, we would instead use polynomial representation of the elements:
+For loop_multiplication, we would instead use polynomial representation of the elements:
 
 	x = ∑_{i=0}^k x_i 2^{w i}
 	y = ∑_{i=0}^k y_i 2^{w i}.
@@ -98,11 +98,11 @@ as
 	x(X) = ∑_{i=0}^k x_i X^i
 	y(X) = ∑_{i=0}^k y_i X^i.
 
-If the multiplication result modulo r is c, then the following holds:
+If the loop_multiplication result modulo r is c, then the following holds:
 
 	x * y = c + z*r.
 
-We can check the correctness of the multiplication by checking the following
+We can check the correctness of the loop_multiplication by checking the following
 identity at a random point:
 
 	x(X) * y(X) = c(X) + z(X) * r(X) + (2^w' - X) e(X),
@@ -208,7 +208,7 @@ compute z*r and use limbwise equality checking to show that
 When element is computed using hints, we need to ensure that every limb is not
 wider than k bits. For that, we perform bitwise decomposition of every limb and
 check that k lower bits are equal to the whole limb. We omit the bitwidth
-enforcement for multiplication as the correctness of the limbs is ensured using
+enforcement for loop_multiplication as the correctness of the limbs is ensured using
 the corresponding system of linear equations.
 
 Additionally, we apply bitwidth enforcement for elements initialized from
@@ -228,13 +228,13 @@ using element equality checking.
 
 We additionally define functions for computing inverse of an element and ratio
 of two elements. Both function compute the actual value using hint and then
-assert the correctness of the operation using multiplication.
+assert the correctness of the operation using loop_multiplication.
 
 # Constant values
 
 The package currently does not explicitly differentiate between constant and
 variable elements. The builder may track some elements as being constants. Some
 operations have a fast track path for cases when all inputs are constants. There
-is [Field.MulConst], which provides variable by constant multiplication.
+is [Field.MulConst], which provides variable by constant loop_multiplication.
 */
 package emulated

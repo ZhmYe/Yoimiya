@@ -9,10 +9,10 @@ import (
 	"Yoimiya/std/multicommit"
 )
 
-// mulCheck represents a single multiplication check. Instead of doing a
-// multiplication exactly where called, we compute the result using hint and
+// mulCheck represents a single loop_multiplication check. Instead of doing a
+// loop_multiplication exactly where called, we compute the result using hint and
 // return it. Additionally, we store the correctness check for later checking
-// (together with every other multiplication) to share the verifier challenge
+// (together with every other loop_multiplication) to share the verifier challenge
 // computation.
 //
 // With this approach this is important that we do not change the [Element]
@@ -24,8 +24,8 @@ import (
 //
 // We store the values a, b, r, k, c. They are as follows:
 //   - a, b - the inputs what we are multiplying. Do not have to be reduced.
-//   - r - the multiplication result reduced modulo the emulation parameter.
-//   - k - the quotient for integer multiplication a*b divided by emulation parameter.
+//   - r - the loop_multiplication result reduced modulo the emulation parameter.
+//   - k - the quotient for integer loop_multiplication a*b divided by emulation parameter.
 //   - c - element representing carry. Used only for aligning the limb widths.
 //
 // Given these values, the following holds:
@@ -42,7 +42,7 @@ import (
 //
 //	a(X) = \sum_i a_i * X^i.
 //
-// Now, the multiplication check instead becomes
+// Now, the loop_multiplication check instead becomes
 //
 //	a(X) * b(X) = r(X) + k(X) * p(X) + (2^t-X) c(X),
 //
@@ -102,7 +102,7 @@ func (mc *mulCheck[T]) cleanEvaluations() {
 }
 
 // mulMod returns a*b mod r. In practice it computes the result using a hint and
-// defers the actual multiplication check.
+// defers the actual loop_multiplication check.
 func (f *Field[T]) mulMod(a, b *Element[T], _ uint) *Element[T] {
 	f.enforceWidthConditional(a)
 	f.enforceWidthConditional(b)
@@ -143,12 +143,12 @@ func (f *Field[T]) evalWithChallenge(a *Element[T], at []frontend.Variable) *Ele
 }
 
 // performMulChecks should be deferred to actually perform all the
-// multiplication checks.
+// loop_multiplication checks.
 func (f *Field[T]) performMulChecks(api frontend.API) error {
 	// use given api. We are in defer and API may be different to what we have
 	// stored.
 
-	// there are no multiplication checks, nothing to do
+	// there are no loop_multiplication checks, nothing to do
 	if len(f.mulChecks) == 0 {
 		return nil
 	}
@@ -185,7 +185,7 @@ func (f *Field[T]) performMulChecks(api frontend.API) error {
 		for i := range f.mulChecks {
 			f.mulChecks[i].evalRound1(api, at)
 		}
-		// assuming r is input to some other multiplication, then is already evaluated
+		// assuming r is input to some other loop_multiplication, then is already evaluated
 		for i := range f.mulChecks {
 			f.mulChecks[i].evalRound2(api, at)
 		}
@@ -395,11 +395,11 @@ func (f *Field[T]) mul(a, b *Element[T], nextOverflow uint) *Element[T] {
 		return newConstElement[T](ba)
 	}
 
-	// mulResult contains the result (out of circuit) of a * b school book multiplication
+	// mulResult contains the result (out of circuit) of a * b school book loop_multiplication
 	// len(mulResult) == len(a) + len(b) - 1
 	mulResult, err := f.computeMultiplicationHint(a.Limbs, b.Limbs)
 	if err != nil {
-		panic(fmt.Sprintf("multiplication hint: %s", err))
+		panic(fmt.Sprintf("loop_multiplication hint: %s", err))
 	}
 
 	// we computed the result of the loop_multiplication outside the circuit (mulResult)
