@@ -1,0 +1,144 @@
+[
+    {
+        "figure_type": "bar",
+        "title": "Memory Reduce In N-Split loop_multiplication Circuit With Different Loop Number",
+        "x_label": "Loop Number",
+        "y_label": "Memory(GB)",
+        "name": "N-Split-nbLoop_Test-loop_multiplication.png",
+        "x_ticks": [
+            "1000",
+            "10000",
+            "100000",
+            "500000",
+            "1000000",
+            "5000000",
+            "10000000",
+            "50000000"
+        ],
+        "data": {
+            "normal_running": [
+                0.0,
+                0.03709556,
+                0.18896422,
+                0.8663904,
+                1.6997206,
+                9.733159,
+                20.314428,
+                75.31479
+            ],
+            "n_split": [
+                0.0,
+                0.024609938,
+                0.11313041,
+                0.4751283,
+                0.9221704,
+                5.5200157,
+                11.576527,
+                54.30283
+            ]
+        }
+    },
+    {
+        "figure_type": "bar",
+        "title": "Memory Reduce In N-Split fib_square Circuit With Different Loop Number",
+        "x_label": "Loop Number",
+        "y_label": "Memory(GB)",
+        "name": "N-Split-nbLoop_Test-fib_square.png",
+        "x_ticks": [
+            "1000",
+            "10000",
+            "100000",
+            "500000",
+            "1000000",
+            "5000000",
+            "10000000",
+            "50000000"
+        ],
+        "data": {
+            "normal_running": [
+                0.021171331,
+                0.079658225,
+                0.7249733,
+                3.3478537,
+                6.666839,
+                36.28922,
+                57.146114,
+                262.09708
+            ],
+            "n_split": [
+                0.017490774,
+                0.051760003,
+                0.3895456,
+                1.8790419,
+                3.5606625,
+                22.97155,
+                46.015366,
+                164.77847
+            ]
+        }
+    },
+    {
+        "figure_type": "line",
+        "title": "Memory Reduce Percent In N-Split loop_multiplication Circuit with Different Loop Number",
+        "x_label": "Loop Number",
+        "y_label": "Percent(%)",
+        "name": "N-Split-Percent-nbLoop_Test-loop_multiplication",
+        "x_ticks": [
+            "1000",
+            "10000",
+            "100000",
+            "500000",
+            "1000000",
+            "5000000",
+            "10000000",
+            "50000000"
+        ],
+        "data": [
+            {
+                "data": [
+                    0,
+                    0.336579957277906,
+                    0.4013130633936943,
+                    0.451600225487263,
+                    0.4574576550993146,
+                    0.43286494138234055,
+                    0.43013276081413665,
+                    0.27898849615062327
+                ],
+                "legend": "memory Reduce Percent"
+            }
+        ]
+    },
+    {
+        "figure_type": "line",
+        "title": "Memory Reduce Percent In N-Split fib_square Circuit with Different Loop Number",
+        "x_label": "Loop Number",
+        "y_label": "Percent(%)",
+        "name": "N-Split-Percent-nbLoop_Test-fib_square",
+        "x_ticks": [
+            "1000",
+            "10000",
+            "100000",
+            "500000",
+            "1000000",
+            "5000000",
+            "10000000",
+            "50000000"
+        ],
+        "data": [
+            {
+                "data": [
+                    0.17384627352904736,
+                    0.35022399758468137,
+                    0.4626759357896353,
+                    0.4387323735203841,
+                    0.46591443111195585,
+                    0.3669869454344844,
+                    0.19477698868552984,
+                    0.3713074941544561
+                ],
+                "legend": "memory Reduce Percent"
+            }
+        ]
+    }
+]
