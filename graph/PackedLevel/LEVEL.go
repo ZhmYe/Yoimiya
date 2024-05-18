@@ -123,7 +123,7 @@ func (l *PackedLevel) AssignLayer() {
 		}
 		total += len(level)
 	}
-	// todo 这里的逻辑
+	// todo 这里的逻辑 优化到cut=n
 	for i, level := range l.Levels {
 		for _, id := range level {
 			depth := l.deepest[id]

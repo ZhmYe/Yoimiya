@@ -35,13 +35,13 @@ func TestMemoryReduceByNSplit(t *testing.T) {
 		runtime.GOMAXPROCS(runtime.NumCPU())
 		instance := Instance{circuit: circuit}
 		record := instance.TestNSplit(cut)
-		record.Sprintf(log, "N-Split-Test/"+circuit.Name(), format(circuit.Name(), "n_split"))
+		record.Sprintf(log, "N_Split_Test/"+circuit.Name(), format(circuit.Name(), "n_split"))
 	}
 	NormalRunningTest := func(circuit testCircuit, log bool) {
 		runtime.GOMAXPROCS(runtime.NumCPU())
 		instance := Instance{circuit: circuit}
 		record := instance.TestNormal()
-		record.Sprintf(log, "N-Split-Test/"+circuit.Name(), format(circuit.Name(), "normal_running"))
+		record.Sprintf(log, "N_Split_Test/"+circuit.Name(), format(circuit.Name(), "normal_running"))
 	}
 	circuit := getCircuit(Fib)
 	NSplitTest(2, circuit, true)
@@ -55,14 +55,14 @@ func TestMemoryReduceInDifferentNbLoop(t *testing.T) {
 		instance := Instance{circuit: circuit}
 		runtime.GOMAXPROCS(runtime.NumCPU())
 		record := instance.TestNSplit(cut)
-		record.Sprintf(log, "N-Split-nbLoop_Test/"+circuit.Name()+"/nbLoop_"+strconv.Itoa(nbLoop), format(circuit.Name(), "n_split_"+"loop_"+strconv.Itoa(nbLoop)))
+		record.Sprintf(log, "N_Split_nbLoop_Test/"+circuit.Name()+"/nbLoop_"+strconv.Itoa(nbLoop), format(circuit.Name(), "n_split_"+"loop_"+strconv.Itoa(nbLoop)))
 	}
 	NormalRunningTest := func(nbLoop int, circuit testCircuit, log bool) {
 		Config.Config.NbLoop = nbLoop
 		runtime.GOMAXPROCS(runtime.NumCPU())
 		instance := Instance{circuit: circuit}
 		record := instance.TestNormal()
-		record.Sprintf(log, "N-Split-nbLoop_Test/"+circuit.Name()+"/nbLoop_"+strconv.Itoa(nbLoop), format(circuit.Name(), "normal_running_"+"loop_"+strconv.Itoa(nbLoop)))
+		record.Sprintf(log, "N_Split_nbLoop_Test/"+circuit.Name()+"/nbLoop_"+strconv.Itoa(nbLoop), format(circuit.Name(), "normal_running_"+"loop_"+strconv.Itoa(nbLoop)))
 	}
 	nbLoopList := []int{1000, 10000, 100000, 500000, 1000000, 5000000, 10000000, 50000000}
 	circuit := getCircuit(Mul)

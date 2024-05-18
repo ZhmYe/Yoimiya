@@ -17,12 +17,11 @@
     # "y_label": "y轴名称"
     # "name": "输出图片名称"
 # }
-import os
-import re
 import json
+import os
 # 处理的总逻辑
-def process():
-    with open("./data.json", encoding="utf-8") as f:
+def process(dir):
+    with open("{}/data.json".format(dir), encoding="utf-8") as f:
         output = json.load(f)
         f.close()
     # 这里先只处理内存部分
@@ -70,16 +69,16 @@ def process():
         sorted_key = sorted(circuit_data.keys(), key=int)
         memory_percent_figure["x_ticks"] = sorted_key
         for key in sorted_key:
-            normal_running = circuit_data[key]["normal_running"]
-            n_split = circuit_data[key]["n_split"]
-            if normal_running["memory"] == 0:
+            serial_running = circuit_data[key]["serial_running"]
+            misaligned = circuit_data[key]["misaligned_paralleling"]
+            if serial_running["memory"] == 0:
                 line_data["data"].append(0)
             else:
-                line_data["data"].append(1 - n_split["memory"] / normal_running["memory"])
+                line_data["data"].append(1 - misaligned["memory"] / serial_running["memory"])
         memory_percent_figure["data"].append(line_data)
         figure_output.append(memory_percent_figure)
     # print(figure_output)
-    with open("./output.json", "w", encoding="utf-8") as f:
+    with open("{}/output.json".format(dir), "w", encoding="utf-8") as f:
         json.dump(figure_output, f)
         f.close()
-process()
+# generate_output_json()
