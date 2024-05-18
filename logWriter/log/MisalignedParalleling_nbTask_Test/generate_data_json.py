@@ -20,6 +20,8 @@ def process(process_log):
     output = {}
     for directory in directories:
         print("\t enter: {}".format(directory))
+        if directory == "__pycache__":
+            continue
         circuit_name = directory # 电路名
         output[circuit_name] = {}
         # 获取每个文件夹中的所有文件夹nbTask__{}

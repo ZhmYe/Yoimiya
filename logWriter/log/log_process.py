@@ -13,6 +13,8 @@ def time2key(key):
         return "split"
     if key == "Build Time":
         return "build"
+    if key == "Total Time":
+        return "total"
 def convert_to_ms_only_minute(time_str):
     # 使用正则表达式匹配时间字符串中的分钟和秒
     match = re.match(r'(\d+)m([\d.]+)s', time_str)
@@ -71,7 +73,7 @@ def process_log(path, log_name):
                     data_dict["memory"] = float(value.replace('GB', ''))
                 else:
                     print("\t\t\t\t error: memory should end with GB!!!")
-            if key in ["Compile Time", "Set Up Time", "Solve Time", "Split Time", "Build Time"]:
+            if key in ["Compile Time", "Set Up Time", "Solve Time", "Split Time", "Build Time", "Total Time"]:
                 dict_key = time2key(key)
                 if value.endswith("ms"):
                     data_dict["time"][dict_key] = float(value.replace('ms', ''))
@@ -90,10 +92,12 @@ def process(path):
     if path == "MisalignedParalleling_nbTask_Test":
         from MisalignedParalleling_nbTask_Test import generate_data_json, generate_output_json
 #         import MisalignedParalleling_nbTask_Test
-        generate_data_json.process(process_log)
-        generate_output_json.process(os.path.join(os.getcwd(), path))
+#         generate_data_json.process(process_log)
+#         generate_output_json.process(os.path.join(os.getcwd(), path))
     if path == "N_Split_nbLoop_Test":
         from N_Split_nbLoop_Test import generate_data_json, generate_output_json
-        generate_data_json.process(process_log)
-        generate_output_json.process(os.path.join(os.getcwd(), path))
-process("N_Split_nbLoop_Test")
+    if path == "N_Split_Test":
+        from N_Split_Test import generate_data_json, generate_output_json
+    generate_data_json.process(process_log)
+    generate_output_json.process(os.path.join(os.getcwd(), path))
+process("N_Split_Test")
