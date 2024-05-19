@@ -21,9 +21,10 @@ func (b *CsSpliter) Split(cs constraint.ConstraintSystem, assignment frontend.Ci
 	result := make([]PackedConstraintSystem, 0)
 	switch _r1cs := cs.(type) {
 	case *cs_bn254.R1CS:
-		_r1cs.SplitEngine.AssignLayer()
+		_r1cs.SplitEngine.AssignLayer(2)
 		split.StructureRoundLog(_r1cs, 0)
-		top, bottom := _r1cs.SplitEngine.GetSubCircuitInstructionIDs()
+		subiIDs := _r1cs.SplitEngine.GetSubCircuitInstructionIDs()
+		top, bottom := subiIDs[0], subiIDs[1]
 		_r1cs.UpdateForwardOutput()                // 这里从原电路中获得middle对应的wireIDs
 		forwardOutput := _r1cs.GetForwardOutputs() // 这里就是PackedConstraintSystem上半电路需要Set的forwardOutput
 		var err error

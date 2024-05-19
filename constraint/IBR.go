@@ -1,8 +1,13 @@
 package constraint
 
 type Item struct {
-	CallData  []uint32  // 这里直接存calldata不需要instruction
-	BluePrint Blueprint // 这里直接把instruction和对应的Item放在一起
+	CallData        []uint32  // 这里直接存calldata不需要instruction
+	BluePrint       Blueprint // 这里直接把instruction和对应的Item放在一起
+	isForwardOutput bool      // 当前instruction是否需要被传递给后面的电路
+}
+
+func (i *Item) IsForwardOutput() bool {
+	return i.isForwardOutput
 }
 
 // IBR Instruction-BluePrint Record 代替DataRecord
@@ -19,10 +24,11 @@ func NewIBR() *IBR {
 func (r *IBR) Items() []Item {
 	return r.items
 }
-func (r *IBR) Append(data []uint32, b Blueprint) {
+func (r *IBR) Append(data []uint32, b Blueprint, isForwardOutput bool) {
 	item := Item{
-		CallData:  data,
-		BluePrint: b,
+		CallData:        data,
+		BluePrint:       b,
+		isForwardOutput: isForwardOutput,
 	}
 	r.items = append(r.items, item)
 }

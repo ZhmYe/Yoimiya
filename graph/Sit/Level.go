@@ -37,7 +37,7 @@ func (t *SITree) GenerateLEVEL() [][]int {
 	}
 	return LEVEL
 }
-func (t *SITree) AssignLayer() {
+func (t *SITree) AssignLayer(cut int) {
 	LEVEL := t.GenerateLEVEL()
 	totalStageNumber := t.GetStageNumber()
 	total := 0

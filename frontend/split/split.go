@@ -19,11 +19,11 @@ func Split(cs constraint.ConstraintSystem, assignment frontend.Circuit, param Pa
 		//return SplitAndCluster(cs, assignment, param.cut)
 		return SplitAndCluster(cs, assignment, param.cut)
 	case Alone:
-		return SplitAndProve(cs, assignment)
+		return SplitAndProve(cs, assignment, param.cut)
 	case NoSplit:
 		return SimpleProve(cs, assignment)
 	default:
-		return SplitAndProve(cs, assignment)
+		return SplitAndProve(cs, assignment, param.cut)
 	}
 }
 

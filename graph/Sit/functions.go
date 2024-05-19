@@ -71,9 +71,9 @@ func (t *SITree) GetParentsMap(stageId int) map[int]bool {
 func (t *SITree) HasParent(stageId int) bool {
 	return len(t.GetParents(stageId)) != 0
 }
-func (t *SITree) GetSubCircuitInstructionIDs() ([]int, []int) {
+func (t *SITree) GetSubCircuitInstructionIDs() [][]int {
 	top, bottom := t.CheckAndGetSubCircuitStageIDs()
-	return t.GetInstructionIdsFromStageIDs(top), t.GetInstructionIdsFromStageIDs(bottom)
+	return [][]int{t.GetInstructionIdsFromStageIDs(top), t.GetInstructionIdsFromStageIDs(bottom)}
 }
 
 // CheckAndGetSubCircuitStageIDs 获得各种类型的Layer对应的stage id列表
@@ -163,4 +163,7 @@ func (t *SITree) GetAllInstructions() []int {
 		result = append(result, stage.Instructions...)
 	}
 	return result
+}
+func (t *SITree) IsMiddle(iID int) bool {
+	return t.layers[iID] == MIDDLE
 }

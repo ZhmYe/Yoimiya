@@ -25,8 +25,8 @@ func TestMisalignedParalleling(t *testing.T) {
 	}
 	nbTask := 10
 	circuit := getCircuit(Mul)
-	misalignParallelingTest(nbTask, 2, circuit, true)
-	serialRunningTest(nbTask, circuit, true)
+	misalignParallelingTest(nbTask, 2, circuit, false)
+	serialRunningTest(nbTask, circuit, false)
 }
 
 // split测试
@@ -43,9 +43,9 @@ func TestMemoryReduceByNSplit(t *testing.T) {
 		record := instance.TestNormal()
 		record.Sprintf(log, "N_Split_Test/"+circuit.Name(), format(circuit.Name(), "normal_running"))
 	}
-	circuit := getCircuit(Fib)
-	NSplitTest(2, circuit, true)
-	NormalRunningTest(circuit, true)
+	circuit := getCircuit(Mul)
+	NSplitTest(2, circuit, false)
+	NormalRunningTest(circuit, false)
 }
 
 // todo 扩大约束数，查看内存数量减少变化，形成不同电路

@@ -9,13 +9,16 @@ import (
 type SplitEngine interface {
 	GetLayersInfo() [4]int
 	//CheckAndGetSubCircuitStageIDs() ([]int, []int)
+
 	Insert(iID int, previousIDs []int)
-	AssignLayer()
+	AssignLayer(cut int)
 	//GetInstructionIdsFromStageIDs(ids []int) []int
-	GetSubCircuitInstructionIDs() ([]int, []int)
+
+	GetSubCircuitInstructionIDs() [][]int
 	GetStageNumber() int
 	GetMiddleOutputs() map[int]bool
 	GetAllInstructions() []int
+	IsMiddle(iID int) bool
 }
 
 func InitSplitEngine() SplitEngine {

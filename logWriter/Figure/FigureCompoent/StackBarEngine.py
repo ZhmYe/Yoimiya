@@ -22,7 +22,7 @@ class StackBarEngine:
         index = 0
         isBarh = False
         for key, values in data.items():
-            if len(values) <= 3:
+            if len(values) <= 4:
                 isBarh = True
                 plt.barh(x_ticks, values, label=key, color=self.colors[index], left=bottom_values, height=self.width, align='center')
             else:

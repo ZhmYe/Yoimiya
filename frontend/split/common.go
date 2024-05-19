@@ -112,5 +112,5 @@ func NewParam(needSplit bool, isCluster bool, cut int, debug bool) Param {
 	if isCluster {
 		return Param{mode: Cluster, cut: cut, debug: debug}
 	}
-	return Param{mode: Alone, cut: -1, debug: debug}
+	return Param{mode: Alone, cut: cut, debug: debug}
 }

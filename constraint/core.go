@@ -327,6 +327,14 @@ func (system *System) GetForwardOutputIds() []int {
 	}
 	return result
 }
+func (system *System) AddForwardOutput(iID int) {
+	for wire, id := range system.Wires2Instruction {
+		if id == iID {
+			e := NewExtraValue(int(wire))
+			system.forwardOutput = append(system.forwardOutput, e)
+		}
+	}
+}
 func (system *System) UpdateForwardOutput() {
 	middleInstructions := system.SplitEngine.GetMiddleOutputs()
 	// 这里我们要得到Instruction里的所有WireID
@@ -364,27 +372,32 @@ func (system *System) GetInstruction(id int) Instruction {
 }
 
 // GetDataRecords add by ZhmYe 获取split后各部分的DataRecord
-func (system *System) GetDataRecords(top []int, bottom []int) (IBR, IBR) {
-	topIBR := NewIBR()
-	bottomIBR := NewIBR()
-	// 根据传入的各部分的instruction id，获取对应的原始instruction，然后构建全新的calldata和blueprint
-	for _, id := range top {
-		// 根据id获取对应的PackedInstruction
-		pi := system.Instructions[id]
-		blueprint := system.Blueprints[pi.BlueprintID] // 获得blueprint
-		instruction := pi.Unpack(system)               // 解压得到原始的instruction
-		//calldata := make([]uint32, len(instruction.Calldata))
-		//copy(calldata, instruction.Calldata)
-		topIBR.Append(instruction.Calldata, blueprint)
+func (system *System) GetDataRecords(subiIDs [][]int) []IBR {
+	//topIBR := NewIBR()
+	//bottomIBR := NewIBR()
+	ibrs := make([]IBR, 0)
+	for _, iIDs := range subiIDs {
+		ibr := NewIBR()
+		// 根据传入的各部分的instruction id，获取对应的原始instruction，然后构建全新的calldata和blueprint
+		for _, id := range iIDs {
+			// 根据id获取对应的PackedInstruction
+			pi := system.Instructions[id]
+			blueprint := system.Blueprints[pi.BlueprintID] // 获得blueprint
+			instruction := pi.Unpack(system)               // 解压得到原始的instruction
+			//calldata := make([]uint32, len(instruction.Calldata))
+			//copy(calldata, instruction.Calldata)
+			ibr.Append(instruction.Calldata, blueprint, system.SplitEngine.IsMiddle(id))
+		}
+		ibrs = append(ibrs, *ibr)
 	}
-	for _, id := range bottom {
-		// 根据id获取对应的PackedInstruction
-		pi := system.Instructions[id]
-		blueprint := system.Blueprints[pi.BlueprintID] // 获得blueprint
-		instruction := pi.Unpack(system)               // 解压得到原始的instruction
-		bottomIBR.Append(instruction.Calldata, blueprint)
-	}
-	return *topIBR, *bottomIBR
+	//for _, id := range bottom {
+	//	// 根据id获取对应的PackedInstruction
+	//	pi := system.Instructions[id]
+	//	blueprint := system.Blueprints[pi.BlueprintID] // 获得blueprint
+	//	instruction := pi.Unpack(system)               // 解压得到原始的instruction
+	//	bottomIBR.Append(instruction.Calldata, blueprint)
+	//}
+	return ibrs
 }
 
 // AddBlueprint adds a blueprint to the system and returns its ID
