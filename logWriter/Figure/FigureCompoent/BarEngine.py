@@ -20,8 +20,7 @@ class BarEngine:
         # 绘制柱状图
         rects = []
         for i, (key, values) in enumerate(data.items()):
-            print(i, key, values)
-            rects.append(ax.bar(x - width/2 + i*width, values, width, label=key))
+            rects.append(ax.bar(x - (len(data.items()) -1) * width/2 + i*width, values, width, label=key))
         # 添加标题和标签
         ax.set_title(title)
         ax.set_xlabel(x_label)

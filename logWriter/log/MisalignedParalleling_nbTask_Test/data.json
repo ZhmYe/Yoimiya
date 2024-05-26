@@ -1,1 +1,538 @@
-{"loop_multiplication": {"2": {"misaligned_paralleling": {"log": "misaligned_paralleling", "memory": 1.4168756, "time": {"compile": 2842.628623, "setUp": 0.0, "solve": 0.0, "split": 0.0, "build": 0.0, "total": 22695.522693000003}}, "serial_running": {"log": "serial_running", "memory": 1.6663804, "time": {"compile": 2644.333964, "setUp": 27860.107988, "solve": 2808.5871180000004, "split": 0.0, "build": 0.0, "total": 30668.709749}}}, "64": {"misaligned_paralleling": {"log": "misaligned_paralleling", "memory": 2.175351, "time": {"compile": 2296.8962539999998, "setUp": 0.0, "solve": 0.0, "split": 0.0, "build": 0.0, "total": 579036.285151}}, "serial_running": {"log": "serial_running", "memory": 1.8579111, "time": {"compile": 2558.7928660000002, "setUp": 891993.482638, "solve": 84053.375329, "split": 0.0, "build": 0.0, "total": 976047.341288}}}, "16": {"misaligned_paralleling": {"log": "misaligned_paralleling", "memory": 2.255826, "time": {"compile": 2408.611509, "setUp": 0.0, "solve": 0.0, "split": 0.0, "build": 0.0, "total": 150804.437552}}, "serial_running": {"log": "serial_running", "memory": 1.85784, "time": {"compile": 2726.46817, "setUp": 223312.568753, "solve": 21265.706627, "split": 0.0, "build": 0.0, "total": 244578.409117}}}, "128": {"misaligned_paralleling": {"log": "misaligned_paralleling", "memory": 2.2450294, "time": {"compile": 2342.220947, "setUp": 0.0, "solve": 0.0, "split": 0.0, "build": 0.0, "total": 1145357.860745}}, "serial_running": {"log": "serial_running", "memory": 1.8579416, "time": {"compile": 2540.609206, "setUp": 1791790.421429, "solve": 170606.143501, "split": 0.0, "build": 0.0, "total": 1962397.566862}}}, "8": {"serial_running": {"log": "serial_running", "memory": 1.8577852, "time": {"compile": 2659.3433050000003, "setUp": 112050.334798, "solve": 10778.00216, "split": 0.0, "build": 0.0, "total": 122828.402879}}, "misaligned_paralleling": {"log": "misaligned_paralleling", "memory": 1.6293447, "time": {"compile": 2429.86126, "setUp": 0.0, "solve": 0.0, "split": 0.0, "build": 0.0, "total": 76727.44415}}}, "32": {"serial_running": {"log": "serial_running", "memory": 1.856473, "time": {"compile": 2728.131508, "setUp": 449090.351063, "solve": 42974.144605, "split": 0.0, "build": 0.0, "total": 492064.738019}}, "misaligned_paralleling": {"log": "misaligned_paralleling", "memory": 2.2566063, "time": {"compile": 2452.198068, "setUp": 0.0, "solve": 0.0, "split": 0.0, "build": 0.0, "total": 291163.822214}}}, "4": {"serial_running": {"log": "serial_running", "memory": 1.6150725, "time": {"compile": 2728.267086, "setUp": 56366.829344000005, "solve": 5336.501097, "split": 0.0, "build": 0.0, "total": 61703.359693}}, "misaligned_paralleling": {"log": "misaligned_paralleling", "memory": 2.0972252, "time": {"compile": 2291.398401, "setUp": 0.0, "solve": 0.0, "split": 0.0, "build": 0.0, "total": 42366.027586000004}}}}, "fib_square": {"2": {"serial_running": {"log": "serial_running", "memory": 7.6206613, "time": {"compile": 13168.781462, "setUp": 110381.326081, "solve": 7967.7261960000005, "split": 0.0, "build": 0.0, "total": 118349.06327700001}}, "misaligned_paralleling": {"log": "misaligned_paralleling", "memory": 5.755375, "time": {"compile": 13365.06653, "setUp": 0.0, "solve": 0.0, "split": 0.0, "build": 0.0, "total": 92324.16926}}}, "64": {"serial_running": {"log": "serial_running", "memory": 8.10371, "time": {"compile": 13436.484259, "setUp": 3524635.751768, "solve": 252399.271027, "split": 0.0, "build": 0.0, "total": 3777035.414636}}, "misaligned_paralleling": {"log": "misaligned_paralleling", "memory": 7.859824, "time": {"compile": 12551.640747000001, "setUp": 0.0, "solve": 0.0, "split": 0.0, "build": 0.0, "total": 2287184.835409}}}, "16": {"misaligned_paralleling": {"log": "misaligned_paralleling", "memory": 7.859563, "time": {"compile": 12034.057481, "setUp": 0.0, "solve": 0.0, "split": 0.0, "build": 0.0, "total": 585280.623649}}, "serial_running": {"log": "serial_running", "memory": 8.103612, "time": {"compile": 13007.974537, "setUp": 880576.525704, "solve": 64568.122769, "split": 0.0, "build": 0.0, "total": 945144.745101}}}, "128": {"serial_running": {"log": "serial_running", "memory": 8.103735, "time": {"compile": 13106.274204, "setUp": 7014738.019887, "solve": 508992.821939, "split": 0.0, "build": 0.0, "total": 7523731.63153}}, "misaligned_paralleling": {"log": "misaligned_paralleling", "memory": 9.434205, "time": {"compile": 12066.808762, "setUp": 0.0, "solve": 0.0, "split": 0.0, "build": 0.0, "total": 4552773.799909}}}, "8": {"serial_running": {"log": "serial_running", "memory": 8.103574, "time": {"compile": 13145.220837, "setUp": 439635.240886, "solve": 31209.820853, "split": 0.0, "build": 0.0, "total": 470845.112631}}, "misaligned_paralleling": {"log": "misaligned_paralleling", "memory": 7.5811095, "time": {"compile": 12381.253539, "setUp": 0.0, "solve": 0.0, "split": 0.0, "build": 0.0, "total": 307183.443305}}}, "32": {"misaligned_paralleling": {"log": "misaligned_paralleling", "memory": 7.8597107, "time": {"compile": 12706.763384, "setUp": 0.0, "solve": 0.0, "split": 0.0, "build": 0.0, "total": 1153198.495291}}, "serial_running": {"log": "serial_running", "memory": 8.103634, "time": {"compile": 13079.300786, "setUp": 1760651.705975, "solve": 126219.243673, "split": 0.0, "build": 0.0, "total": 1886871.146518}}}, "4": {"serial_running": {"log": "serial_running", "memory": 7.613397, "time": {"compile": 13202.119792, "setUp": 219787.22042, "solve": 16127.839019, "split": 0.0, "build": 0.0, "total": 235915.083575}}, "misaligned_paralleling": {"log": "misaligned_paralleling", "memory": 7.866793, "time": {"compile": 13024.054917000001, "setUp": 0.0, "solve": 0.0, "split": 0.0, "build": 0.0, "total": 162473.456484}}}}}
+{
+    "loop_multiplication": {
+        "2": {
+            "2_split": {
+                "log": "2_split",
+                "memory": 2.0727394,
+                "time": {
+                    "compile": 2336.243049,
+                    "setUp": 0.0,
+                    "solve": 0.0,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 21989.683116999997
+                }
+            },
+            "serial_running": {
+                "log": "serial_running",
+                "memory": 1.7220873,
+                "time": {
+                    "compile": 2157.108224,
+                    "setUp": 32948.592691000005,
+                    "solve": 1547.762563,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 34519.069523
+                }
+            },
+            "3_split": {
+                "log": "3_split",
+                "memory": 2.047599,
+                "time": {
+                    "compile": 2543.452877,
+                    "setUp": 0.0,
+                    "solve": 0.0,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 20577.65419
+                }
+            }
+        },
+        "64": {
+            "2_split": {
+                "log": "2_split",
+                "memory": 2.7612207,
+                "time": {
+                    "compile": 2439.731612,
+                    "setUp": 0.0,
+                    "solve": 0.0,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 639123.57819
+                }
+            },
+            "3_split": {
+                "log": "3_split",
+                "memory": 2.4805691,
+                "time": {
+                    "compile": 2657.451086,
+                    "setUp": 0.0,
+                    "solve": 0.0,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 575025.173166
+                }
+            },
+            "serial_running": {
+                "log": "serial_running",
+                "memory": 1.7884793,
+                "time": {
+                    "compile": 2203.990115,
+                    "setUp": 1062853.267678,
+                    "solve": 48935.695263,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 1112517.389279
+                }
+            }
+        },
+        "16": {
+            "2_split": {
+                "log": "2_split",
+                "memory": 2.2731283,
+                "time": {
+                    "compile": 2416.9261539999998,
+                    "setUp": 0.0,
+                    "solve": 0.0,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 161763.896542
+                }
+            },
+            "serial_running": {
+                "log": "serial_running",
+                "memory": 1.7884233,
+                "time": {
+                    "compile": 2222.36387,
+                    "setUp": 264945.562726,
+                    "solve": 12504.824448000001,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 277643.559603
+                }
+            },
+            "3_split": {
+                "log": "3_split",
+                "memory": 2.426532,
+                "time": {
+                    "compile": 2523.661915,
+                    "setUp": 0.0,
+                    "solve": 0.0,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 146214.014225
+                }
+            }
+        },
+        "128": {
+            "serial_running": {
+                "log": "serial_running",
+                "memory": 1.7884781,
+                "time": {
+                    "compile": 2156.2865659999998,
+                    "setUp": 2124344.177112,
+                    "solve": 95977.08331399999,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 2221784.305383
+                }
+            },
+            "2_split": {
+                "log": "2_split",
+                "memory": 2.5864062,
+                "time": {
+                    "compile": 2382.885844,
+                    "setUp": 0.0,
+                    "solve": 0.0,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 1276983.864624
+                }
+            },
+            "3_split": {
+                "log": "3_split",
+                "memory": 2.844044,
+                "time": {
+                    "compile": 2522.239642,
+                    "setUp": 0.0,
+                    "solve": 0.0,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 1141820.207942
+                }
+            }
+        },
+        "8": {
+            "3_split": {
+                "log": "3_split",
+                "memory": 2.310643,
+                "time": {
+                    "compile": 2502.197033,
+                    "setUp": 0.0,
+                    "solve": 0.0,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 74767.083144
+                }
+            },
+            "2_split": {
+                "log": "2_split",
+                "memory": 2.0322049,
+                "time": {
+                    "compile": 2399.8219480000002,
+                    "setUp": 0.0,
+                    "solve": 0.0,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 81983.153169
+                }
+            },
+            "serial_running": {
+                "log": "serial_running",
+                "memory": 1.788452,
+                "time": {
+                    "compile": 2246.305279,
+                    "setUp": 132093.757917,
+                    "solve": 6121.712001,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 138303.092943
+                }
+            }
+        },
+        "32": {
+            "2_split": {
+                "log": "2_split",
+                "memory": 2.1636083,
+                "time": {
+                    "compile": 2474.11793,
+                    "setUp": 0.0,
+                    "solve": 0.0,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 317590.983647
+                }
+            },
+            "serial_running": {
+                "log": "serial_running",
+                "memory": 1.7884868,
+                "time": {
+                    "compile": 2278.569959,
+                    "setUp": 530880.679981,
+                    "solve": 24457.621881000003,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 555705.079464
+                }
+            },
+            "3_split": {
+                "log": "3_split",
+                "memory": 2.543946,
+                "time": {
+                    "compile": 2532.0263,
+                    "setUp": 0.0,
+                    "solve": 0.0,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 287580.880505
+                }
+            }
+        },
+        "4": {
+            "2_split": {
+                "log": "2_split",
+                "memory": 2.1068559,
+                "time": {
+                    "compile": 2427.872951,
+                    "setUp": 0.0,
+                    "solve": 0.0,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 41968.023264999996
+                }
+            },
+            "3_split": {
+                "log": "3_split",
+                "memory": 2.0987122,
+                "time": {
+                    "compile": 2476.5953170000003,
+                    "setUp": 0.0,
+                    "solve": 0.0,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 38724.088741
+                }
+            },
+            "serial_running": {
+                "log": "serial_running",
+                "memory": 1.7122172,
+                "time": {
+                    "compile": 2139.493491,
+                    "setUp": 66026.84904,
+                    "solve": 3051.685943,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 69125.016244
+                }
+            }
+        }
+    },
+    "fib_square": {
+        "2": {
+            "3_split": {
+                "log": "3_split",
+                "memory": 6.812954,
+                "time": {
+                    "compile": 11740.950444,
+                    "setUp": 0.0,
+                    "solve": 0.0,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 79773.05365799999
+                }
+            },
+            "serial_running": {
+                "log": "serial_running",
+                "memory": 6.6998696,
+                "time": {
+                    "compile": 10599.258393,
+                    "setUp": 128840.510947,
+                    "solve": 4011.7510310000002,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 132894.104536
+                }
+            },
+            "2_split": {
+                "log": "2_split",
+                "memory": 7.489734,
+                "time": {
+                    "compile": 11795.311244,
+                    "setUp": 0.0,
+                    "solve": 0.0,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 85795.843742
+                }
+            }
+        },
+        "64": {
+            "serial_running": {
+                "log": "serial_running",
+                "memory": 7.302149,
+                "time": {
+                    "compile": 10383.642111000001,
+                    "setUp": 4106351.134732,
+                    "solve": 122956.155853,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 4231301.25237
+                }
+            },
+            "3_split": {
+                "log": "3_split",
+                "memory": 10.183008,
+                "time": {
+                    "compile": 11853.704851,
+                    "setUp": 0.0,
+                    "solve": 0.0,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 2214276.691534
+                }
+            },
+            "2_split": {
+                "log": "2_split",
+                "memory": 8.867394,
+                "time": {
+                    "compile": 11463.720248,
+                    "setUp": 0.0,
+                    "solve": 0.0,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 2463475.650109
+                }
+            }
+        },
+        "16": {
+            "3_split": {
+                "log": "3_split",
+                "memory": 10.464015,
+                "time": {
+                    "compile": 12056.252539000001,
+                    "setUp": 0.0,
+                    "solve": 0.0,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 562734.003113
+                }
+            },
+            "2_split": {
+                "log": "2_split",
+                "memory": 8.333587,
+                "time": {
+                    "compile": 11473.935061,
+                    "setUp": 0.0,
+                    "solve": 0.0,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 615113.32438
+                }
+            },
+            "serial_running": {
+                "log": "serial_running",
+                "memory": 7.302055,
+                "time": {
+                    "compile": 10160.430991,
+                    "setUp": 1026870.416506,
+                    "solve": 29344.471526,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 1056592.957779
+                }
+            }
+        },
+        "128": {
+            "2_split": {
+                "log": "2_split",
+                "memory": 8.826139,
+                "time": {
+                    "compile": 11406.46525,
+                    "setUp": 0.0,
+                    "solve": 0.0,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 4946936.49952
+                }
+            },
+            "serial_running": {
+                "log": "serial_running",
+                "memory": 7.3021765,
+                "time": {
+                    "compile": 10446.569275,
+                    "setUp": 8207749.789618,
+                    "solve": 246158.369465,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 8456976.161181
+                }
+            },
+            "3_split": {
+                "log": "3_split",
+                "memory": 10.419351,
+                "time": {
+                    "compile": 11687.689483,
+                    "setUp": 0.0,
+                    "solve": 0.0,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 4433679.950832
+                }
+            }
+        },
+        "8": {
+            "2_split": {
+                "log": "2_split",
+                "memory": 7.9752383,
+                "time": {
+                    "compile": 11440.141658,
+                    "setUp": 0.0,
+                    "solve": 0.0,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 316660.635288
+                }
+            },
+            "serial_running": {
+                "log": "serial_running",
+                "memory": 7.3020506,
+                "time": {
+                    "compile": 11061.405618,
+                    "setUp": 513570.277351,
+                    "solve": 15497.824555,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 529315.573843
+                }
+            },
+            "3_split": {
+                "log": "3_split",
+                "memory": 9.293433,
+                "time": {
+                    "compile": 11997.629573,
+                    "setUp": 0.0,
+                    "solve": 0.0,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 290564.333603
+                }
+            }
+        },
+        "32": {
+            "serial_running": {
+                "log": "serial_running",
+                "memory": 7.3021317,
+                "time": {
+                    "compile": 10493.237030999999,
+                    "setUp": 2048079.997732,
+                    "solve": 60094.120185,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 2108969.015208
+                }
+            },
+            "2_split": {
+                "log": "2_split",
+                "memory": 8.205055,
+                "time": {
+                    "compile": 11155.425638,
+                    "setUp": 0.0,
+                    "solve": 0.0,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 1244056.272543
+                }
+            },
+            "3_split": {
+                "log": "3_split",
+                "memory": 9.830716,
+                "time": {
+                    "compile": 12034.262813,
+                    "setUp": 0.0,
+                    "solve": 0.0,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 1112806.052043
+                }
+            }
+        },
+        "4": {
+            "3_split": {
+                "log": "3_split",
+                "memory": 9.232745,
+                "time": {
+                    "compile": 11922.730909,
+                    "setUp": 0.0,
+                    "solve": 0.0,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 148271.271625
+                }
+            },
+            "2_split": {
+                "log": "2_split",
+                "memory": 8.22101,
+                "time": {
+                    "compile": 11358.478092000001,
+                    "setUp": 0.0,
+                    "solve": 0.0,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 159888.59689400002
+                }
+            },
+            "serial_running": {
+                "log": "serial_running",
+                "memory": 7.30189,
+                "time": {
+                    "compile": 10710.638278999999,
+                    "setUp": 257158.558069,
+                    "solve": 7530.7750750000005,
+                    "split": 0.0,
+                    "build": 0.0,
+                    "total": 264752.110735
+                }
+            }
+        }
+    }
+}

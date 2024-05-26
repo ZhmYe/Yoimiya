@@ -35,14 +35,17 @@ def process(process_log):
             output[circuit_name][loop_number] = {}
             loop_path = os.path.join(directory_path, nb_task)
             logs = [f for f in os.listdir(loop_path) if os.path.isfile(os.path.join(loop_path, f))]
-            if len(logs) != 2:
-                print("error: len(logs) != 2, in {}".format(nb_task))
+            if len(logs) != 3:
+                print("error: len(logs) != 3, in {}".format(nb_task))
                 continue
             for log in logs:
                 log_name = "misaligned_paralleling"
-                if "misaligned_paralleling" in log:
+                if "misaligned_paralleling_cut_2" in log:
                     print("\t\t\t process misaligned_paralleling log: {}".format(os.path.join(loop_path, log)))
-                    log_name = "misaligned_paralleling"
+                    log_name = "2_split"
+                elif "misaligned_paralleling_cut_3" in log:
+                    print("\t\t\t process misaligned_paralleling log: {}".format(os.path.join(loop_path, log)))
+                    log_name = "3_split"
                 elif "serial_running" in log:
                     print("\t\t\t process serial_running log: {}".format(os.path.join(loop_path, log)))
                     log_name = "serial_running"

@@ -33,7 +33,7 @@ def process(dir):
         memory_figure = {
             "figure_type": "stack_bar",
             "title": "Time Structure In N-Split and Normal Running with {} Circuit".format(circuit),
-            "x_label": "",
+            "x_label": "N",
             "y_label": "Time(ms)",
             "name": "N-Split-Time_structure_Test-{}.png".format(circuit),
             "x_ticks": [],
@@ -43,6 +43,7 @@ def process(dir):
         if len(circuit_data) == 0:
             continue
         # n_split / normal_running
+        circuit_data = dict(sorted(circuit_data.items()))
         for key in circuit_data:
             memory_figure["x_ticks"].append(key)
             for data in circuit_data[key]["time"]:
@@ -53,6 +54,26 @@ def process(dir):
                 memory_figure["data"][data].append(circuit_data[key]["time"][data])
         figure_output.append(memory_figure)
     # todo 这里其实可以和上面的合在一起的
+    # 内存柱状图
+    for circuit in output:
+        memory_figure = {
+            "figure_type": "bar",
+            "title": "Memory Reduce In N-Split with {} Circuit".format(circuit),
+            "x_label": "N",
+            "y_label": "Memory(GB)",
+            "name": "N-Split-Memory_Test-{}.png".format(circuit),
+            "x_ticks": [],
+            "data": {}
+        }
+        circuit_data = output[circuit]
+        if len(circuit_data) == 0:
+            continue
+        circuit_data = dict(sorted(circuit_data.items()))
+        memory_figure["data"]["memory"] = []
+        for key in circuit_data:
+            memory_figure["x_ticks"].append(key)
+            memory_figure["data"]["memory"].append(circuit_data[key]["memory"])
+        figure_output.append(memory_figure)
     with open("{}/output.json".format(dir), "w", encoding="utf-8") as f:
         json.dump(figure_output, f)
         f.close()

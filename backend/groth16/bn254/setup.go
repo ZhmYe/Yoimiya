@@ -285,9 +285,11 @@ func Setup(r1cs *cs.R1CS, pk *ProvingKey, vk *VerifyingKey) error {
 	for i := range ckK {
 		g1Scalars = append(g1Scalars, ckK[i]...)
 	}
-
+	// todo 这里的Batch...里面runtime.NumCPU()改了，进去以后的parallel.Execute也是
+	//startTime := time.Now()
+	//fmt.Println(runtime.GOMAXPROCS(-1))
 	g1PointsAff := curve.BatchScalarMultiplicationG1(&g1, g1Scalars)
-
+	//fmt.Println("BatchScalarMultiplicationG1 Time: ", time.Since(startTime))
 	// sets pk: [α]₁, [β]₁, [δ]₁
 	pk.G1.Alpha = g1PointsAff[0]
 	pk.G1.Beta = g1PointsAff[1]

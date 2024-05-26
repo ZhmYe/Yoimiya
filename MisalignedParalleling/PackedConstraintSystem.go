@@ -60,6 +60,7 @@ func (p *PackedConstraintSystem) Process(extra []constraint.ExtraValue, assignme
 	if err != nil {
 		panic(err)
 	}
+	//fmt.Println("Process Time: ", time.Since(startTime))
 	//var nextExtra []fr.Element
 	//nextForwardOutput, nextExtra := GetExtra(split)
 

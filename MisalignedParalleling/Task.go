@@ -46,7 +46,7 @@ func NewTask(id int, cut int, assignment frontend.Circuit) *Task {
 
 // Process 执行第i个电路，得到证明并更新extra
 func (t *Task) Process(phase int, cs PackedConstraintSystem) {
-	t.mutex.Lock()
+	//t.mutex.Lock()
 	if phase != t.phase+1 {
 		panic("Has Some Phase Not Process!!!")
 	}
@@ -55,7 +55,9 @@ func (t *Task) Process(phase int, cs PackedConstraintSystem) {
 		// 执行第一个电路
 		t.SetStartTime()
 	}
+	//startTime := time.Now()
 	t.AppendProof(cs.Process(t.extra, t.assignment))
+	//fmt.Println(t.id, phase, "Process Time: ", time.Since(startTime))
 	forwardOutput := cs.GetForwardOutput()
 	t.UpdateExtra(forwardOutput)
 }
@@ -113,7 +115,7 @@ func (t *Task) Advance() {
 		// 已经完成了所有电路
 		t.SetEndTime()
 	}
-	t.mutex.Unlock()
+	//t.mutex.Unlock()
 }
 func (t *Task) AppendProof(proof split.PackedProof) {
 	//t.proofs = append(t.proofs, proof)

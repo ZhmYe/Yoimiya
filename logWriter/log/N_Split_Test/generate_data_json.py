@@ -26,23 +26,24 @@ def process(process_log):
         output[circuit_name] = {}
         # 获取每个文件夹中的所有文件夹nbLoop_{}
         directory_path = os.path.join(current_directory, directory)
-        logs = [f for f in os.listdir(directory_path) if os.path.isfile(os.path.join(directory_path, f))]
-        if len(logs) != 2:
-            print("error: len(logs) != 2, in {}".format(directory_path))
-            continue
-        for log in logs:
-            log_name = "n_split"
-            if "n_split" in log:
-                print("\t\t\t process n_split log: {}".format(os.path.join(directory_path, log)))
-                log_name = "n_split"
-            elif "normal_running" in log:
-                print("\t\t\t process normal_running log: {}".format(os.path.join(directory_path, log)))
-                log_name = "normal_running"
+        n_split_directory = [d for d in os.listdir(directory_path) if os.path.isdir(os.path.join(directory_path, d))]
+        for n_split in n_split_directory:
+            if not n_split.endswith("_split"):
+                if n_split != "normal_running":
+                    print("\t\t {} not end with _split, pass".format(n_split))
+                    continue
+            if n_split == "normal_running":
+                split_number = 1
             else:
-                print("\t\t\t error: error log format!!!")
+                split_number = int(n_split[:len(n_split) - 6]) # 循环数
+            output[circuit_name][split_number] = {}
+            loop_path = os.path.join(directory_path, n_split)
+            logs = [f for f in os.listdir(loop_path) if os.path.isfile(os.path.join(loop_path, f))]
+            if len(logs) != 1:
+                print("error: len(logs) != 1, in {}".format(n_split))
                 continue
-            log_output = process_log(os.path.join(directory_path, log), log_name=log_name)
-            output[circuit_name][log_name] = log_output
+            log_output = process_log(os.path.join(loop_path, logs[0]), log_name=n_split)
+            output[circuit_name][split_number] = log_output
     # print(output)
     with open(os.path.join(current_directory, "data.json"), "w", encoding="utf-8") as f:
         json.dump(output, f)

@@ -1,1 +1,272 @@
-[{"figure_type": "bar", "title": "Memory Used In Misaligned-Paralleling loop_multiplication Circuit With Different Task Number", "x_label": "Task Number", "y_label": "Memory(GB)", "name": "Misaligned-Paralleling-nbTask_Memory_Test-loop_multiplication.png", "x_ticks": ["2", "4", "8", "16", "32", "64", "128"], "data": {"misaligned_paralleling": [1.4168756, 2.0972252, 1.6293447, 2.255826, 2.2566063, 2.175351, 2.2450294], "serial_running": [1.6663804, 1.6150725, 1.8577852, 1.85784, 1.856473, 1.8579111, 1.8579416]}}, {"figure_type": "bar", "title": "Time Used In Misaligned-Paralleling loop_multiplication Circuit With Different Task Number", "x_label": "Task Number", "y_label": "Time(ms)", "name": "Misaligned-Paralleling-nbTask_Time_Test-loop_multiplication.png", "x_ticks": ["2", "4", "8", "16", "32", "64", "128"], "data": {"misaligned_paralleling": [22695.522693000003, 42366.027586000004, 76727.44415, 150804.437552, 291163.822214, 579036.285151, 1145357.860745], "serial_running": [30668.709749, 61703.359693, 122828.402879, 244578.409117, 492064.738019, 976047.341288, 1962397.566862]}}, {"figure_type": "bar", "title": "Time Used In Misaligned-Paralleling fib_square Circuit With Different Task Number", "x_label": "Task Number", "y_label": "Time(ms)", "name": "Misaligned-Paralleling-nbTask_Time_Test-fib_square.png", "x_ticks": ["2", "4", "8", "16", "32", "64", "128"], "data": {"serial_running": [118349.06327700001, 235915.083575, 470845.112631, 945144.745101, 1886871.146518, 3777035.414636, 7523731.63153], "misaligned_paralleling": [92324.16926, 162473.456484, 307183.443305, 585280.623649, 1153198.495291, 2287184.835409, 4552773.799909]}}, {"figure_type": "bar", "title": "Memory Used In Misaligned-Paralleling fib_square Circuit With Different Task Number", "x_label": "Task Number", "y_label": "Memory(GB)", "name": "Misaligned-Paralleling-nbTask_Memory_Test-fib_square.png", "x_ticks": ["2", "4", "8", "16", "32", "64", "128"], "data": {"serial_running": [7.6206613, 7.613397, 8.103574, 8.103612, 8.103634, 8.10371, 8.103735], "misaligned_paralleling": [5.755375, 7.866793, 7.5811095, 7.859563, 7.8597107, 7.859824, 9.434205]}}, {"figure_type": "bar", "title": "Time Used In Misaligned-Paralleling loop_multiplication Circuit With Different Task Number", "x_label": "Task Number", "y_label": "Time(ms)", "name": "Misaligned-Paralleling-nbTask_Time_Test-loop_multiplication.png", "x_ticks": ["2", "4", "8", "16", "32", "64", "128"], "data": {"misaligned_paralleling": [22695.522693000003, 42366.027586000004, 76727.44415, 150804.437552, 291163.822214, 579036.285151, 1145357.860745], "serial_running": [30668.709749, 61703.359693, 122828.402879, 244578.409117, 492064.738019, 976047.341288, 1962397.566862]}}, {"figure_type": "bar", "title": "Time Used In Misaligned-Paralleling fib_square Circuit With Different Task Number", "x_label": "Task Number", "y_label": "Time(ms)", "name": "Misaligned-Paralleling-nbTask_Time_Test-fib_square.png", "x_ticks": ["2", "4", "8", "16", "32", "64", "128"], "data": {"serial_running": [118349.06327700001, 235915.083575, 470845.112631, 945144.745101, 1886871.146518, 3777035.414636, 7523731.63153], "misaligned_paralleling": [92324.16926, 162473.456484, 307183.443305, 585280.623649, 1153198.495291, 2287184.835409, 4552773.799909]}}]
+[
+    {
+        "figure_type": "bar",
+        "title": "Memory Used In Misaligned-Paralleling loop_multiplication Circuit With Different Task Number",
+        "x_label": "Task Number",
+        "y_label": "Memory(GB)",
+        "name": "Misaligned-Paralleling-nbTask_Memory_Test-loop_multiplication.png",
+        "x_ticks": [
+            "2",
+            "4",
+            "8",
+            "16",
+            "32",
+            "64",
+            "128"
+        ],
+        "data": {
+            "2_split": [
+                2.0727394,
+                2.1068559,
+                2.0322049,
+                2.2731283,
+                2.1636083,
+                2.7612207,
+                2.5864062
+            ],
+            "serial_running": [
+                1.7220873,
+                1.7122172,
+                1.788452,
+                1.7884233,
+                1.7884868,
+                1.7884793,
+                1.7884781
+            ],
+            "3_split": [
+                2.047599,
+                2.0987122,
+                2.310643,
+                2.426532,
+                2.543946,
+                2.4805691,
+                2.844044
+            ]
+        }
+    },
+    {
+        "figure_type": "bar",
+        "title": "Time Used In Misaligned-Paralleling loop_multiplication Circuit With Different Task Number",
+        "x_label": "Task Number",
+        "y_label": "Time(ms)",
+        "name": "Misaligned-Paralleling-nbTask_Time_Test-loop_multiplication.png",
+        "x_ticks": [
+            "2",
+            "4",
+            "8",
+            "16",
+            "32",
+            "64",
+            "128"
+        ],
+        "data": {
+            "2_split": [
+                21989.683116999997,
+                41968.023264999996,
+                81983.153169,
+                161763.896542,
+                317590.983647,
+                639123.57819,
+                1276983.864624
+            ],
+            "serial_running": [
+                34519.069523,
+                69125.016244,
+                138303.092943,
+                277643.559603,
+                555705.079464,
+                1112517.389279,
+                2221784.305383
+            ],
+            "3_split": [
+                20577.65419,
+                38724.088741,
+                74767.083144,
+                146214.014225,
+                287580.880505,
+                575025.173166,
+                1141820.207942
+            ]
+        }
+    },
+    {
+        "figure_type": "bar",
+        "title": "Time Used In Misaligned-Paralleling fib_square Circuit With Different Task Number",
+        "x_label": "Task Number",
+        "y_label": "Time(ms)",
+        "name": "Misaligned-Paralleling-nbTask_Time_Test-fib_square.png",
+        "x_ticks": [
+            "2",
+            "4",
+            "8",
+            "16",
+            "32",
+            "64",
+            "128"
+        ],
+        "data": {
+            "3_split": [
+                79773.05365799999,
+                148271.271625,
+                290564.333603,
+                562734.003113,
+                1112806.052043,
+                2214276.691534,
+                4433679.950832
+            ],
+            "serial_running": [
+                132894.104536,
+                264752.110735,
+                529315.573843,
+                1056592.957779,
+                2108969.015208,
+                4231301.25237,
+                8456976.161181
+            ],
+            "2_split": [
+                85795.843742,
+                159888.59689400002,
+                316660.635288,
+                615113.32438,
+                1244056.272543,
+                2463475.650109,
+                4946936.49952
+            ]
+        }
+    },
+    {
+        "figure_type": "bar",
+        "title": "Memory Used In Misaligned-Paralleling fib_square Circuit With Different Task Number",
+        "x_label": "Task Number",
+        "y_label": "Memory(GB)",
+        "name": "Misaligned-Paralleling-nbTask_Memory_Test-fib_square.png",
+        "x_ticks": [
+            "2",
+            "4",
+            "8",
+            "16",
+            "32",
+            "64",
+            "128"
+        ],
+        "data": {
+            "3_split": [
+                6.812954,
+                9.232745,
+                9.293433,
+                10.464015,
+                9.830716,
+                10.183008,
+                10.419351
+            ],
+            "serial_running": [
+                6.6998696,
+                7.30189,
+                7.3020506,
+                7.302055,
+                7.3021317,
+                7.302149,
+                7.3021765
+            ],
+            "2_split": [
+                7.489734,
+                8.22101,
+                7.9752383,
+                8.333587,
+                8.205055,
+                8.867394,
+                8.826139
+            ]
+        }
+    },
+    {
+        "figure_type": "bar",
+        "title": "Time Used In Misaligned-Paralleling loop_multiplication Circuit With Different Task Number",
+        "x_label": "Task Number",
+        "y_label": "Time(ms)",
+        "name": "Misaligned-Paralleling-nbTask_Time_Test-loop_multiplication.png",
+        "x_ticks": [
+            "2",
+            "4",
+            "8",
+            "16",
+            "32",
+            "64",
+            "128"
+        ],
+        "data": {
+            "2_split": [
+                21989.683116999997,
+                41968.023264999996,
+                81983.153169,
+                161763.896542,
+                317590.983647,
+                639123.57819,
+                1276983.864624
+            ],
+            "serial_running": [
+                34519.069523,
+                69125.016244,
+                138303.092943,
+                277643.559603,
+                555705.079464,
+                1112517.389279,
+                2221784.305383
+            ],
+            "3_split": [
+                20577.65419,
+                38724.088741,
+                74767.083144,
+                146214.014225,
+                287580.880505,
+                575025.173166,
+                1141820.207942
+            ]
+        }
+    },
+    {
+        "figure_type": "bar",
+        "title": "Time Used In Misaligned-Paralleling fib_square Circuit With Different Task Number",
+        "x_label": "Task Number",
+        "y_label": "Time(ms)",
+        "name": "Misaligned-Paralleling-nbTask_Time_Test-fib_square.png",
+        "x_ticks": [
+            "2",
+            "4",
+            "8",
+            "16",
+            "32",
+            "64",
+            "128"
+        ],
+        "data": {
+            "3_split": [
+                79773.05365799999,
+                148271.271625,
+                290564.333603,
+                562734.003113,
+                1112806.052043,
+                2214276.691534,
+                4433679.950832
+            ],
+            "serial_running": [
+                132894.104536,
+                264752.110735,
+                529315.573843,
+                1056592.957779,
+                2108969.015208,
+                4231301.25237,
+                8456976.161181
+            ],
+            "2_split": [
+                85795.843742,
+                159888.59689400002,
+                316660.635288,
+                615113.32438,
+                1244056.272543,
+                2463475.650109,
+                4946936.49952
+            ]
+        }
+    }
+]

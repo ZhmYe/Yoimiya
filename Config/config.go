@@ -39,7 +39,7 @@ var Config = GlobalConfig{
 	Mode:              NORMAL,
 	SplitMode:         ALONE,
 	RootPath:          "/root/Yoimiya/logWriter/log/",
-	CompressThreshold: 3,
+	CompressThreshold: 500,
 	NbLoop:            1000000,
 }
 

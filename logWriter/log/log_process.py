@@ -100,4 +100,4 @@ def process(path):
         from N_Split_Test import generate_data_json, generate_output_json
     generate_data_json.process(process_log)
     generate_output_json.process(os.path.join(os.getcwd(), path))
-process("N_Split_Test")
+process("MisalignedParalleling_nbTask_Test")

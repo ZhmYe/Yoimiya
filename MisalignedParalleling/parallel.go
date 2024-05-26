@@ -47,7 +47,7 @@ func (m *MParallelingMaster) Initialize(nbTasks int, cut int, csGenerator func()
 		m.slots = append(m.slots, slot)
 		m.buffer = append(m.buffer, NewBuffer(i))
 	}
-	m.Tasks = generator.generate(assignmentGenerator) // 生成指定数量的task,每个task包含属于自己的assignment即输入
+	m.Tasks = generator.generate(assignmentGenerator, cut) // 生成指定数量的task,每个task包含属于自己的assignment即输入
 	firstSlot := m.slots[0]
 	for _, task := range m.Tasks {
 		firstSlot.Push(task.id)

@@ -163,6 +163,7 @@ func (i *Instance) TestSerialRunning(nbTask int) Record.Record {
 			panic(err)
 		}
 		//totalProof = append(totalProof, proofs...)
+		runtime.GC()
 	}
 	Record.GlobalRecord.SetSlotTime(time.Since(startTime))
 	// todo 这里加上内存的测试逻辑
