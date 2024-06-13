@@ -34,8 +34,8 @@ func TestMisalignedParalleling(t *testing.T) {
 
 // split测试
 func TestMemoryReduceByNSplit(t *testing.T) {
-	Experiment_N_Split_Memory_Reduce(Fib, true)
-	Experiment_N_Split_Memory_Reduce(Mul, true)
+	Experiment_N_Split_Memory_Reduce(Fib, false)
+	//Experiment_N_Split_Memory_Reduce(Mul, true)
 }
 
 // todo 扩大约束数，查看内存数量减少变化，形成不同电路

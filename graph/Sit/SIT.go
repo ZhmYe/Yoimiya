@@ -13,6 +13,10 @@ type SITree struct {
 	depth        []int          // 深度
 	maxDepth     int            // 最大深度
 	layers       []Layer        // 这里和stages的下标相对应
+	// todo
+	partitions   []int // 这里用于标记每个节点被分到哪个partition, UNSET对应-1
+	maxPartition int   // 目前最大的partition
+
 }
 
 func NewSITree() *SITree {
@@ -23,6 +27,8 @@ func NewSITree() *SITree {
 	t.root = make([]*Stage, 0)
 	t.depth = make([]int, 0) // 这里记录每个stage的depth
 	t.layers = make([]Layer, 0)
+	t.partitions = make([]int, 0)
+	t.maxPartition = -1
 	return t
 }
 
@@ -32,6 +38,7 @@ func (t *SITree) appendStage(stage *Stage) {
 	t.stages = append(t.stages, stage)
 	t.batchUpdateIndex(stage.GetInstructions(), stage)
 	t.layers = append(t.layers, UNSET)
+	t.partitions = append(t.partitions, -1)
 	t.ComputeDepth(stage)
 	//for _, iID := range stage.GetInstructions() {
 	//	t.index[iID] = stage.GetID()
