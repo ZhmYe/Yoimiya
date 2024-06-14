@@ -2,7 +2,7 @@ package constraint
 
 import (
 	"Yoimiya/Config"
-	"Yoimiya/graph/LayeredGraph"
+	LRO_Tree "Yoimiya/graph/LRO-Tree"
 	"Yoimiya/graph/Sit"
 )
 
@@ -29,9 +29,10 @@ func InitSplitEngine() SplitEngine {
 	//s = sit
 	//case Config.SPLIT_LEVELS:
 	//	s = PackedLevel.NewPackedLevel()
+	//case Config.SPLIT_LEVELS:
+	//	s = LayeredGraph.NewLayeredGraph()
 	case Config.SPLIT_LEVELS:
-		s = LayeredGraph.NewLayeredGraph()
-
+		s = LRO_Tree.NewLroTree()
 	}
 	return s
 }
