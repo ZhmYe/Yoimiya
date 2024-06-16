@@ -27,6 +27,7 @@ type GlobalConfig struct {
 	MinWorkPerCPU     int
 	Mode              CODE_MODE
 	SplitMode         SPLIT_MODE
+	isSplit           bool
 	RootPath          string
 	CompressThreshold int
 	NbLoop            int
@@ -41,6 +42,7 @@ var Config = GlobalConfig{
 	RootPath:          "/root/Yoimiya/logWriter/log/",
 	CompressThreshold: 500,
 	NbLoop:            1000000,
+	isSplit:           true,
 }
 
 func (c *GlobalConfig) IsCluster() bool {
@@ -48,4 +50,13 @@ func (c *GlobalConfig) IsCluster() bool {
 		return true
 	}
 	return false
+}
+func (c *GlobalConfig) IsSplit() bool {
+	return c.isSplit
+}
+func (c *GlobalConfig) SwitchToSplit() {
+	c.isSplit = true
+}
+func (c *GlobalConfig) CancelSplit() {
+	c.isSplit = false
 }

@@ -1,6 +1,7 @@
 package split
 
 import (
+	"Yoimiya/Config"
 	"Yoimiya/Record"
 	"Yoimiya/constraint"
 	cs_bn254 "Yoimiya/constraint/bn254"
@@ -51,6 +52,7 @@ func SplitAndProve(cs constraint.ConstraintSystem, assignment frontend.Circuit, 
 		panic("Only Support bn254 r1cs now...")
 	}
 	runtime.GC() //清理内存
+	Config.Config.CancelSplit()
 	for i, ibr := range ibrs {
 		fmt.Print("	Sub Circuit ", i, " ")
 		buildStartTime := time.Now()

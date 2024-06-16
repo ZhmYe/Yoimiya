@@ -1,5 +1,7 @@
 package LRO_Tree
 
+import "fmt"
+
 type LroTree struct {
 	// 这里的iID是依次加一的，可以对应下标
 	nodes  []*LroNode // todo 这里是否需要存这么多node，然后找到root?
@@ -44,25 +46,45 @@ func (t *LroTree) Insert(iID int, previousIDs []int) {
 	t.nodes = append(t.nodes, node)
 }
 func (t *LroTree) AssignLayer(cut int) {
-	//threshold := RoundUpSplit(t.NbInstruction(), cut) // 每一份的阈值
+	threshold := RoundUpSplit(t.NbInstruction(), cut) // 每一份的阈值
+	t.bucket.SetThreshold(threshold)
 	// todo 先写后续遍历的逻辑
 	Leaf := t.GetLeafNode()
-	Leaf.Ergodic()
+	Leaf.Ergodic(t.bucket)
+	fmt.Println(t.bucket.split)
 }
 func (t *LroTree) IsMiddle(iID int) bool {
-	return false
+	// todo 怎么判断节点是否是middle
+	node := t.GetNode(iID) // 获取节点
+	return node.IsMiddle()
 }
 func (t *LroTree) GetAllInstructions() []int {
-	return make([]int, 0)
+	iIDs := make([]int, 0)
+	for i, node := range t.nodes {
+		iIDs[i] = node.O
+	}
+	return iIDs
 }
 func (t *LroTree) GetMiddleOutputs() map[int]bool {
 	return make(map[int]bool)
 }
 func (t *LroTree) GetStageNumber() int {
-	return 0
+	return t.bucket.split
 }
+
+// GetSubCircuitInstructionIDs todo
 func (t *LroTree) GetSubCircuitInstructionIDs() [][]int {
-	return make([][]int, 0)
+	result := make([][]int, 0)
+	nbSplit := t.bucket.split + 1
+	for i := 0; i < nbSplit; i++ {
+		result = append(result, make([]int, 0))
+	}
+	// 这里的iID是依次加一的，可以对应下标，拓扑有序
+	for _, node := range t.nodes {
+		split := node.split
+		result[split] = append(result[split], node.O)
+	}
+	return result
 }
 func (t *LroTree) GetLayersInfo() [4]int {
 	return [4]int{0, 0, 0, 0}
