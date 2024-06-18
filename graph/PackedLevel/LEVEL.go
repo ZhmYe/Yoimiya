@@ -63,16 +63,6 @@ func (l *PackedLevel) Insert(iID int, previousIDs []int) {
 			maxLevel = level
 		}
 	}
-	//for i, level := range l.Levels {
-	//	for _, id := range level {
-	//		_, exist := previousIdsMap[id]
-	//		if exist {
-	//			if i > maxLevel {
-	//				maxLevel = i
-	//			}
-	//		}
-	//	}
-	//}
 	maxLevel++
 	if maxLevel >= len(l.Levels) {
 		l.Levels = append(l.Levels, []int{iID})
@@ -95,9 +85,6 @@ func (l *PackedLevel) Insert(iID int, previousIDs []int) {
 		if isGreater(sequence, current) {
 			l.deepest[id] = sequence
 		}
-		//if current < maxLevel {
-		//	l.deepest[id] = maxLevel
-		//}
 	}
 }
 
@@ -124,18 +111,6 @@ func (l *PackedLevel) GetLayersInfo() (info [4]int) {
 	return info
 }
 
-//func (l *PackedLevel) GetSubCircuitInstructionIDs() ([]int, []int) {
-//	top, bottom := make([]int, 0), make([]int, 0)
-//	for iID, layer := range l.layer {
-//		if layer == BOTTOM {
-//			bottom = append(bottom, iID)
-//		} else {
-//			top = append(top, iID)
-//		}
-//	}
-//	return top, bottom
-//}
-
 func (l *PackedLevel) GetSubCircuitInstructionIDs() [][]int {
 	subiIDs := make([][]int, 0)
 	idx := 0
@@ -158,30 +133,10 @@ func (l *PackedLevel) GetSubCircuitInstructionIDs() [][]int {
 		subiIDs = append(subiIDs, iIDs)
 	}
 	return subiIDs
-	//top, bottom := make([]int, 0), make([]int, 0)
-	//for iID, layer := range l.layer {
-	//	if layer == BOTTOM {
-	//		bottom = append(bottom, iID)
-	//	} else {
-	//		top = append(top, iID)
-	//	}
-	//}
-	//return top, bottom
 }
 func (l *PackedLevel) AssignLayer(cut int) {
 	//totalStageNumber := t.GetStageNumber()
 	totalInstructionNumber := len(l.layer)
-	//total := 0
-	//splitDepth := -1
-	// 遍历所有level
-	//for i := 0; i < len(l.Levels); i++ {
-	//	level := l.Levels[i]
-	//	if 2*(total+len(level)) > totalInstructionNumber {
-	//		splitDepth = i - 1
-	//		break
-	//	}
-	//	total += len(level)
-	//}
 	// todo 这里的逻辑 优化到cut=n
 	count := 0
 	threshold := totalInstructionNumber / cut // 每次split的阈值
@@ -258,23 +213,6 @@ func (l *PackedLevel) AssignLayer(cut int) {
 			}
 		}
 	}
-
-	//for i, level := range l.Levels {
-	//	for _, id := range level {
-	//		depth := l.deepest[id]
-	//		// 如果本身所处层数大于splitDepth，则为bottom
-	//		if i > splitDepth {
-	//			l.layer[id] = BOTTOM
-	//		} else {
-	//			// 如果当前就在splitDepth或者子节点达到的最大位置在splitDepth之后，则为middle
-	//			if depth > splitDepth || i == splitDepth {
-	//				l.layer[id] = MIDDLE
-	//			} else {
-	//				l.layer[id] = TOP
-	//			}
-	//		}
-	//	}
-	//}
 
 }
 
