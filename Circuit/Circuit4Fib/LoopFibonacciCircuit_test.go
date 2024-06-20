@@ -21,11 +21,11 @@ func TestLoopFibonacci(t *testing.T) {
 		panic(err)
 	}
 	fmt.Println("Compile Time:", time.Since(startTime))
-	proofs, err := split.Split(ccs, &assignment, split.NewParam(true, false, -1, false))
+	proofs, err := split.Split(ccs, &assignment, split.NewParam(true, false, 2, false))
 	if err != nil {
 		panic("error")
 	}
-	for _, packedProof := range proofs {
+	for i, packedProof := range proofs {
 		proof := packedProof.GetProof()
 		verifyKey := packedProof.GetVerifyingKey()
 		publicWitness := packedProof.GetPublicWitness()
@@ -33,6 +33,7 @@ func TestLoopFibonacci(t *testing.T) {
 		if err != nil {
 			panic(err)
 		}
+		fmt.Println("Proof ", i, " Verify Pass...")
 	}
 	fmt.Println(Record.GlobalRecord)
 }

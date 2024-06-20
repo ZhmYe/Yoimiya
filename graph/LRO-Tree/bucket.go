@@ -17,7 +17,7 @@ func NewBucket() *Bucket {
 func (b *Bucket) SetThreshold(t int) {
 	b.threshold = t
 }
-func (b *Bucket) Check(node *LroNode) bool {
+func (b *Bucket) Check(node *InstructionNode) bool {
 	// todo 这里的逻辑
 	// 首先判断是否已经满了
 	// 如果满了
@@ -27,7 +27,7 @@ func (b *Bucket) Check(node *LroNode) bool {
 	}
 	return true
 }
-func (b *Bucket) Add(node *LroNode) {
+func (b *Bucket) Add(node *InstructionNode) {
 	if !b.Check(node) {
 		//b.items = append(b.items, node)
 		// 赋予节点split
@@ -36,6 +36,10 @@ func (b *Bucket) Add(node *LroNode) {
 	}
 	node.SetSplit(b.split)
 	b.count++
+}
+func (b *Bucket) alloc(node *InputNode) {
+	node.SetSplit(b.split)
+
 }
 
 // Pop 弹出所有的items

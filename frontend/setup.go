@@ -15,6 +15,7 @@ import (
 )
 
 // PackedLeafInfo 这里直接统一得到assignment得到的public和private信息
+
 type PackedValue struct {
 	name       string
 	visibility bool

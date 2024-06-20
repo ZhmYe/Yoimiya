@@ -54,7 +54,13 @@ func (l *PackedLevel) Insert(iID int, previousIDs []int) {
 	//}
 	// todo 这里用遍历一次来换取instruction -> level的内存
 	// todo 实践表明太慢了
+	if iID < 0 {
+		return
+	}
 	for _, id := range previousIDs {
+		if id < 0 {
+			continue
+		}
 		level, exist := l.index[id]
 		if !exist {
 			panic("no such instruction!!!")
@@ -81,6 +87,9 @@ func (l *PackedLevel) Insert(iID int, previousIDs []int) {
 	// 更新父节点的deepest
 	sequence := l.deepest[iID]
 	for _, id := range previousIDs {
+		if id < 0 {
+			continue
+		}
 		current := l.deepest[id]
 		if isGreater(sequence, current) {
 			l.deepest[id] = sequence

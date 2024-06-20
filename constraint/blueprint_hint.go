@@ -125,6 +125,9 @@ func (b *BlueprintGenericHint) NewUpdateInstructionTree(inst Instruction, tree I
 			wireID := inst.Calldata[j+1]
 			j += 2
 			if tree.IsInputOrConstant(wireID, split) {
+				// todo 这里加上-1 * inputWire到previousIds
+				// 但这样一来其他的算法会需要判断previousIds中是否有负数
+				previousIds = append(previousIds, -int(wireID))
 				//cs.UpdateUsedExtra(int(wireID))
 				//inputWires[wireID] = true
 				continue
