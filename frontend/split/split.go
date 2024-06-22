@@ -3,6 +3,7 @@ package split
 import (
 	"Yoimiya/Record"
 	"Yoimiya/backend/groth16"
+	"Yoimiya/backend/witness"
 	"Yoimiya/constraint"
 	cs_bn254 "Yoimiya/constraint/bn254"
 	"Yoimiya/frontend"
@@ -58,6 +59,37 @@ func SetForwardOutput(split constraint.ConstraintSystem, forwardOutput []constra
 	}
 }
 
+// ProveSplitWithWitness 传入Split后的电路，进行prove，记录Prove时间和内存使用
+func ProveSplitWithWitness(split constraint.ConstraintSystem,
+	fullWitness witness.Witness, extra *[]constraint.ExtraValue, isCluster bool) PackedProof {
+	//err := SetNbLeaf(assignment, &split)
+	//if err != nil {
+	//panic(err)
+	//}
+	startTime := time.Now()
+	pk, vk := frontend.SetUpSplit(split)
+	publicWitness, _ := fullWitness.Public()
+	Record.GlobalRecord.SetSetUpTime(time.Since(startTime))
+	startTime = time.Now()
+	proof, err := groth16.Prove(split, pk.(groth16.ProvingKey), fullWitness)
+	Record.GlobalRecord.SetSolveTime(time.Since(startTime))
+	if err != nil {
+		panic(err)
+	}
+	//var nextExtra []fr.Element
+	//nextForwardOutput, nextExtra := GetExtra(split)
+	if !isCluster {
+		newExtra := GetExtra(split)
+		//*extra = make([]any, 0)
+		for _, e := range newExtra {
+			newE := constraint.NewExtraValue(e.GetWireID())
+			newE.SetValue(e.GetValue())
+			*extra = append(*extra, newE)
+		}
+	}
+	return NewPackedProof(proof, vk, publicWitness)
+}
+
 // GetSplitProof 传入Split后的电路，进行prove，记录Prove时间和内存使用
 // todo 内存使用记录
 func GetSplitProof(split constraint.ConstraintSystem,
@@ -68,6 +100,7 @@ func GetSplitProof(split constraint.ConstraintSystem,
 	//}
 	startTime := time.Now()
 	pk, vk := frontend.SetUpSplit(split)
+	//fullWitness, _ := frontend.GenerateSplitWitnessFromPli()
 	fullWitness, _ := frontend.GenerateWitness(assignment, *extra, ecc.BN254.ScalarField())
 	publicWitness, _ := frontend.GenerateWitness(assignment, *extra, ecc.BN254.ScalarField(), frontend.PublicOnly())
 	Record.GlobalRecord.SetSetUpTime(time.Since(startTime))

@@ -1,7 +1,5 @@
 package LRO_Tree
 
-import "fmt"
-
 type LroTree struct {
 	// 这里的iID是依次加一的，可以对应下标
 	instructions []*InstructionNode // instruction对应下标
@@ -22,7 +20,7 @@ func (t *LroTree) GetInstruction(iID int) *InstructionNode {
 func (t *LroTree) GetInput(wireID int) *InputNode {
 	// todo 这里还不确定wireID是否是连续的
 	for wireID > len(t.inputs) {
-		t.inputs = append(t.inputs, NewInputNode(len(t.inputs)-1))
+		t.inputs = append(t.inputs, NewInputNode(wireID))
 	}
 	return t.inputs[wireID-1]
 }
@@ -55,9 +53,10 @@ func (t *LroTree) GetNode(id int) LroNode {
 	}
 	return t.GetInstruction(id)
 }
-func (t *LroTree) InsertInput(wireID int) {
-	t.inputs = append(t.inputs, NewInputNode(wireID))
-}
+
+//	func (t *LroTree) InsertInput(wireID int) {
+//		t.inputs = append(t.inputs, NewInputNode(wireID))
+//	}
 func (t *LroTree) Insert(iID int, previousIDs []int) {
 	instruction := NewInstructionNode(iID)
 	previousNodes := make([]LroNode, 0)
@@ -73,10 +72,11 @@ func (t *LroTree) Insert(iID int, previousIDs []int) {
 func (t *LroTree) AssignLayer(cut int) {
 	threshold := RoundUpSplit(t.NbInstruction(), cut) // 每一份的阈值
 	t.bucket.SetThreshold(threshold)
+	t.bucket.SetTotalNbInstruction(t.NbInstruction())
 	// todo 先写后续遍历的逻辑
 	Leaf := t.GetLeafNode()
 	Leaf.Ergodic(t.bucket)
-	fmt.Println(t.bucket.split)
+	//fmt.Println(t.bucket.split)
 }
 func (t *LroTree) IsMiddle(iID int) bool {
 	// todo 怎么判断节点是否是middle
@@ -100,6 +100,7 @@ func (t *LroTree) GetStageNumber() int {
 // GetSubCircuitInstructionIDs 得到子电路iIDs
 func (t *LroTree) GetSubCircuitInstructionIDs() [][]int {
 	result := make([][]int, 0)
+	t.bucket.CheckLastSplitIsEmpty()
 	nbSplit := t.bucket.split + 1
 	for i := 0; i < nbSplit; i++ {
 		result = append(result, make([]int, 0))
@@ -109,6 +110,11 @@ func (t *LroTree) GetSubCircuitInstructionIDs() [][]int {
 		split := node.split
 		result[split] = append(result[split], node.O)
 	}
+	//// todo 这里如果最后一个电路太小了，可以合并到前面去
+	//thresold := len(t.instructions) / 10
+	//if len(result[len(result)-1]) < thresold && len(result) > 2 {
+	//	result[len(result)-2] = append(result[len(result)-2], result[len(result)-1]...)
+	//}
 	return result
 }
 func (t *LroTree) GetLayersInfo() [4]int {
@@ -121,14 +127,15 @@ func (t *LroTree) NbInstruction() int {
 // GenerateSplitWitness 这里通过InputNode的split得到每个split需要哪些Input，从而得到每个split的witness
 // todo 后面还要根据这个[][]int得到具体的witness
 func (t *LroTree) GenerateSplitWitness() [][]int {
-	witnessSplits := make([][]int, 0)
-	for index, inputNode := range t.inputs {
+	witnessSplits := make([][]int, t.bucket.split+1)
+	for _, inputNode := range t.inputs {
 		for _, split := range inputNode.GetSplits() {
-			for split > len(witnessSplits) {
-				witnessSplits = append(witnessSplits, make([]int, 0))
-			}
-			witnessSplits[split] = append(witnessSplits[split], index+1)
+			//for split >= len(witnessSplits) {
+			//	witnessSplits = append(witnessSplits, make([]int, 0))
+			//}
+			witnessSplits[split] = append(witnessSplits[split], inputNode.wireID)
 		}
 	}
+	//fmt.Println(witnessSplits)
 	return witnessSplits
 }

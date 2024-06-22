@@ -104,7 +104,6 @@ func leafType(v any) reflect.Type {
 		panic("invalid input")
 	}
 }
-
 func set(v any, index int, value any) error {
 	switch pv := v.(type) {
 	case fr_bn254.Vector:

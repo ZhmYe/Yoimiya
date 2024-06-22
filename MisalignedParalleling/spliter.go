@@ -30,8 +30,8 @@ func (b *CsSpliter) Split(cs constraint.ConstraintSystem, assignment frontend.Ci
 	case *cs_bn254.R1CS:
 		_r1cs.SplitEngine.AssignLayer(b.cut)
 		split.StructureRoundLog(_r1cs, 0)
-		subiIDs := _r1cs.SplitEngine.GetSubCircuitInstructionIDs() // n个
-		ibrs = _r1cs.GetDataRecords(subiIDs)
+		//subiIDs := _r1cs.SplitEngine.GetSubCircuitInstructionIDs() // n个
+		ibrs = _r1cs.GetDataRecords()
 		commitment = _r1cs.CommitmentInfo
 		coefftable = _r1cs.CoeffTable
 	default:

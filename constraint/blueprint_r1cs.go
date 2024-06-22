@@ -2,6 +2,7 @@ package constraint
 
 import (
 	"fmt"
+	"math"
 )
 
 // BlueprintGenericR1C implements Blueprint and BlueprintR1C.
@@ -90,7 +91,9 @@ func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree In
 			if tree.IsInputOrConstant(wireID, split) {
 				// todo 这里加上-1 * inputWire到previousIds
 				// 但这样一来其他的算法会需要判断previousIds中是否有负数
-				previousIds = append(previousIds, -int(wireID))
+				if wireID != math.MaxUint32 {
+					previousIds = append(previousIds, -int(wireID))
+				}
 
 				//inputWires[wireID] = true
 				//cs.UpdateUsedExtra(int(wireID))

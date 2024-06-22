@@ -372,11 +372,13 @@ func (system *System) GetInstruction(id int) Instruction {
 }
 
 // GetDataRecords add by ZhmYe 获取split后各部分的DataRecord
-func (system *System) GetDataRecords(subiIDs [][]int) []IBR {
+func (system *System) GetDataRecords() []IBR {
 	//topIBR := NewIBR()
 	//bottomIBR := NewIBR()
+	subiIDs := system.SplitEngine.GetSubCircuitInstructionIDs()
+	splitWitness := system.SplitEngine.GenerateSplitWitness()
 	ibrs := make([]IBR, 0)
-	for _, iIDs := range subiIDs {
+	for s, iIDs := range subiIDs {
 		ibr := NewIBR()
 		// 根据传入的各部分的instruction id，获取对应的原始instruction，然后构建全新的calldata和blueprint
 		for _, id := range iIDs {
@@ -388,6 +390,7 @@ func (system *System) GetDataRecords(subiIDs [][]int) []IBR {
 			//copy(calldata, instruction.Calldata)
 			ibr.Append(instruction.Calldata, blueprint, system.SplitEngine.IsMiddle(id))
 		}
+		ibr.SetWitness(splitWitness[s])
 		ibrs = append(ibrs, *ibr)
 	}
 	//for _, id := range bottom {

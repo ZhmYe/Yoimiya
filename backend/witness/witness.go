@@ -112,6 +112,46 @@ func New(field *big.Int) (Witness, error) {
 	}, nil
 }
 
+// GetPublicWitnessFromFullWitness add by Zhmye
+//
+//	func (w *witness) GetPublicWitnessFromFullWitness(nbPublic int, fullWitness witness) error {
+//		w.vector = resize(w.vector, nbPublic)
+//		nbSecret := 0
+//		n := nbPublic + nbSecret
+//		w.nbPublic = uint32(nbPublic)
+//		w.nbSecret = uint32(nbSecret)
+//
+//		//i := 0
+//		for i := 0; i < nbPublic; i++ {
+//			if err := set(w.vector, i, fullWitness.vector[i]); err != nil {
+//				return err
+//			}
+//		}
+//		// note; this shouldn't be perf critical but if it is we could have 2 input chan and
+//		// fill public and secret values concurrently.
+//		//for v := range fullWitness.vector {
+//		//	if i >= n {
+//		//		fmt.Println(i, n)
+//		//		// we panic here; shouldn't happen and if it does we may leek a chan + producer go routine
+//		//		panic("chan of values returns more elements than expected")
+//		//	}
+//		//	// if v == nil {
+//		//	// 	this is caught in the set method. however, error message will be unclear; reason
+//		//	// is there is a nil field in assignment, we could print which one.
+//		//	// }
+//		//	if err := set(w.vector, i, v); err != nil {
+//		//		return err
+//		//	}
+//		//	i++
+//		//}
+//		//
+//		//if i != n {
+//		//	return fmt.Errorf("expected %d values, filled only %d", n, i)
+//		//}
+//
+//		return nil
+//	}
+
 func (w *witness) Fill(nbPublic, nbSecret int, values <-chan any) error {
 	n := nbPublic + nbSecret
 	w.vector = resize(w.vector, n)

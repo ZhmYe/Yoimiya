@@ -4,6 +4,7 @@ import (
 	"Yoimiya/constraint/solver"
 	"Yoimiya/debug"
 	"fmt"
+	"math"
 )
 
 type BlueprintGenericHint struct{}
@@ -127,7 +128,9 @@ func (b *BlueprintGenericHint) NewUpdateInstructionTree(inst Instruction, tree I
 			if tree.IsInputOrConstant(wireID, split) {
 				// todo 这里加上-1 * inputWire到previousIds
 				// 但这样一来其他的算法会需要判断previousIds中是否有负数
-				previousIds = append(previousIds, -int(wireID))
+				if wireID != math.MaxUint32 {
+					previousIds = append(previousIds, -int(wireID))
+				}
 				//cs.UpdateUsedExtra(int(wireID))
 				//inputWires[wireID] = true
 				continue

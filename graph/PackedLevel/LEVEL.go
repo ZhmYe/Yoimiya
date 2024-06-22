@@ -244,3 +244,6 @@ func (l *PackedLevel) GetAllInstructions() []int {
 func (l *PackedLevel) IsMiddle(iID int) bool {
 	return l.layer[iID] == MIDDLE
 }
+func (l *PackedLevel) GenerateSplitWitness() [][]int {
+	return make([][]int, 0)
+}

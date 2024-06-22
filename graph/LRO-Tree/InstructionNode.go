@@ -100,11 +100,12 @@ func (n *InstructionNode) IsVisited() bool {
 func (n *InstructionNode) AddDegree() {
 	n.degree++
 }
-func (n *InstructionNode) SetSplit(s int) {
+func (n *InstructionNode) SetSplit(s int) bool {
 	if n.split != SPLIT_UNSET {
 		panic("This Node's Split has been Set!!!")
 	}
 	n.split = s
+	return true
 }
 
 // Ergodic 后续遍历

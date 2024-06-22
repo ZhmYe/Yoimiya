@@ -5,7 +5,7 @@ type LroNode interface {
 	IsRoot() bool // 是否为根节点
 	NotRoot()
 	AddDegree()
-	SetSplit(s int)
+	SetSplit(s int) bool
 	Ergodic(b *Bucket)
 	Degree() int // 返回出度
 	TryVisit() bool

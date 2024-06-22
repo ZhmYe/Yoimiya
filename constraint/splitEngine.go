@@ -19,6 +19,7 @@ type SplitEngine interface {
 	GetMiddleOutputs() map[int]bool
 	GetAllInstructions() []int
 	IsMiddle(iID int) bool
+	GenerateSplitWitness() [][]int
 }
 
 func InitSplitEngine() SplitEngine {

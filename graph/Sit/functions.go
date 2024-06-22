@@ -167,3 +167,6 @@ func (t *SITree) GetAllInstructions() []int {
 func (t *SITree) IsMiddle(iID int) bool {
 	return t.layers[iID] == MIDDLE
 }
+func (t *SITree) GenerateSplitWitness() [][]int {
+	return make([][]int, 0)
+}

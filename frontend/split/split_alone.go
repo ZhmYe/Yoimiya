@@ -7,6 +7,7 @@ import (
 	cs_bn254 "Yoimiya/constraint/bn254"
 	"Yoimiya/frontend"
 	"fmt"
+	"github.com/consensys/gnark-crypto/ecc"
 	"runtime"
 	"time"
 )
@@ -33,7 +34,7 @@ func SplitAndProve(cs constraint.ConstraintSystem, assignment frontend.Circuit, 
 	//var topIBR, bottomIBR constraint.IBR
 	var commitment constraint.Commitments
 	var coefftable cs_bn254.CoeffTable
-	pli := frontend.GetNbLeaf(assignment)
+	pli := frontend.GetPackedLeafInfoFromAssignment(assignment)
 	switch _r1cs := cs.(type) {
 	case *cs_bn254.R1CS:
 		_r1cs.SplitEngine.AssignLayer(cut)
@@ -43,7 +44,7 @@ func SplitAndProve(cs constraint.ConstraintSystem, assignment frontend.Circuit, 
 		//topIBR = _r1cs.GetDataRecords(top)
 		//bottomIBR = _r1cs.GetDataRecords(bottom)
 		//topIBR, bottomIBR = _r1cs.GetDataRecords(top, bottom) // instruction-blueprint
-		ibrs = _r1cs.GetDataRecords(_r1cs.SplitEngine.GetSubCircuitInstructionIDs())
+		ibrs = _r1cs.GetDataRecords()
 		commitment = _r1cs.CommitmentInfo
 		coefftable = _r1cs.CoeffTable
 		//_r1cs.UpdateForwardOutput() // 这里从原电路中获得middle对应的wireIDs
@@ -62,7 +63,14 @@ func SplitAndProve(cs constraint.ConstraintSystem, assignment frontend.Circuit, 
 			panic(err)
 		}
 		Record.GlobalRecord.SetBuildTime(time.Since(buildStartTime))
-		GetSplitProof(SubCs, assignment, &extras, false)
+		//GetSplitProof(SubCs, assignment, &extras, false)
+		fullWitness, err := frontend.GenerateSplitWitnessFromPli(pli, ibr.GetWitness(), extras, ecc.BN254.ScalarField())
+		if err != nil {
+			panic(err)
+		}
+		proofs = append(proofs, ProveSplitWithWitness(SubCs,
+			fullWitness,
+			&extras, false))
 		//proofs = append(proofs, GetSplitProof(SubCs, assignment, &extras, false))
 		runtime.GC() //清理内存
 	}
@@ -113,7 +121,8 @@ func buildConstraintSystemFromIBR(ibr constraint.IBR,
 	cs.CommitmentInfo = commitmentInfo
 	//fmt.Println("nbPublic=", cs.GetNbPublicVariables(), " nbPrivate=", cs.GetNbSecretVariables())
 	cs.CoeffTable = coeffTable
-	err := frontend.SetNbLeaf(pli, cs, extra)
+	//fmt.Println("Length of Extra: ", len(extra))
+	err := frontend.SetInputVariable(pli, ibr, cs, extra)
 	if err != nil {
 		panic(err)
 	}
@@ -127,96 +136,6 @@ func buildConstraintSystemFromIBR(ibr constraint.IBR,
 	printConstraintSystemInfo(cs)
 	return cs, nil
 }
-
-// buildTopConstraintSystemFromIBR 构建topCs
-func buildTopConstraintSystemFromIBR(ibr constraint.IBR,
-	commitmentInfo constraint.Commitments, coeffTable cs_bn254.CoeffTable,
-	pli frontend.PackedLeafInfo) (constraint.ConstraintSystem, error) {
-	// todo 核心逻辑
-	// 这里根据切割返回出来的有序instruction ids，得到新的电路cs
-	// record中记录了CallData、Blueprint、Instruction的map
-	// CallData、Instruction应该是一一对应的关系，map取出后可删除
-	opt := frontend.DefaultCompileConfig()
-	//fmt.Println("capacity=", opt.Capacity)
-	cs := cs_bn254.NewR1CS(opt.Capacity)
-	//SetForwardOutput(cs, forwardOutput) // 设置应该传到bottom的wireID
-	cs.CommitmentInfo = commitmentInfo
-	//fmt.Println("nbPublic=", cs.GetNbPublicVariables(), " nbPrivate=", cs.GetNbSecretVariables())
-	cs.CoeffTable = coeffTable
-	err := frontend.SetNbLeaf(pli, cs, make([]constraint.ExtraValue, 0))
-	if err != nil {
-		panic(err)
-	}
-	for _, item := range ibr.Items() {
-		bID := cs.AddBlueprint(item.BluePrint)
-		cs.AddInstructionInSpilt(bID, item.CallData)
-	}
-	printConstraintSystemInfo(cs)
-	return cs, nil
-}
-
-// buildBottomConstraintSystemFromIBR 构建bottomCs
-func buildBottomConstraintSystemFromIBR(ibr constraint.IBR,
-	coeffTable cs_bn254.CoeffTable,
-	pli frontend.PackedLeafInfo, extra []constraint.ExtraValue) (constraint.ConstraintSystem, error) {
-	// todo 核心逻辑
-	// 这里根据切割返回出来的有序instruction ids，得到新的电路cs
-	// record中记录了CallData、Blueprint、Instruction的map
-	// CallData、Instruction应该是一一对应的关系，map取出后可删除
-	opt := frontend.DefaultCompileConfig()
-	//fmt.Println("capacity=", opt.Capacity)
-	cs := cs_bn254.NewR1CS(opt.Capacity)
-	//fmt.Println("nbPublic=", cs.GetNbPublicVariables(), " nbPrivate=", cs.GetNbSecretVariables())
-	//return cs, nil
-	err := frontend.SetNbLeaf(pli, cs, extra)
-	if err != nil {
-		panic(err)
-	}
-	cs.CoeffTable = coeffTable
-	for _, item := range ibr.Items() {
-		bID := cs.AddBlueprint(item.BluePrint)
-		cs.AddInstructionInSpilt(bID, item.CallData)
-	}
-	printConstraintSystemInfo(cs)
-	//fmt.Println(cs.Sit.GetStageNumber())
-	return cs, nil
-}
-
-//
-//func buildConstraintSystemFromIds(iIDs []int, record *DataRecord, assignment frontend.Circuit,
-//	forwardOutput []constraint.ExtraValue, extra []constraint.ExtraValue, isTop bool) (constraint.ConstraintSystem, error) {
-//	// todo 核心逻辑
-//	// 这里根据切割返回出来的有序instruction ids，得到新的电路cs
-//	// record中记录了CallData、Blueprint、Instruction的map
-//	// CallData、Instruction应该是一一对应的关系，map取出后可删除
-//	opt := frontend.DefaultCompileConfig()
-//	//fmt.Println("capacity=", opt.Capacity)
-//	cs := cs_bn254.NewR1CS(opt.Capacity)
-//	if isTop {
-//		SetForwardOutput(cs, forwardOutput) // 设置应该传到bottom的wireID
-//		cs.CommitmentInfo = record.GetCommitmentInfo()
-//	}
-//	err := frontend.SetNbLeaf(assignment, cs, extra)
-//	if err != nil {
-//		return nil, err
-//	}
-//	//fmt.Println("nbPublic=", cs.GetNbPublicVariables(), " nbPrivate=", cs.GetNbSecretVariables())
-//	for _, iID := range iIDs {
-//		pi := record.GetPackedInstruction(iID)
-//		bID := cs.AddBlueprint(record.GetBluePrint(pi.BlueprintID))
-//		cs.AddInstructionInSpilt(bID, Unpack(pi, record))
-//		//// 由于instruction变化，所以在这里需要重新映射stage内部的iID
-//		//sit.ModifyiID(i, j, len(cs.Instructions)) // 这里是串行添加的，新的Instruction id就是当前的长度
-//	}
-//	cs.CoeffTable = record.GetCoeffTable()
-//	fmt.Println("Compile Result: ")
-//	fmt.Println("		NbPublic=", cs.GetNbPublicVariables(), " NbSecret=", cs.GetNbSecretVariables(), " NbInternal=", cs.GetNbInternalVariables())
-//	fmt.Println("		NbCoeff=", cs.GetNbConstraints())
-//	fmt.Println("		NbWires=", cs.GetNbPublicVariables()+cs.GetNbSecretVariables()+cs.GetNbInternalVariables())
-//
-//	//fmt.Println(cs.Sit.GetStageNumber())
-//	return cs, nil
-//}
 
 func printConstraintSystemInfo(cs *cs_bn254.R1CS) {
 	fmt.Println("Compile Result: ")
