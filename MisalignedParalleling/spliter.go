@@ -25,11 +25,11 @@ func (b *CsSpliter) Split(cs constraint.ConstraintSystem, assignment frontend.Ci
 	var ibrs []constraint.IBR
 	var commitment constraint.Commitments
 	var coefftable cs_bn254.CoeffTable
-	pli := frontend.GetNbLeaf(assignment)
+	pli := frontend.GetPackedLeafInfoFromAssignment(assignment)
 	switch _r1cs := cs.(type) {
 	case *cs_bn254.R1CS:
 		_r1cs.SplitEngine.AssignLayer(b.cut)
-		split.StructureRoundLog(_r1cs, 0)
+		split.StructureRoundLog(_r1cs)
 		//subiIDs := _r1cs.SplitEngine.GetSubCircuitInstructionIDs() // n个
 		ibrs = _r1cs.GetDataRecords()
 		commitment = _r1cs.CommitmentInfo
@@ -95,14 +95,16 @@ func buildPackedConstraintSystemFromIBR(ibr constraint.IBR,
 	}
 	return *NewPackedConstraintSystem(&cs)
 }
-func buildPackedConstraintSystemFromIds(iIDs []int, record *split.DataRecord,
-	assignment frontend.Circuit, extra []constraint.ExtraValue) PackedConstraintSystem {
-	cs, err := buildConstraintSystemFromIds(iIDs, record, assignment, extra)
-	if err != nil {
-		panic(err)
-	}
-	return *NewPackedConstraintSystem(&cs)
-}
+
+// func buildPackedConstraintSystemFromIds(iIDs []int, record *split.DataRecord,
+//
+//		assignment frontend.Circuit, extra []constraint.ExtraValue) PackedConstraintSystem {
+//		cs, err := buildConstraintSystemFromIds(iIDs, record, assignment, extra)
+//		if err != nil {
+//			panic(err)
+//		}
+//		return *NewPackedConstraintSystem(&cs)
+//	}
 func buildConstraintSystemFromIBR(ibr constraint.IBR,
 	commitmentInfo constraint.Commitments, coeffTable cs_bn254.CoeffTable,
 	pli frontend.PackedLeafInfo, extra *[]constraint.ExtraValue) (constraint.ConstraintSystem, error) {
@@ -124,10 +126,10 @@ func buildConstraintSystemFromIBR(ibr constraint.IBR,
 	}
 	for _, item := range ibr.Items() {
 		bID := cs.AddBlueprint(item.BluePrint)
-		cs.AddInstructionInSpilt(bID, item.CallData)
-		if item.IsForwardOutput() {
-			cs.AddForwardOutput(cs.GetNbInstructions() - 1) // iID = len(instruction) -1
-		}
+		cs.AddInstructionInSpilt(bID, item.CallData, item.IsForwardOutput())
+		//if item.IsForwardOutput() {
+		//	cs.AddForwardOutputInstruction(cs.GetNbInstructions() - 1) // iID = len(instruction) -1
+		//}
 	}
 	// 得到新的forwardOutput
 	//*extra = make([]any, 0)
@@ -145,40 +147,43 @@ func buildConstraintSystemFromIBR(ibr constraint.IBR,
 	return cs, nil
 }
 
+/*
 func buildConstraintSystemFromIds(iIDs []int, record *split.DataRecord,
-	assignment frontend.Circuit, extra []constraint.ExtraValue) (constraint.ConstraintSystem, error) {
-	// todo 核心逻辑
-	// 这里根据切割返回出来的有序instruction ids，得到新的电路cs
-	// record中记录了CallData、Blueprint、Instruction的map
-	// CallData、Instruction应该是一一对应的关系，map取出后可删除
-	opt := frontend.DefaultCompileConfig()
-	//fmt.Println("capacity=", opt.Capacity)
-	cs := cs_bn254.NewR1CS(opt.Capacity)
-	// 这部分放到外面去
-	//if isTop {
-	//	SetForwardOutput(cs, forwardOutput) // 设置应该传到bottom的wireID
-	//	cs.CommitmentInfo = record.GetCommitmentInfo()
-	//}
-	// 这里主要是添加Public和private变量，extra需要有具体的wireID
-	pli := frontend.GetNbLeaf(assignment)
-	err := frontend.SetNbLeaf(pli, cs, extra)
-	if err != nil {
-		return nil, err
+
+		assignment frontend.Circuit, extra []constraint.ExtraValue) (constraint.ConstraintSystem, error) {
+		// todo 核心逻辑
+		// 这里根据切割返回出来的有序instruction ids，得到新的电路cs
+		// record中记录了CallData、Blueprint、Instruction的map
+		// CallData、Instruction应该是一一对应的关系，map取出后可删除
+		opt := frontend.DefaultCompileConfig()
+		//fmt.Println("capacity=", opt.Capacity)
+		cs := cs_bn254.NewR1CS(opt.Capacity)
+		// 这部分放到外面去
+		//if isTop {
+		//	SetForwardOutput(cs, forwardOutput) // 设置应该传到bottom的wireID
+		//	cs.CommitmentInfo = record.GetCommitmentInfo()
+		//}
+		// 这里主要是添加Public和private变量，extra需要有具体的wireID
+		pli := frontend.GetNbLeaf(assignment)
+		err := frontend.SetNbLeaf(pli, cs, extra)
+		if err != nil {
+			return nil, err
+		}
+		//fmt.Println("nbPublic=", cs.GetNbPublicVariables(), " nbPrivate=", cs.GetNbSecretVariables())
+		for _, iID := range iIDs {
+			pi := record.GetPackedInstruction(iID)
+			bID := cs.AddBlueprint(record.GetBluePrint(pi.BlueprintID))
+			cs.AddInstructionInSpilt(bID, split.Unpack(pi, record))
+		}
+		cs.CoeffTable = record.GetCoeffTable()
+		fmt.Println("Compile Result: ")
+		fmt.Println("		NbPublic=", cs.GetNbPublicVariables(), " NbSecret=", cs.GetNbSecretVariables(), " NbInternal=", cs.GetNbInternalVariables())
+		fmt.Println("		NbCoeff=", cs.GetNbConstraints())
+		fmt.Println("		NbWires=", cs.GetNbPublicVariables()+cs.GetNbSecretVariables()+cs.GetNbInternalVariables())
+		//fmt.Println(cs.Sit.GetStageNumber())
+		return cs, nil
 	}
-	//fmt.Println("nbPublic=", cs.GetNbPublicVariables(), " nbPrivate=", cs.GetNbSecretVariables())
-	for _, iID := range iIDs {
-		pi := record.GetPackedInstruction(iID)
-		bID := cs.AddBlueprint(record.GetBluePrint(pi.BlueprintID))
-		cs.AddInstructionInSpilt(bID, split.Unpack(pi, record))
-	}
-	cs.CoeffTable = record.GetCoeffTable()
-	fmt.Println("Compile Result: ")
-	fmt.Println("		NbPublic=", cs.GetNbPublicVariables(), " NbSecret=", cs.GetNbSecretVariables(), " NbInternal=", cs.GetNbInternalVariables())
-	fmt.Println("		NbCoeff=", cs.GetNbConstraints())
-	fmt.Println("		NbWires=", cs.GetNbPublicVariables()+cs.GetNbSecretVariables()+cs.GetNbInternalVariables())
-	//fmt.Println(cs.Sit.GetStageNumber())
-	return cs, nil
-}
+*/
 func NewSpliter(cut int) CsSpliter {
 	return CsSpliter{cut: cut}
 }

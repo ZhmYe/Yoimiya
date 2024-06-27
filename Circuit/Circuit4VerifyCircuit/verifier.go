@@ -274,7 +274,7 @@ func GetPackProofInSplit(
 	innerProofArray [LENGTH]groth16.Proof) []split.PackedProof {
 	outerAssignment, outerCircuit := GetVerifyCircuitAssignment(innerCcsArray, innerVKArray, innerWitnessArray, innerProofArray)
 	outerCcs := GetVerifyCircuitCs(outerCircuit)
-	proofs, err := split.Split(outerCcs, outerAssignment, split.NewParam(true, Config.Config.IsCluster(), 1000, false))
+	proofs, err := split.Split(outerCcs, outerAssignment, split.NewParam(true, Config.Config.IsCluster(), 2, false))
 	if err != nil {
 		panic("error")
 	}

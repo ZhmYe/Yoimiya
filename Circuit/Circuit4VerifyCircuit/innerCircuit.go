@@ -1,6 +1,7 @@
 package Circuit4VerifyCircuit
 
 import (
+	"Yoimiya/Config"
 	"Yoimiya/backend/groth16"
 	"Yoimiya/backend/witness"
 	"Yoimiya/constraint"
@@ -22,6 +23,7 @@ func (c *InnerCircuit) Define(api frontend.API) error {
 
 func GetInner(field *big.Int) (constraint.ConstraintSystem, groth16.VerifyingKey, witness.Witness, groth16.Proof) {
 	// compiles our circuit into a R1CS
+	Config.Config.CancelSplit()
 	innerCcs, err := frontend.Compile(field, r1cs.NewBuilder, &InnerCircuit{})
 	if err != nil {
 		panic(err)

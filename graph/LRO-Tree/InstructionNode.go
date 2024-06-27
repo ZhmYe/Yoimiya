@@ -22,7 +22,7 @@ type InstructionNode struct {
 	LR      []LroNode    // 按照depth排序
 	depth   int          // O的深度
 	degree  int          // O的出度
-	O       int          // iID/wireID
+	O       int          // iID
 	visited LroNodeState // 是否被访问过
 	root    bool         // 是否为root
 	split   int          // O被放到哪个split
@@ -127,6 +127,14 @@ func (n *InstructionNode) Ergodic(b *Bucket) {
 	}
 	se := NewSortEngine(sort)
 	n.LR = se.Sort(n.LR).([]LroNode)
+	// 冒泡排序
+	//for i := 0; i < len(n.LR); i++ {
+	//	for j := 0; j < len(n.LR)-i-1; j++ {
+	//		if !sort(n.LR[j], n.LR[j+1]) {
+	//			n.LR[j], n.LR[j+1] = n.LR[j+1], n.LR[j]
+	//		}
+	//	}
+	//}
 	// 后续遍历
 	for _, node := range n.LR {
 		if !node.TryVisit() {
@@ -134,7 +142,6 @@ func (n *InstructionNode) Ergodic(b *Bucket) {
 		}
 		node.Ergodic(b)
 	}
-	//fmt.Println(n.O)
 	n.Visit()
 	b.Add(n)
 	for _, node := range n.LR {

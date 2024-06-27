@@ -60,6 +60,7 @@ func (i *Instance) TestNormal() Record.Record {
 		i.test = false
 	}()
 	c := i.circuit
+	Config.Config.CancelSplit()
 	Record.GlobalRecord.Clear()
 	startTime := time.Now()
 	cs, compileTime := c.Compile()
@@ -94,6 +95,7 @@ func (i *Instance) TestNSplit(n int) Record.Record {
 	defer func() {
 		i.test = false
 	}()
+	Config.Config.SwitchToSplit()
 	c := i.circuit
 	Record.GlobalRecord.Clear() // 清除record
 	startTime := time.Now()

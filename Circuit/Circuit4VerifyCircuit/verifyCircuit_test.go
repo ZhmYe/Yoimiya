@@ -1,6 +1,7 @@
 package Circuit4VerifyCircuit
 
 import (
+	"Yoimiya/Config"
 	"Yoimiya/backend/groth16"
 	"fmt"
 	"testing"
@@ -21,6 +22,7 @@ func Test4VerifyCircuit(t *testing.T) {
 	//	return
 	//}
 	startTime := time.Now()
+	Config.Config.SwitchToSplit()
 	proofs := GetPackProofInSplit(innerCcsArray, innerVKArray, innerWitnessArray, innerProofArray)
 	fmt.Println(len(proofs))
 	fmt.Println("Split Circuit Time:", time.Since(startTime))

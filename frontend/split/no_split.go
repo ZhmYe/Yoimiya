@@ -6,6 +6,7 @@ import (
 	"Yoimiya/constraint"
 	"Yoimiya/frontend"
 	"github.com/consensys/gnark-crypto/ecc"
+	"runtime"
 	"time"
 )
 
@@ -25,5 +26,6 @@ func SimpleProve(cs constraint.ConstraintSystem, assignment frontend.Circuit) ([
 		return nil, err
 	}
 	Record.GlobalRecord.SetSolveTime(time.Since(startTime))
+	runtime.GC()
 	return []PackedProof{NewPackedProof(nil, vk, publicWitness)}, nil
 }

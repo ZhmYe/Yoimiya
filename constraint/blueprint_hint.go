@@ -109,7 +109,7 @@ func (b *BlueprintGenericHint) UpdateInstructionTree(inst Instruction, tree Inst
 }
 
 // NewUpdateInstructionTree add by ZhmYe
-func (b *BlueprintGenericHint) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System, split bool, needAppend bool) {
+func (b *BlueprintGenericHint) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System, split bool, needAppend bool, isForwardOutput bool) {
 	// BlueprintGenericHint knows the input and output to the instruction
 	//maxLevel := -1
 	// iterate over the inputs and find the max level
@@ -128,7 +128,7 @@ func (b *BlueprintGenericHint) NewUpdateInstructionTree(inst Instruction, tree I
 			if tree.IsInputOrConstant(wireID, split) {
 				// todo 这里加上-1 * inputWire到previousIds
 				// 但这样一来其他的算法会需要判断previousIds中是否有负数
-				if wireID != math.MaxUint32 {
+				if wireID != math.MaxUint32 && wireID != 0 {
 					previousIds = append(previousIds, -int(wireID))
 				}
 				//cs.UpdateUsedExtra(int(wireID))
@@ -139,7 +139,7 @@ func (b *BlueprintGenericHint) NewUpdateInstructionTree(inst Instruction, tree I
 			// 前序Instruction
 			previousInstructionID, exist := cs.Wires2Instruction[wireID]
 			if !exist {
-				fmt.Println(wireID)
+				fmt.Println(wireID, previousInstructionID)
 				panic("error in hint")
 			}
 			//fmt.Println(wireID, len(cs.Wires2Instruction), previousInstructionID, iID)
@@ -152,6 +152,9 @@ func (b *BlueprintGenericHint) NewUpdateInstructionTree(inst Instruction, tree I
 		cs.AppendWire2Instruction(k, iID)
 		if needAppend {
 			cs.SetBias(k, cs.AddInternalVariable())
+		}
+		if isForwardOutput {
+			cs.AddForwardOutput(int(k))
 		}
 		//tree.InsertWire(k, outputLevel)
 	}

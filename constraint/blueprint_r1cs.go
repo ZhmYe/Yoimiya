@@ -70,7 +70,7 @@ func (b *BlueprintGenericR1C) DecompressR1C(c *R1C, inst Instruction) {
 ***/
 
 // NewUpdateInstructionTree modify by ZhmYe
-func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System, split bool, needAppend bool) {
+func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree InstructionTree, iID int, cs *System, split bool, needAppend bool, isForwardOutput bool) {
 	lenL := int(inst.Calldata[1])
 	lenR := int(inst.Calldata[2])
 	lenO := int(inst.Calldata[3])
@@ -91,7 +91,7 @@ func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree In
 			if tree.IsInputOrConstant(wireID, split) {
 				// todo 这里加上-1 * inputWire到previousIds
 				// 但这样一来其他的算法会需要判断previousIds中是否有负数
-				if wireID != math.MaxUint32 {
+				if wireID != math.MaxUint32 && wireID != 0 {
 					previousIds = append(previousIds, -int(wireID))
 				}
 
@@ -102,6 +102,12 @@ func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree In
 
 			// outputWires中存储所有level为LevelUnset的wireID
 			// 原本下面通过判断level是否存在来判断，现在可以通过判断Wire2Instruction判断
+			//IsOutput := func(wireID uint32) bool {
+			//	if int(wireID) >= len(cs.Wire2Instruction) {
+			//		return true
+			//	}
+			//	return cs.Wire2Instruction[int(wireID)] == -1
+			//}
 			_, notOutput := cs.Wires2Instruction[wireID]
 			if !notOutput {
 				//if level := tree.GetWireLevel(wireID); level == LevelUnset {
@@ -117,8 +123,8 @@ func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree In
 				//
 				previousInstructionID, exist := cs.Wires2Instruction[wireID]
 				if !exist {
-					fmt.Println(wireID)
-					panic("error in hint")
+					fmt.Println(wireID, previousInstructionID)
+					panic("error in r1cs")
 				}
 				previousIds = append(previousIds, previousInstructionID)
 			}
@@ -138,6 +144,9 @@ func (b *BlueprintGenericR1C) NewUpdateInstructionTree(inst Instruction, tree In
 		cs.AppendWire2Instruction(wireID, iID)
 		if needAppend {
 			cs.SetBias(wireID, cs.AddInternalVariable())
+		}
+		if isForwardOutput {
+			cs.AddForwardOutput(int(wireID))
 		}
 		//if Config.Config.Split == Config.SPLIT_LEVELS {
 		//	tree.InsertWire(wireID, maxLevel)

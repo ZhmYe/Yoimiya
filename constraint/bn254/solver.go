@@ -741,8 +741,8 @@ func (solver *solver) run() error {
 		}
 
 	}
-	//fmt.Println(int(solver.nbSolved), len(solver.values))
 	if int(solver.nbSolved) != len(solver.values) {
+		fmt.Println(int(solver.nbSolved), len(solver.values))
 		return errors.New("solver didn't assign a value to all wires")
 	}
 	//if len(solver.solvedValues) != solver.nbWires {
@@ -785,6 +785,7 @@ func (solver *solver) solveR1C(cID uint32, r *constraint.R1C) error {
 
 			if loc != 0 {
 				_, exist := solver.Wires2Instruction[t.GetWireID()]
+				//_, exist := solver.Wires2Instruction[t.GetWireID()]
 				if !exist {
 					panic("no such Wire In Wire2Instruction!!!")
 				}

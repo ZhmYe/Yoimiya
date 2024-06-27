@@ -106,7 +106,7 @@ func buildBottomConstraintSystem(
 	for _, iID := range bottom {
 		pi := record.GetPackedInstruction(iID)
 		bID := cs.AddBlueprint(record.GetBluePrint(pi.BlueprintID))
-		cs.AddInstructionInSpilt(bID, Unpack(pi, record))
+		cs.AddInstructionInSpilt(bID, Unpack(pi, record), false)
 		//// 由于instruction变化，所以在这里需要重新映射stage内部的iID
 		//sit.ModifyiID(i, j, len(cs.Instructions)) // 这里是串行添加的，新的Instruction id就是当前的长度
 	}
@@ -158,7 +158,7 @@ func updateProveCs(toProve *ProveConstraintSystem, iIDs []int, record *DataRecor
 		for _, iID := range iIDs {
 			pi := record.GetPackedInstruction(iID)
 			bID := toProveCs.AddBlueprint(record.GetBluePrint(pi.BlueprintID))
-			_toProveR1cs.AddInstructionInSpilt(bID, Unpack(pi, record))
+			_toProveR1cs.AddInstructionInSpilt(bID, Unpack(pi, record), false)
 		}
 		fmt.Println("	ToProveCs Update: ")
 		fmt.Println("		NbPublic=", toProveCs.GetNbPublicVariables(), " NbSecret=", toProveCs.GetNbSecretVariables(), " NbInternal=", toProveCs.GetNbInternalVariables())
@@ -200,7 +200,7 @@ func SplitAndCluster(cs constraint.ConstraintSystem, assignment frontend.Circuit
 		round++
 		switch _r1cs := toSplitCs.(type) {
 		case *cs_bn254.R1CS:
-			StructureRoundLog(_r1cs, round)
+			//StructureRoundLog(_r1cs, round)
 			_r1cs.UpdateForwardOutput()
 			record = NewDataRecord(_r1cs)
 			// 这里从待切电路中获得middle对应的wireIDs，用于传给下一个toSplitCs

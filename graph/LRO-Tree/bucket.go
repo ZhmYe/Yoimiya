@@ -18,11 +18,12 @@ func NewBucket() *Bucket {
 		total:         0,
 	}
 }
-func (b *Bucket) SetTotalNbInstruction(total int) {
+func (b *Bucket) SetTotalNbWires(total int) {
 	b.total = total
 }
-func (b *Bucket) SetThreshold(t int) {
-	b.threshold = t
+func (b *Bucket) SetThreshold(cut int) {
+	nbWires := b.total
+	b.threshold = RoundUpSplit(nbWires, cut)
 }
 func (b *Bucket) Check(node *InstructionNode) bool {
 	// todo 这里的逻辑
@@ -38,6 +39,9 @@ func (b *Bucket) Check(node *InstructionNode) bool {
 	return true
 }
 func (b *Bucket) Add(node *InstructionNode) {
+	if node.O == FAKE_ROOT_ID {
+		return
+	}
 	if !b.Check(node) {
 		//b.items = append(b.items, node)
 		// 赋予节点split
@@ -45,13 +49,16 @@ func (b *Bucket) Add(node *InstructionNode) {
 		b.Pop()
 	}
 	node.SetSplit(b.split)
+	//fmt.Println(node.O, node.split)
 	b.nbInstruction++
 	b.count++
 }
 func (b *Bucket) Alloc(node *InputNode) {
-	if NotIn := !(node.SetSplit(b.split)); NotIn {
-		b.count++
-	}
+	//if NotIn := !(node.SetSplit(b.split)); NotIn {
+	//	b.count++
+	//}
+	node.SetSplit(b.split)
+	//fmt.Println(node.wireID, node.splits)
 
 }
 
@@ -63,8 +70,9 @@ func (b *Bucket) Pop() {
 	}
 	b.count = 0
 }
-func (b *Bucket) CheckLastSplitIsEmpty() {
+func (b *Bucket) CheckLastSplitIsEmpty() int {
 	if b.count == 0 {
 		b.split--
 	}
+	return b.split + 1
 }

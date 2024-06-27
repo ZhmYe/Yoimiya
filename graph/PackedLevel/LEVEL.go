@@ -10,9 +10,10 @@ type PackedLevel struct {
 	//deepest []int   // 这里用于某一个cs，cs里的instruction id是连续的
 	deepest []Sequence
 	// todo 这里可以把deepest和layer结合一下
-	layer []graph.Layer
-	index map[int]int // 对应instruction -> level，如果直接遍历太慢了
-	mark  []Sequence
+	layer   []graph.Layer
+	index   map[int]int // 对应instruction -> level，如果直接遍历太慢了
+	mark    []Sequence
+	witness [][]int
 }
 
 const TOP = graph.TOP
@@ -43,6 +44,7 @@ func NewPackedLevel() *PackedLevel {
 	l.layer = make([]graph.Layer, 0)
 	l.index = make(map[int]int)
 	l.mark = make([]Sequence, 0)
+	l.witness = make([][]int, 0)
 	return l
 }
 func (l *PackedLevel) Insert(iID int, previousIDs []int) {
@@ -52,13 +54,14 @@ func (l *PackedLevel) Insert(iID int, previousIDs []int) {
 	//for _, id := range previousIDs {
 	//	previousIdsMap[id] = true
 	//}
-	// todo 这里用遍历一次来换取instruction -> level的内存
-	// todo 实践表明太慢了
-	if iID < 0 {
-		return
-	}
 	for _, id := range previousIDs {
 		if id < 0 {
+			if len(l.witness) == 0 {
+				l.witness = append(l.witness, make([]int, 0))
+			}
+			for -(id) > len(l.witness[0]) {
+				l.witness[0] = append(l.witness[0], len(l.witness[0])+1)
+			}
 			continue
 		}
 		level, exist := l.index[id]
@@ -222,6 +225,9 @@ func (l *PackedLevel) AssignLayer(cut int) {
 			}
 		}
 	}
+	for len(l.witness) <= cut {
+		l.witness = append(l.witness, l.witness[0])
+	}
 
 }
 
@@ -245,5 +251,5 @@ func (l *PackedLevel) IsMiddle(iID int) bool {
 	return l.layer[iID] == MIDDLE
 }
 func (l *PackedLevel) GenerateSplitWitness() [][]int {
-	return make([][]int, 0)
+	return l.witness
 }

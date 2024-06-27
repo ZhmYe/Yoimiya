@@ -24,15 +24,20 @@ require (
 
 require (
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
+	github.com/VividCortex/ewma v1.2.0 // indirect
+	github.com/cheggaaa/pb/v3 v3.1.5 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/fatih/color v1.15.0 // indirect
 	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/gorilla/websocket v1.4.1 // indirect
 	github.com/icza/bitio v1.1.0 // indirect
 	github.com/ingonyama-zk/icicle v0.0.0-20230928131117-97f0079e5c71 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
+	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/mmcloughlin/addchain v0.4.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
 	github.com/shirou/gopsutil v2.19.11+incompatible // indirect
 	github.com/shirou/w32 v0.0.0-20160930032740-bb4de0191aa4 // indirect

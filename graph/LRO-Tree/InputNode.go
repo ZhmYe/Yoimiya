@@ -3,7 +3,7 @@ package LRO_Tree
 type InputNode struct {
 	wireID  int
 	degree  int
-	splits  map[int]bool
+	splits  []int
 	visited bool
 }
 
@@ -11,7 +11,7 @@ func NewInputNode(wireID int) *InputNode {
 	return &InputNode{
 		wireID:  wireID,
 		degree:  0,
-		splits:  make(map[int]bool),
+		splits:  make([]int, 0),
 		visited: false,
 	}
 }
@@ -31,12 +31,19 @@ func (n *InputNode) NotRoot() {
 	return
 }
 func (n *InputNode) SetSplit(s int) bool {
-	_, exist := n.splits[s]
-	if exist {
-		return true
+	for _, split := range n.splits {
+		if split == s {
+			return true
+		}
 	}
-	n.splits[s] = true
+	n.splits = append(n.splits, s)
 	return false
+	//_, exist := n.splits[s]
+	//if exist {
+	//	return true
+	//}
+	//n.splits[s] = true
+	//return false
 }
 func (n *InputNode) TryVisit() bool {
 	return true
@@ -55,9 +62,9 @@ func (n *InputNode) Ergodic(b *Bucket) {
 	return
 }
 func (n *InputNode) GetSplits() []int {
-	splits := make([]int, 0)
-	for split, _ := range n.splits {
-		splits = append(splits, split)
-	}
-	return splits
+	//splits := make([]int, 0)
+	//for split, _ := range n.splits {
+	//	splits = append(splits, split)
+	//}
+	return n.splits
 }

@@ -327,13 +327,19 @@ func (system *System) GetForwardOutputIds() []int {
 	}
 	return result
 }
-func (system *System) AddForwardOutput(iID int) {
+func (system *System) AddForwardOutputInstruction(iID int) {
+	//instruction := system.Instructions[iID]
+
 	for wire, id := range system.Wires2Instruction {
 		if id == iID {
 			e := NewExtraValue(int(wire))
 			system.forwardOutput = append(system.forwardOutput, e)
 		}
 	}
+}
+func (system *System) AddForwardOutput(wireID int) {
+	e := NewExtraValue(wireID)
+	system.forwardOutput = append(system.forwardOutput, e)
 }
 func (system *System) UpdateForwardOutput() {
 	middleInstructions := system.SplitEngine.GetMiddleOutputs()
@@ -677,7 +683,7 @@ func (cs *System) AddSparseR1C(c SparseR1C, bID BlueprintID) int {
 
 ***/
 
-func (cs *System) AddInstructionInSpilt(bID BlueprintID, calldata []uint32) []uint32 {
+func (cs *System) AddInstructionInSpilt(bID BlueprintID, calldata []uint32, isForwardOutput bool) []uint32 {
 	// set the offsets
 	pi := PackedInstruction{
 		StartCallData:    uint64(len(cs.CallData)),
@@ -711,7 +717,7 @@ func (cs *System) AddInstructionInSpilt(bID BlueprintID, calldata []uint32) []ui
 	// update the instruction dependency tree
 	iID := len(cs.Instructions) - 1
 	// modify by ZhmYe
-	blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, true, true)
+	blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, true, true, isForwardOutput)
 	//switch Config.Config.Split {
 	//case Config.SPLIT_STAGES:
 	//	//fmt.Println(cs.GetNbInternalVariables())
@@ -763,7 +769,7 @@ func (cs *System) AddInstruction(bID BlueprintID, calldata []uint32) []uint32 {
 	// update the instruction dependency tree
 	iID := len(cs.Instructions) - 1
 	// modify by ZhmYe
-	blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, false, false)
+	blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, false, false, false)
 	//switch Config.Config.Split {
 	//case Config.SPLIT_STAGES:
 	//	blueprint.NewUpdateInstructionTree(inst, cs, iID, cs, false, false)

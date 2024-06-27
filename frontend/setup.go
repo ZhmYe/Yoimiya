@@ -166,7 +166,7 @@ func SetInputVariable(pli PackedLeafInfo, ibr constraint.IBR, cs *cs_bn254.R1CS,
 		idx := (*cs).GetNbPublicVariables() - 1
 		(*cs).SetBias(uint32(e.GetWireID()), idx)
 	}
-	(*cs).SetExtraNumber(extra)
+	//(*cs).SetExtraNumber(extra)
 	return nil
 }
 
@@ -203,7 +203,7 @@ func SetNbLeaf(pli PackedLeafInfo, cs *cs_bn254.R1CS, extra []constraint.ExtraVa
 		idx := (*cs).GetNbPublicVariables() - 1
 		(*cs).SetBias(uint32(e.GetWireID()), idx)
 	}
-	(*cs).SetExtraNumber(extra)
+	//(*cs).SetExtraNumber(extra)
 	return nil
 }
 
