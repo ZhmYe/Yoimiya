@@ -1,6 +1,7 @@
 package evaluate
 
 import (
+	"Yoimiya/Circuit/Circuit4Conv"
 	"Yoimiya/Circuit/Circuit4Fib"
 	"Yoimiya/Circuit/Circuit4MatrixMultiplication"
 	"Yoimiya/Circuit/Circuit4Multiplication"
@@ -16,6 +17,7 @@ const (
 	Mul                            // 连乘电路
 	Verify                         // 递归验证电路
 	Matrix                         // 矩阵乘法
+	Conv                           // 卷积
 )
 
 // format 用于format log的名字
@@ -40,6 +42,9 @@ func getCircuit(option CircuitOption) testCircuit {
 		return &circuit
 	case Matrix:
 		circuit := Circuit4MatrixMultiplication.NewInterfaceMatrixMultiplicationCircuit()
+		return &circuit
+	case Conv:
+		circuit := Circuit4Conv.NewInterfaceConvolutionalCircuit()
 		return &circuit
 	default:
 		circuit := Circuit4Fib.NewLoopFibonacciCircuit()

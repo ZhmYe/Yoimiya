@@ -19,7 +19,7 @@ func NewInterfaceMatrixMultiplicationCircuit() InterfaceMatrixMultiplicationCirc
 	c := InterfaceMatrixMultiplicationCircuit{
 		assignmentGenerator: nil,
 		outerCircuit:        nil,
-		name:                "loop_multiplication",
+		name:                "Matrix",
 	}
 	c.Init()
 	return c

@@ -38,6 +38,9 @@ func (b *Bucket) Check(node *InstructionNode) bool {
 	}
 	return true
 }
+
+// todo 这里可以加上Split之间的关系
+
 func (b *Bucket) Add(node *InstructionNode) {
 	if node.O == FAKE_ROOT_ID {
 		return
