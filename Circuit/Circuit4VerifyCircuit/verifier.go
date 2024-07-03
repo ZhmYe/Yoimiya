@@ -1,7 +1,6 @@
 package Circuit4VerifyCircuit
 
 import (
-	"Yoimiya/Config"
 	"Yoimiya/backend/groth16"
 	groth16backend_bn254 "Yoimiya/backend/groth16/bn254"
 	"Yoimiya/backend/witness"
@@ -274,7 +273,7 @@ func GetPackProofInSplit(
 	innerProofArray [LENGTH]groth16.Proof) []split.PackedProof {
 	outerAssignment, outerCircuit := GetVerifyCircuitAssignment(innerCcsArray, innerVKArray, innerWitnessArray, innerProofArray)
 	outerCcs := GetVerifyCircuitCs(outerCircuit)
-	proofs, err := split.Split(outerCcs, outerAssignment, split.NewParam(true, Config.Config.IsCluster(), 2, false))
+	proofs, err := split.Split(outerCcs, outerAssignment, 2)
 	if err != nil {
 		panic("error")
 	}

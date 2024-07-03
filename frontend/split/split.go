@@ -14,18 +14,22 @@ import (
 
 // Split 将传入的电路(constraintSystem)切分为多份,统一接口
 // 分为两种执行方式：合并(Cluster, 切分后根据传入的cut数合并)、分散(Alone, 每切出一个小电路就给出证明)
-func Split(cs constraint.ConstraintSystem, assignment frontend.Circuit, param Param) ([]PackedProof, error) {
-	switch param.mode {
-	case Cluster:
-		//return SplitAndCluster(cs, assignment, param.cut)
-		return SplitAndCluster(cs, assignment, param.cut)
-	case Alone:
-		return SplitAndProve(cs, assignment, param.cut)
-	case NoSplit:
+func Split(cs constraint.ConstraintSystem, assignment frontend.Circuit, cut int) ([]PackedProof, error) {
+	if cut <= 1 {
 		return SimpleProve(cs, assignment)
-	default:
-		return SplitAndProve(cs, assignment, param.cut)
 	}
+	return SplitAndProve(cs, assignment, cut)
+	//switch param.mode {
+	//case Cluster:
+	//	//return SplitAndCluster(cs, assignment, param.cut)
+	//	return SplitAndCluster(cs, assignment, param.cut)
+	//case Alone:
+	//	return SplitAndProve(cs, assignment, param.cut)
+	//case NoSplit:
+	//	return SimpleProve(cs, assignment)
+	//default:
+	//	return SplitAndProve(cs, assignment, param.cut)
+	//}
 }
 
 func StructureRoundLog(_r1cs *cs_bn254.R1CS) {

@@ -16,10 +16,10 @@ func TestConvolution(t *testing.T) {
 	startTime := time.Now()
 	var circuit ConvolutionalCircuit
 	assignmentGenerator := func() frontend.Circuit {
-		var A [200][200]frontend.Variable
-		for i := 0; i < 200; i++ {
+		var A [256][256]frontend.Variable
+		for i := 0; i < 256; i++ {
 			//A = append(A, make([]frontend.Variable, 100))
-			for j := 0; j < 200; j++ {
+			for j := 0; j < 256; j++ {
 				A[i][j] = frontend.Variable(0)
 			}
 		}
@@ -29,9 +29,9 @@ func TestConvolution(t *testing.T) {
 				W[i][j] = frontend.Variable(0)
 			}
 		}
-		var B [198][198]frontend.Variable
-		for i := 0; i < 198; i++ {
-			for j := 0; j < 198; j++ {
+		var B [254][254]frontend.Variable
+		for i := 0; i < 254; i++ {
+			for j := 0; j < 254; j++ {
 				B[i][j] = frontend.Variable(0)
 			}
 		}
@@ -43,7 +43,7 @@ func TestConvolution(t *testing.T) {
 		panic(err)
 	}
 	fmt.Println("Compile Time:", time.Since(startTime))
-	proofs, err := split.Split(ccs, assignment, split.NewParam(true, false, 2, false))
+	proofs, err := split.Split(ccs, assignment, 2)
 	if err != nil {
 		panic("error")
 	}

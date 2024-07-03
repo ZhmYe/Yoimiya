@@ -21,7 +21,7 @@ func TestLoopFibonacci(t *testing.T) {
 		panic(err)
 	}
 	fmt.Println("Compile Time:", time.Since(startTime))
-	proofs, err := split.Split(ccs, &assignment, split.NewParam(true, false, 2, false))
+	proofs, err := split.Split(ccs, &assignment, 2)
 	if err != nil {
 		panic("error")
 	}

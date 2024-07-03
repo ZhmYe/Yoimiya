@@ -30,7 +30,7 @@ func (i *Instance) StartMemoryMonitor() {
 			i.memoryAlloc = uint64(0)
 			break
 		}
-		if time.Since(startTime) >= time.Duration(100)*time.Millisecond {
+		if time.Since(startTime) >= time.Duration(10)*time.Millisecond {
 			var m runtime.MemStats
 			runtime.ReadMemStats(&m)
 			nowAlloc := m.Alloc
@@ -66,7 +66,7 @@ func (i *Instance) TestNormal() Record.Record {
 	cs, compileTime := c.Compile()
 	Record.GlobalRecord.SetCompileTime(compileTime) // 记录compile时间
 	// todo 这里目前只有alone模式加了record
-	_, err := split.Split(cs, c.GetAssignment(), split.NewParam(false, Config.Config.IsCluster(), -1, false))
+	_, err := split.Split(cs, c.GetAssignment(), 1)
 	if err != nil {
 		panic(err)
 	}
@@ -102,7 +102,7 @@ func (i *Instance) TestNSplit(n int) Record.Record {
 	cs, compileTime := c.Compile()
 	Record.GlobalRecord.SetCompileTime(compileTime) // 记录compile时间
 	// todo 这里目前只有alone模式加了record
-	_, err := split.Split(cs, c.GetAssignment(), split.NewParam(true, Config.Config.IsCluster(), n, false))
+	_, err := split.Split(cs, c.GetAssignment(), n)
 	if err != nil {
 		panic(err)
 	}
@@ -160,7 +160,7 @@ func (i *Instance) TestSerialRunning(nbTask int) Record.Record {
 	//totalProof := make([]split.PackedProof, 0)
 	startTime := time.Now()
 	for i := 0; i < nbTask; i++ {
-		_, err := split.Split(cs, assignmentGenerator(), split.NewParam(false, false, -1, false))
+		_, err := split.Split(cs, assignmentGenerator(), 1)
 		if err != nil {
 			panic(err)
 		}

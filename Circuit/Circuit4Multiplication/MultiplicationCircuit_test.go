@@ -21,7 +21,7 @@ func TestLoopMultiplication(t *testing.T) {
 		panic(err)
 	}
 	fmt.Println("Compile Time:", time.Since(startTime))
-	proofs, err := split.Split(ccs, &assignment, split.NewParam(true, false, 3, false))
+	proofs, err := split.Split(ccs, &assignment, 3)
 	if err != nil {
 		panic("error")
 	}
