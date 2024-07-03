@@ -4,6 +4,7 @@ import (
 	"Yoimiya/Config"
 	LRO_Tree "Yoimiya/graph/LRO-Tree"
 	"Yoimiya/graph/PackedLevel"
+	"Yoimiya/graph/Sit"
 )
 
 type SplitEngine interface {
@@ -26,14 +27,14 @@ func InitSplitEngine() SplitEngine {
 	var s SplitEngine
 	if Config.Config.IsSplit() {
 		switch Config.Config.Split {
-		//case Config.SPLIT_STAGES:
-		//	s = Sit.NewSITree()
+		case Config.SPLIT_STAGES:
+			s = Sit.NewSITree()
 		//s = sit
-		//case Config.SPLIT_LEVELS:
-		//	s = PackedLevel.NewPackedLevel()
+		case Config.SPLIT_LEVELS:
+			s = PackedLevel.NewPackedLevel()
 		//case Config.SPLIT_LEVELS:
 		//	s = LayeredGraph.NewLayeredGraph()
-		case Config.SPLIT_LEVELS:
+		case Config.SPLIT_LRO:
 			s = LRO_Tree.NewLroTree()
 		}
 	} else {

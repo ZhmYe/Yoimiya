@@ -1,9 +1,5 @@
 package Sit
 
-import (
-	"Yoimiya/Config"
-)
-
 // SITree Stage-Instruction Tree
 type SITree struct {
 	stages       []*Stage       // SITree节点
@@ -63,11 +59,11 @@ func (t *SITree) appendRoot(stage *Stage) {
 // 如果不是，那么判断父节点是否有多个子节点，同上述case1,case2，区别在如果是窄依赖直接combine
 // todo 这里的注释需要更新
 func (t *SITree) Insert(iID int, previousIds []int) {
-	if Config.Config.IsCluster() {
-		t.InsertWithLayer(iID, previousIds)
-	} else {
-		t.InsertWithoutLayer(iID, previousIds)
-	}
+	//if Config.Config.IsCluster() {
+	//	t.InsertWithLayer(iID, previousIds)
+	//} else {
+	t.InsertWithoutLayer(iID, previousIds)
+	//}
 }
 func (t *SITree) InsertWithoutLayer(iID int, previousIds []int) {
 	stage := NewStage(-1, iID) // id统一都默认初始化为-1，在append时处理
