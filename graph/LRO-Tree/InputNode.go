@@ -51,7 +51,7 @@ func (n *InputNode) TryVisit() bool {
 func (n *InputNode) Visited() {
 	n.visited = true
 }
-func (n *InputNode) CheckMiddle(s int) {
+func (n *InputNode) CheckMiddle(s int, b *Bucket) {
 	n.SetSplit(s)
 }
 func (n *InputNode) IsMiddle() bool {

@@ -7,6 +7,7 @@ type Bucket struct {
 	count         int // 当前split的数量
 	nbInstruction int
 	total         int
+	LEVEL         []int // 这里就不建一个level了数量比较少
 	//items     []*LroNode
 }
 
@@ -14,6 +15,7 @@ func NewBucket() *Bucket {
 	return &Bucket{
 		threshold:     -1,
 		split:         0,
+		LEVEL:         []int{0},
 		nbInstruction: 0,
 		total:         0,
 	}
@@ -39,8 +41,19 @@ func (b *Bucket) Check(node *InstructionNode) bool {
 	return true
 }
 
-// todo 这里可以加上Split之间的关系
+// UpdateSplitLevel todo 这里可以加上Split之间的关系
 
+func (b *Bucket) UpdateSplitLevel(pre int, next int) {
+	preLevel := b.LEVEL[pre]
+	//fmt.Println(pre, next)
+	if len(b.LEVEL) == next {
+		b.LEVEL = append(b.LEVEL, preLevel+1)
+	} else {
+		if preLevel > b.LEVEL[next] {
+			b.LEVEL[next] = preLevel
+		}
+	}
+}
 func (b *Bucket) Add(node *InstructionNode) {
 	if node.O == FAKE_ROOT_ID {
 		return
@@ -70,6 +83,7 @@ func (b *Bucket) Pop() {
 	// todo 如果最后一个电路太小，就合并到前面去
 	if b.nbInstruction*10 < b.total*9 {
 		b.split++
+		b.LEVEL = append(b.LEVEL, b.LEVEL[len(b.LEVEL)-1])
 	}
 	b.count = 0
 }
@@ -78,4 +92,16 @@ func (b *Bucket) CheckLastSplitIsEmpty() int {
 		b.split--
 	}
 	return b.split + 1
+}
+
+// GetSplitLevel 获取Split之间的并行关系
+func (b *Bucket) GetSplitLevel() [][]int {
+	levels := make([][]int, 0)
+	for s, level := range b.LEVEL {
+		for level >= len(levels) {
+			levels = append(levels, make([]int, 0))
+		}
+		levels[level] = append(levels[level], s)
+	}
+	return levels
 }

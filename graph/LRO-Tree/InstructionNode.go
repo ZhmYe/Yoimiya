@@ -138,19 +138,24 @@ func (n *InstructionNode) Ergodic(b *Bucket) {
 	// 后续遍历
 	for _, node := range n.LR {
 		if !node.TryVisit() {
+			//n.CheckMiddle()
 			continue
 		}
 		node.Ergodic(b)
 	}
+	if n.O == FAKE_ROOT_ID {
+		return
+	}
 	n.Visit()
 	b.Add(n)
 	for _, node := range n.LR {
-		node.CheckMiddle(n.split)
+		node.CheckMiddle(n.split, b)
 	}
 }
-func (n *InstructionNode) CheckMiddle(split int) {
+func (n *InstructionNode) CheckMiddle(split int, b *Bucket) {
 	if n.split != split {
 		n.visited = Middle
+		b.UpdateSplitLevel(n.split, split)
 	}
 }
 

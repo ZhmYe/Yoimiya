@@ -28,15 +28,16 @@ func TestMisalignedParalleling(t *testing.T) {
 	cutList := []int{2, 3}
 	for _, cut := range cutList {
 		misalignParallelingTest(nbTask, cut, circuit, false)
+		runtime.GC()
 	}
 	serialRunningTest(nbTask, circuit, false)
 }
 
 // split测试
 func TestMemoryReduceByNSplit(t *testing.T) {
-	Experiment_N_Split_Memory_Reduce(Conv, false)
+	//Experiment_N_Split_Memory_Reduce(Conv, false)
 	//Experiment_N_Split_Memory_Reduce(Matrix, false)
-	//Experiment_N_Split_Memory_Reduce(Fib, false)
+	Experiment_N_Split_Memory_Reduce(Fib, false)
 	//Experiment_N_Split_Memory_Reduce(Mul, true)
 }
 

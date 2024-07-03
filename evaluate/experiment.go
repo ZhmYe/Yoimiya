@@ -32,7 +32,7 @@ func Experiment_N_Split_Memory_Reduce(option CircuitOption, log bool) {
 	//for _, option := range CircuitList {
 	circuit := getCircuit(option)
 	// todo n=2,3,4,5
-	nList := []int{2, 3}
+	nList := []int{2, 3, 4}
 	for _, n := range nList {
 		NSplitTest(n, circuit, log)
 	}

@@ -9,6 +9,6 @@ type LroNode interface {
 	Ergodic(b *Bucket)
 	Degree() int // 返回出度
 	TryVisit() bool
-	CheckMiddle(s int)
+	CheckMiddle(s int, b *Bucket)
 	IsMiddle() bool
 }
