@@ -1,6 +1,7 @@
 package evaluate
 
 import (
+	"Yoimiya/Circuit"
 	"Yoimiya/Config"
 	"runtime"
 	"strconv"
@@ -16,13 +17,13 @@ import (
 // Table
 // 1. Split后的约束、变量
 func Experiment_N_Split_Memory_Reduce(option CircuitOption, log bool) {
-	NSplitTest := func(cut int, circuit testCircuit, log bool) {
+	NSplitTest := func(cut int, circuit Circuit.TestCircuit, log bool) {
 		runtime.GOMAXPROCS(runtime.NumCPU())
 		instance := Instance{circuit: circuit}
 		record := instance.TestNSplit(cut)
 		record.Sprintf(log, "N_Split_Test/"+circuit.Name()+"/"+strconv.Itoa(cut)+"_split", format(circuit.Name(), "n_split"))
 	}
-	NormalRunningTest := func(circuit testCircuit, log bool) {
+	NormalRunningTest := func(circuit Circuit.TestCircuit, log bool) {
 		runtime.GOMAXPROCS(runtime.NumCPU())
 		instance := Instance{circuit: circuit}
 		record := instance.TestNormal()
@@ -46,14 +47,14 @@ func Experiment_N_Split_Memory_Reduce(option CircuitOption, log bool) {
 // 1. 不同约束的电路内存对比
 // todo 2. 不同约束的电路Verify Time
 func Experiment_N_Split_Memory_Reduce_With_NbLoop(option CircuitOption, n int, log bool) {
-	NSplitInDifferentNbLoopTest := func(nbLoop int, cut int, circuit testCircuit, log bool) {
+	NSplitInDifferentNbLoopTest := func(nbLoop int, cut int, circuit Circuit.TestCircuit, log bool) {
 		Config.Config.NbLoop = nbLoop
 		instance := Instance{circuit: circuit}
 		runtime.GOMAXPROCS(runtime.NumCPU())
 		record := instance.TestNSplit(cut)
 		record.Sprintf(log, "N_Split_nbLoop_Test/"+circuit.Name()+"/nbLoop_"+strconv.Itoa(nbLoop), format(circuit.Name(), "n_split_"+"loop_"+strconv.Itoa(nbLoop)))
 	}
-	NormalRunningTest := func(nbLoop int, circuit testCircuit, log bool) {
+	NormalRunningTest := func(nbLoop int, circuit Circuit.TestCircuit, log bool) {
 		Config.Config.NbLoop = nbLoop
 		runtime.GOMAXPROCS(runtime.NumCPU())
 		instance := Instance{circuit: circuit}
@@ -77,13 +78,13 @@ func Experiment_N_Split_Memory_Reduce_With_NbLoop(option CircuitOption, n int, l
 // 1. 不同任务数下错位并行和串行所需要的时间
 // 2. 不同任务数下错位并行和串行所需要的内存
 func Experiment_MisAligned_Paralleling_With_NbTask(option CircuitOption, log bool) {
-	misalignParallelingTest := func(nbTask int, cut int, circuit testCircuit, log bool) {
+	misalignParallelingTest := func(nbTask int, cut int, circuit Circuit.TestCircuit, log bool) {
 		instance := Instance{circuit: circuit}
 		runtime.GOMAXPROCS(runtime.NumCPU() / 3 * cut)
 		record := instance.TestMisalignedParalleling(nbTask, cut)
 		record.Sprintf(log, "MisalignedParalleling_nbTask_Test/"+circuit.Name()+"/nbTask_"+strconv.Itoa(nbTask), format(circuit.Name(), "misaligned_paralleling_cut_"+strconv.Itoa(cut)+"_task_"+strconv.Itoa(nbTask)))
 	}
-	serialRunningTest := func(nbTask int, circuit testCircuit, log bool) {
+	serialRunningTest := func(nbTask int, circuit Circuit.TestCircuit, log bool) {
 		runtime.GOMAXPROCS(runtime.NumCPU() / 3)
 		instance := Instance{circuit: circuit}
 		record := instance.TestSerialRunning(nbTask)

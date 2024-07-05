@@ -213,6 +213,7 @@ func GenerateSplitWitnessFromPli(pli PackedLeafInfo, splitInfo []int, extra []co
 	nbSecret := 0
 	// todo 这里可以优化
 	// 这里把1去掉
+	//fmt.Println(splitInfo)
 	for i, wireID := range splitInfo {
 		packedValue := pli.GetVariablesByWireID(wireID)
 		if !packedValue.IsPublic() {

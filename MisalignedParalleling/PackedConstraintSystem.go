@@ -34,6 +34,14 @@ func (p *PackedConstraintSystem) SetCommitment(commitment constraint.Commitments
 	}
 	//p.cs.CommitmentInfo = commitment
 }
+func (p *PackedConstraintSystem) SetCoeff(coeff cs_bn254.CoeffTable) {
+	switch _r1cs := p.cs.(type) {
+	case *cs_bn254.R1CS:
+		_r1cs.CoeffTable = coeff
+	default:
+		panic("Only Support bn254 r1cs now...")
+	}
+}
 
 // GetForwardOutput 该接口由Task调用，不断更新extra，然后将extra传入process接口
 func (p *PackedConstraintSystem) GetForwardOutput() []constraint.ExtraValue {

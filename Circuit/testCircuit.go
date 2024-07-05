@@ -1,4 +1,4 @@
-package evaluate
+package Circuit
 
 import (
 	"Yoimiya/constraint"
@@ -8,7 +8,7 @@ import (
 
 // 这里写一个testCircuit的接口
 // 方便代码编写
-type testCircuit interface {
+type TestCircuit interface {
 	GetAssignment() frontend.Circuit                       // 获取测试电路的随机Assignment
 	Compile() (constraint.ConstraintSystem, time.Duration) // 编译电路得到ccs,并返回编译时间
 	Name() string

@@ -1,6 +1,7 @@
 package MisalignedParalleling
 
 import (
+	"Yoimiya/Config"
 	"Yoimiya/constraint"
 	cs_bn254 "Yoimiya/constraint/bn254"
 	"Yoimiya/frontend"
@@ -38,6 +39,7 @@ func (b *CsSpliter) Split(cs constraint.ConstraintSystem, assignment frontend.Ci
 		panic("Only Support R1CS Now!!!")
 	}
 	runtime.GC() //清理内存
+	Config.Config.CancelSplit()
 	for i, ibr := range ibrs {
 		fmt.Print("	Sub Circuit ", i, " ")
 		//buildStartTime := time.Now()

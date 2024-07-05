@@ -1,6 +1,7 @@
 package evaluate
 
 import (
+	"Yoimiya/Circuit"
 	"Yoimiya/Circuit/Circuit4Conv"
 	"Yoimiya/Circuit/Circuit4Fib"
 	"Yoimiya/Circuit/Circuit4MatrixMultiplication"
@@ -26,7 +27,7 @@ func format(circuitName string, testName string) string {
 }
 
 // getCircuit 根据电路枚举给出电路
-func getCircuit(option CircuitOption) testCircuit {
+func getCircuit(option CircuitOption) Circuit.TestCircuit {
 	switch option {
 	case Fib:
 		circuit := Circuit4Fib.NewLoopFibonacciCircuit()

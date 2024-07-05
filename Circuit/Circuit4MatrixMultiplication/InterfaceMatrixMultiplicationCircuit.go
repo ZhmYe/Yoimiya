@@ -1,10 +1,10 @@
 package Circuit4MatrixMultiplication
 
 import (
+	"Yoimiya/Config"
 	"Yoimiya/constraint"
 	"Yoimiya/frontend"
 	"Yoimiya/frontend/cs/r1cs"
-	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"
 	"time"
 )
@@ -47,13 +47,14 @@ func (c *InterfaceMatrixMultiplicationCircuit) Init() {
 }
 
 func (c *InterfaceMatrixMultiplicationCircuit) Compile() (constraint.ConstraintSystem, time.Duration) {
+	Config.Config.CancelSplit()
 	startTime := time.Now()
 	outerCcs, err := frontend.Compile(ecc.BN254.ScalarField(), r1cs.NewBuilder, c.outerCircuit)
 	if err != nil {
 		panic(err)
 	}
 	compileTime := time.Since(startTime)
-	fmt.Println("Compile Time:", compileTime)
+	//fmt.Println("Compile Time:", compileTime)
 	return outerCcs, compileTime
 }
 func (c *InterfaceMatrixMultiplicationCircuit) Name() string { return c.name }

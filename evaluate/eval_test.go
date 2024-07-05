@@ -1,6 +1,7 @@
 package evaluate
 
 import (
+	"Yoimiya/Circuit"
 	_ "github.com/mkevac/debugcharts" // 可选，添加后可以查看几个实时图表数据
 	_ "net/http/pprof"                // 必须，引入 pprof 模块
 	"runtime"
@@ -10,14 +11,14 @@ import (
 
 // 并发测试
 func TestMisalignedParalleling(t *testing.T) {
-	misalignParallelingTest := func(nbTask int, cut int, circuit testCircuit, log bool) {
+	misalignParallelingTest := func(nbTask int, cut int, circuit Circuit.TestCircuit, log bool) {
 		// 这里为了模拟的场景是，一个电路给一定数量的cpu
 		instance := Instance{circuit: circuit}
 		runtime.GOMAXPROCS(runtime.NumCPU() / 3 * cut)
 		record := instance.TestMisalignedParalleling(nbTask, cut)
 		record.Sprintf(log, "MisalignedParallelingTest/"+circuit.Name()+strconv.Itoa(cut)+"_split", format(circuit.Name(), "misaligned_paralleling_"+"task_"+strconv.Itoa(nbTask)))
 	}
-	serialRunningTest := func(nbTask int, circuit testCircuit, log bool) {
+	serialRunningTest := func(nbTask int, circuit Circuit.TestCircuit, log bool) {
 		runtime.GOMAXPROCS(runtime.NumCPU() / 3)
 		instance := Instance{circuit: circuit}
 		record := instance.TestSerialRunning(nbTask)

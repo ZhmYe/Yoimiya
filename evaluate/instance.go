@@ -1,6 +1,7 @@
 package evaluate
 
 import (
+	"Yoimiya/Circuit"
 	"Yoimiya/Config"
 	"Yoimiya/MisalignedParalleling"
 	"Yoimiya/Record"
@@ -13,7 +14,7 @@ import (
 
 // Instance 测试实例
 type Instance struct {
-	circuit     testCircuit
+	circuit     Circuit.TestCircuit
 	memoryAlloc uint64
 	test        bool
 }
