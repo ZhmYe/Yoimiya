@@ -1,7 +1,6 @@
 package Circuit4Conv
 
 import (
-	"Yoimiya/Config"
 	"Yoimiya/constraint"
 	"Yoimiya/frontend"
 	"Yoimiya/frontend/cs/r1cs"
@@ -59,7 +58,6 @@ func (c *InterfaceConvolutionalCircuit) Init() {
 }
 
 func (c *InterfaceConvolutionalCircuit) Compile() (constraint.ConstraintSystem, time.Duration) {
-	Config.Config.CancelSplit()
 	startTime := time.Now()
 	outerCcs, err := frontend.Compile(ecc.BN254.ScalarField(), r1cs.NewBuilder, c.outerCircuit)
 	if err != nil {

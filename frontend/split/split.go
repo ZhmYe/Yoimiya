@@ -76,6 +76,7 @@ func ProveSplitWithWitness(split constraint.ConstraintSystem,
 	Record.GlobalRecord.SetSetUpTime(time.Since(startTime))
 	startTime = time.Now()
 	proof, err := groth16.Prove(split, pk.(groth16.ProvingKey), fullWitness)
+	fmt.Println("Prove Time", time.Since(startTime))
 	Record.GlobalRecord.SetSolveTime(time.Since(startTime))
 	if err != nil {
 		panic(err)

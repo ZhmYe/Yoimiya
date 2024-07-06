@@ -1,4 +1,4 @@
-package plugin
+package MisalignedParalleling
 
 import (
 	"Yoimiya/constraint"
@@ -19,20 +19,21 @@ type Task struct {
 	coordinator *Coordinator            // 任务的协调者
 	finish      bool
 	startTime   time.Time
-	block       bool
+	//block       bool
 }
 
 func NewTask(id int, assignment frontend.Circuit, cut int) *Task {
 	return &Task{
-		receipt: NewTaskReceipt(),
-		cut:     cut,
-		phase:   0,
-		proofs:  make([]split.PackedProof, 0),
-		pli:     frontend.GetPackedLeafInfoFromAssignment(assignment),
-		extra:   make([]constraint.ExtraValue, 0),
-		id:      id,
-		finish:  false,
-		block:   false,
+		receipt:   NewTaskReceipt(),
+		cut:       cut,
+		phase:     0,
+		proofs:    make([]split.PackedProof, 0),
+		pli:       frontend.GetPackedLeafInfoFromAssignment(assignment),
+		extra:     make([]constraint.ExtraValue, 0),
+		id:        id,
+		finish:    false,
+		startTime: time.Now(),
+		//block:   false,
 	}
 }
 func (t *Task) SetCoordinator(c *Coordinator) {
@@ -41,6 +42,7 @@ func (t *Task) SetCoordinator(c *Coordinator) {
 func (t *Task) Request() {
 	if t.phase == t.cut {
 		t.finish = true
+		t.receipt.TotalTime(time.Since(t.startTime))
 		return
 	}
 	t.coordinator.HandleRequest(t.id, t.pli, t.extra, t.phase)
@@ -59,20 +61,22 @@ func (t *Task) HandleResponse(receipt SlotReceipt) {
 	//	panic(err)
 	//}
 	t.phase++
-	t.block = false
+	t.Request()
+	//t.block = false
 }
-func (t *Task) Run() {
-	t.startTime = time.Now()
-	for {
-		if t.finish {
-			break
-		}
-		if !t.block {
-			t.Request()
-			t.block = true
-		}
-	}
-	t.receipt.TotalTime(time.Since(t.startTime))
-}
+
+//func (t *Task) Run() {
+//	t.startTime = time.Now()
+//	for {
+//		if t.finish {
+//			break
+//		}
+//		if !t.block {
+//			t.Request()
+//			t.block = true
+//		}
+//	}
+//	t.receipt.TotalTime(time.Since(t.startTime))
+//}
 
 //func (t *Task) GenerateWitness()

@@ -1,12 +1,9 @@
-package plugin
+package MisalignedParalleling
 
 import (
 	"Yoimiya/backend/witness"
 	"Yoimiya/constraint"
-	"sync"
 )
-
-const INVALID_TID int = -1
 
 // BParam 用来记录Buffer里的每一个item
 type BParam struct {
@@ -18,38 +15,27 @@ type BParam struct {
 // Buffer Buffer里面可以存assignment，但还是要对应具体的task
 type Buffer struct {
 	sID   int
-	items []BParam
-	mutex sync.Mutex
+	items chan BParam
 }
 
-func NewBuffer(id int) *Buffer {
+func NewBuffer(id int, capacity int) *Buffer {
 	return &Buffer{
 		sID:   id,
-		items: make([]BParam, 0),
+		items: make(chan BParam, capacity),
 	}
-}
-func (b *Buffer) IsEmpty() bool {
-	return len(b.items) == 0
-}
-func (b *Buffer) Push(tID int, witness witness.Witness, extra []constraint.ExtraValue) {
-	b.mutex.Lock()
-	defer b.mutex.Unlock()
-	b.items = append(b.items, BParam{tID: tID, witness: witness, extra: extra})
 }
 
-// Pop 去除第一个buffer元素
-// todo 加锁？
+//func (b *Buffer) IsEmpty() bool {
+//	return len(b.items) == 0
+//}
+
+func (b *Buffer) Push(tID int, witness witness.Witness, extra []constraint.ExtraValue) {
+	b.items <- BParam{tID: tID, witness: witness, extra: extra}
+}
+
 func (b *Buffer) Pop() BParam {
-	b.mutex.Lock()
-	defer b.mutex.Unlock()
-	if b.IsEmpty() {
-		panic("Buffer is empty!!!")
-	}
-	e := b.items[0]
-	if len(b.items) == 1 {
-		b.items = make([]BParam, 0)
-	} else {
-		b.items = b.items[1:]
-	}
-	return e
+	//if b.IsEmpty() {
+	//	panic("Buffer is empty!!!")
+	//}
+	return <-b.items
 }

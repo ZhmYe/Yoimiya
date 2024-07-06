@@ -1,4 +1,4 @@
-package plugin
+package MisalignedParalleling
 
 import (
 	"Yoimiya/backend/groth16"
@@ -8,6 +8,7 @@ import (
 	"Yoimiya/frontend/split"
 	"github.com/consensys/gnark-crypto/ecc"
 	"runtime"
+	"sync"
 	"time"
 )
 
@@ -30,9 +31,9 @@ type SlotReceipt struct {
 }
 
 func (s *Slot) Process() SlotReceipt {
-	if s.IsEmpty() {
-		panic("Slot is Empty!!!")
-	}
+	//if s.IsEmpty() {
+	//	panic("Slot is Empty!!!")
+	//}
 	return s.Prove(s.buffer.Pop())
 	//receipts := make([]SlotReceipt, len(s.buffer.items))
 	////for !s.buffer.IsEmpty() {
@@ -61,6 +62,21 @@ func (s *Slot) Prove(request BParam) SlotReceipt {
 	//fmt.Println("Start Prove request")
 	startTime := time.Now()
 	cs := s.pcs.CS()
+	for i := 0; i < 10000000; i++ {
+		var wg sync.WaitGroup
+		wg.Add(2)
+		for j := 0; j < 2; j++ {
+			go func() {
+				_, err := groth16.Prove(cs, s.pk.(groth16.ProvingKey), request.witness)
+				//Record.GlobalRecord.SetSolveTime(time.Since(startTime))
+				if err != nil {
+					panic(err)
+				}
+				wg.Done()
+			}()
+		}
+		wg.Wait()
+	}
 	proof, err := groth16.Prove(cs, s.pk.(groth16.ProvingKey), request.witness)
 	//Record.GlobalRecord.SetSolveTime(time.Since(startTime))
 	if err != nil {
@@ -101,6 +117,7 @@ func (s *Slot) HandleRequest(tID int, pli frontend.PackedLeafInfo, extra []const
 	}
 	s.buffer.Push(tID, witness, extra)
 }
-func (s *Slot) IsEmpty() bool {
-	return s.buffer.IsEmpty()
-}
+
+//func (s *Slot) IsEmpty() bool {
+//	return s.buffer.IsEmpty()
+//}

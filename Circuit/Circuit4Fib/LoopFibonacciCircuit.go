@@ -1,7 +1,6 @@
 package Circuit4Fib
 
 import (
-	"Yoimiya/Config"
 	"Yoimiya/constraint"
 	"Yoimiya/frontend"
 	"Yoimiya/frontend/cs/r1cs"
@@ -40,7 +39,6 @@ func (c *LoopFibonacciCircuit) Init() {
 }
 
 func (c *LoopFibonacciCircuit) Compile() (constraint.ConstraintSystem, time.Duration) {
-	Config.Config.CancelSplit()
 	startTime := time.Now()
 	outerCcs, err := frontend.Compile(ecc.BN254.ScalarField(), r1cs.NewBuilder, c.outerCircuit)
 	if err != nil {

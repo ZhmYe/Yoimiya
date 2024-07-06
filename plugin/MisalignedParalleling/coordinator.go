@@ -1,4 +1,4 @@
-package plugin
+package MisalignedParalleling
 
 import (
 	"Yoimiya/Circuit"
@@ -120,7 +120,7 @@ func (c *Coordinator) AddSlot(pcs PackedConstraintSystem) {
 			//vk:     vk,
 			pcs:    pcs,
 			id:     len(c.slot),
-			buffer: NewBuffer(len(c.slot)),
+			buffer: NewBuffer(len(c.slot), len(c.tasks)),
 		})
 	runtime.GC()
 }
@@ -157,17 +157,17 @@ func (c *Coordinator) Process() []TaskReceipt {
 	runtime.GOMAXPROCS(c.NumCPUPerSlot * c.nbSplit)
 	go c.MemoryMonitor()
 	for _, task := range c.tasks {
-		go task.Run()
+		go task.Request()
 	}
 	for _, slot := range c.slot {
 		go func(slot *Slot) {
 			for {
-				if !slot.IsEmpty() {
-					receipt := slot.Process()
-					tID := receipt.tID
-					//fmt.Println("Send Response To", tID, "Phase = ", slot.id)
-					c.tasks[tID].HandleResponse(receipt)
-				}
+				//if !slot.IsEmpty() {
+				receipt := slot.Process()
+				tID := receipt.tID
+				//fmt.Println("Send Response To", tID, "Phase = ", slot.id)
+				c.tasks[tID].HandleResponse(receipt)
+				//}
 				//if len(slot.buffer.items) == len(c.tasks) {
 				//	receipts := slot.Process()
 				//	for _, receipt := range receipts {

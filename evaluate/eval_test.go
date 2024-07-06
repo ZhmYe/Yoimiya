@@ -37,8 +37,8 @@ func TestMisalignedParalleling(t *testing.T) {
 // split测试
 func TestMemoryReduceByNSplit(t *testing.T) {
 	//Experiment_N_Split_Memory_Reduce(Conv, false)
-	//Experiment_N_Split_Memory_Reduce(Matrix, false)
-	Experiment_N_Split_Memory_Reduce(Fib, false)
+	Experiment_N_Split_Memory_Reduce(Matrix, false)
+	//Experiment_N_Split_Memory_Reduce(Fib, false)
 	//Experiment_N_Split_Memory_Reduce(Mul, true)
 }
 
