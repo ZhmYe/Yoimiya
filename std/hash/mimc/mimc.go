@@ -26,7 +26,7 @@ import (
 	"github.com/consensys/gnark-crypto/ecc"
 )
 
-// MiMC contains the params of the Mimc hash func and the curves on which it is implemented
+// MiMC contains the params of the Circuir4Mimc hash func and the curves on which it is implemented
 type MiMC struct {
 	params []big.Int           // slice containing constants for the encryption rounds
 	id     ecc.ID              // id needed to know which encryption function to use

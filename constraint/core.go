@@ -192,7 +192,8 @@ type System struct {
 	//Wire2Instruction []int
 	//Bias             []int
 	Wires2Instruction map[uint32]int // an output wire "w" first compute in Instruction "I", then store "w" -> "i"
-	Bias              map[uint32]int // 记录wireID在切割后的电路里对应的下标
+	//Bias              map[uint32]int // 记录wireID在切割后的电路里对应的下标
+	Bias []int
 	// 这些是自底向上建SIT所需要的
 	//InstructionForwardDAG  *graph.DAG     // DAG constructed by Instructions, forward
 	//InstructionBackwardDAG *graph.DAG     // DAG constructed by Instructions, backward
@@ -234,7 +235,8 @@ func NewSystem(scalarField *big.Int, capacity int, t SystemType) System {
 		forwardOutput: make([]ExtraValue, 0),
 		//Bias:          make([]int, 0),
 		//extra:         make([]fr.Element, 0),
-		Bias:  make(map[uint32]int),
+		//Bias:  make(map[uint32]int),
+		Bias:  make([]int, 0),
 		extra: 0,
 		//usedExtra: make(map[int]int), // 现在只有两半电路，暂时先不要
 	}
@@ -276,28 +278,47 @@ func (system *System) SetExtraValue(idx int, value fr.Element) {
 
 // SetBias 用于设置Bias, wireID -> idx
 func (system *System) SetBias(wireID uint32, idx int) {
-	bias, exist := system.Bias[wireID]
+	for len(system.Bias) <= int(wireID) {
+		system.Bias = append(system.Bias, -1)
+	}
+	bias, exist := system.GetWireBias(int(wireID))
 	if exist {
-		//fmt.Println("wireID = ", wireID, ", bias = ", bias, " , offset = ", system.internalWireOffset())
 		if bias < int(system.internalWireOffset()) {
 			return
 		}
 		panic("Wire Bias Has been Set")
 	}
-	system.Bias[wireID] = idx
+	//bias, exist := system.Bias[wireID]
+	//if exist {
+	//	//fmt.Println("wireID = ", wireID, ", bias = ", bias, " , offset = ", system.internalWireOffset())
+	//	if bias < int(system.internalWireOffset()) {
+	//		return
+	//	}
+	//	panic("Wire Bias Has been Set")
+	//}
+	system.Bias[int(wireID)] = idx
 	//if idx+1 != system.GetNbSecretVariables()+system.GetNbPublicVariables()+system.GetNbInternalVariables() {
 	//	fmt.Println("Set Bias Error!!!")
 	//}
 }
-func (system *System) GetBias() map[uint32]int {
+func (system *System) GetBias() []int {
 	return system.Bias
 }
-func (system *System) GetWireBias(wireID int) int {
-	bias, exist := system.Bias[uint32(wireID)]
-	if exist {
-		return bias
+func (system *System) GetWireBias(wireID int) (int, bool) {
+	if wireID >= len(system.Bias) {
+		return wireID, false
 	}
-	return wireID
+	bias := system.Bias[wireID]
+	if bias == -1 {
+		return wireID, false
+	} else {
+		return bias, true
+	}
+	//bias, exist := system.Bias[uint32(wireID)]
+	//if exist {
+	//	return bias
+	//}
+	//return wireID
 }
 
 // SetForwardOutput 这里把上一个电路传下来的WireID记录在system.forwardOutput
@@ -316,9 +337,9 @@ func (system *System) GetNbForwardOutput() int {
 //	}
 
 func (system *System) GetForwardOutputs() []ExtraValue {
-	result := make([]ExtraValue, len(system.forwardOutput))
-	copy(result, system.forwardOutput)
-	return result
+	//result := make([]ExtraValue, len(system.forwardOutput))
+	//copy(result, system.forwardOutput)
+	return system.forwardOutput
 }
 func (system *System) GetForwardOutputIds() []int {
 	result := make([]int, 0)
@@ -394,7 +415,7 @@ func (system *System) GetDataRecords() []IBR {
 			instruction := pi.Unpack(system)               // 解压得到原始的instruction
 			//calldata := make([]uint32, len(instruction.Calldata))
 			//copy(calldata, instruction.Calldata)
-			ibr.Append(instruction.Calldata, blueprint, system.SplitEngine.IsMiddle(id))
+			ibr.Append(instruction.ConstraintOffset, instruction.Calldata, blueprint, system.SplitEngine.IsMiddle(id))
 		}
 		ibr.SetWitness(splitWitness[s])
 		ibrs = append(ibrs, *ibr)
@@ -578,14 +599,14 @@ func (system *System) GetCommitmentInfoInSplit() Groth16Commitments {
 	NewCommitmentInfo := make(Groth16Commitments, 0)
 	for _, commitment := range commitmentInfo {
 		// 首先修改commitmentIndex
-		commitmentIndex := system.GetWireBias(commitment.CommitmentIndex)
+		commitmentIndex, _ := system.GetWireBias(commitment.CommitmentIndex)
 		publicAndCommitmentCommitted := make([]int, len(commitment.PublicAndCommitmentCommitted))
 		for j, id := range commitment.PublicAndCommitmentCommitted {
-			publicAndCommitmentCommitted[j] = system.GetWireBias(id)
+			publicAndCommitmentCommitted[j], _ = system.GetWireBias(id)
 		}
 		privateCommitted := make([]int, len(commitment.PrivateCommitted))
 		for k, id := range commitment.PrivateCommitted {
-			privateCommitted[k] = system.GetWireBias(id)
+			privateCommitted[k], _ = system.GetWireBias(id)
 		}
 		NewCommitmentInfo = append(NewCommitmentInfo, Groth16Commitment{
 			PublicAndCommitmentCommitted: publicAndCommitmentCommitted,
@@ -683,13 +704,15 @@ func (cs *System) AddSparseR1C(c SparseR1C, bID BlueprintID) int {
 
 ***/
 
-func (cs *System) AddInstructionInSpilt(bID BlueprintID, calldata []uint32, isForwardOutput bool) []uint32 {
+func (cs *System) AddInstructionInSpilt(bID BlueprintID, offset uint32, calldata []uint32, isForwardOutput bool) []uint32 {
 	// set the offsets
+	// todo 确认这里到底是cs.NbConstraints还是原来的offset
 	pi := PackedInstruction{
 		StartCallData:    uint64(len(cs.CallData)),
 		ConstraintOffset: uint32(cs.NbConstraints),
-		WireOffset:       uint32(cs.NbInternalVariables + cs.GetNbPublicVariables() + cs.GetNbSecretVariables()),
-		BlueprintID:      bID,
+		//ConstraintOffset: offset,
+		WireOffset:  uint32(cs.NbInternalVariables + cs.GetNbPublicVariables() + cs.GetNbSecretVariables()),
+		BlueprintID: bID,
 	}
 
 	// append the call data

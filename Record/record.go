@@ -56,15 +56,18 @@ func (t *PackedTime) ClearTime() {
 
 // Record 记录运行时的一些数据
 type Record struct {
-	PackedTime               // 时间
-	memory     int           // 程序使用多少内存
-	slotTime   time.Duration // misaligned测试总运行时间
+	PackedTime      // 时间
+	memory      int // 程序使用多少内存
+	proveMemory int
+	slotTime    time.Duration // misaligned测试总运行时间
 }
 
 func (r *Record) SetMemory(m int) {
 	r.memory = m
 }
-
+func (r *Record) SetProveMemory(m int) {
+	r.proveMemory = m
+}
 func (r *Record) SetSlotTime(slotTime time.Duration) {
 	r.slotTime = slotTime
 }

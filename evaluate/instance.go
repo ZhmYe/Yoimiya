@@ -16,7 +16,9 @@ import (
 type Instance struct {
 	circuit     Circuit.TestCircuit
 	memoryAlloc uint64
-	test        bool
+	//proveMemoryAlloc uint64
+	//m    []uint64
+	test bool
 }
 
 // StartMemoryMonitor 监听内存使用情况
@@ -26,6 +28,9 @@ func (i *Instance) StartMemoryMonitor() {
 	startTime := time.Now()
 	// 这里可以看到整体内存趋势
 	//memorySeq := make([]uint64, 0)
+	//var m runtime.MemStats
+	//runtime.ReadMemStats(&m)
+	//startMemory := m.Alloc
 	for {
 		if !i.test {
 			i.memoryAlloc = uint64(0)
@@ -37,8 +42,10 @@ func (i *Instance) StartMemoryMonitor() {
 			nowAlloc := m.Alloc
 			if nowAlloc > i.memoryAlloc {
 				i.memoryAlloc = nowAlloc
+				//i.proveMemoryAlloc = i.memoryAlloc - startMemory
 				//fmt.Println(nowAlloc)
 			}
+			//i.m = append(i.m, nowAlloc)
 			//memorySeq = append(memorySeq, nowAlloc)
 			startTime = time.Now()
 		}
@@ -46,6 +53,7 @@ func (i *Instance) StartMemoryMonitor() {
 	//fmt.Println(memorySeq)
 }
 func (i *Instance) GetTotalMemoryAlloc() uint64 {
+	//fmt.Println(i.m)
 	return i.memoryAlloc
 }
 func (i *Instance) StartTest() {
@@ -73,6 +81,7 @@ func (i *Instance) TestNormal() Record.Record {
 	}
 	// todo 这里加上内存的测试逻辑
 	Record.GlobalRecord.SetMemory(int(i.GetTotalMemoryAlloc()))
+	//Record.GlobalRecord.SetMemory(int(i.proveMemoryAlloc))
 	Record.GlobalRecord.SetSlotTime(time.Since(startTime))
 	//for i, packedProof := range proofs {
 	//	proof := packedProof.GetProof()
@@ -109,6 +118,7 @@ func (i *Instance) TestNSplit(n int) Record.Record {
 	}
 	// todo 这里加上内存的测试逻辑
 	Record.GlobalRecord.SetMemory(int(i.GetTotalMemoryAlloc()))
+	//Record.GlobalRecord.SetMemory(int(i.proveMemoryAlloc))
 	Record.GlobalRecord.SetSlotTime(time.Since(startTime))
 	fmt.Println("Split Circuit Time:", time.Since(startTime))
 	//for i, packedProof := range proofs {

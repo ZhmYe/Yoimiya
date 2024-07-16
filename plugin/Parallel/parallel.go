@@ -57,6 +57,7 @@ func (m *ParallelMaster) Process(nbTask int, circuit Circuit.TestCircuit) plugin
 	for i := 0; i < nbIter; i++ {
 		var wg sync.WaitGroup
 		wg.Add(m.maxParallel)
+		//startTime := time.Now()
 		for j := 0; j < m.maxParallel; j++ {
 			tmp := j
 			go func(index int) {
@@ -69,6 +70,7 @@ func (m *ParallelMaster) Process(nbTask int, circuit Circuit.TestCircuit) plugin
 			}(tmp)
 		}
 		wg.Wait()
+		//fmt.Println(time.Since(startTime))
 		runtime.GC()
 		//_, err := groth16.Prove(cs, pk.(groth16.ProvingKey), fullWitness)
 	}

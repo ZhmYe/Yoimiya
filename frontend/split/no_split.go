@@ -15,12 +15,14 @@ func SimpleProve(cs constraint.ConstraintSystem, assignment frontend.Circuit) ([
 	startTime := time.Now()
 	pk, vk := frontend.SetUpSplit(cs)
 	Record.GlobalRecord.SetSetUpTime(time.Since(startTime))
+	runtime.GC()
 	startTime = time.Now()
 	//fmt.Println("Set Up Time: ", time.Since(startTime))
 	extra := make([]constraint.ExtraValue, 0)
 	fullWitness, _ := frontend.GenerateWitness(assignment, extra, ecc.BN254.ScalarField())
 	publicWitness, _ := frontend.GenerateWitness(assignment, extra, ecc.BN254.ScalarField(), frontend.PublicOnly())
 	//proof, err := groth16.Prove(cs, pk.(groth16.ProvingKey), fullWitness)
+	//startTime = time.Now()
 	_, err := groth16.Prove(cs, pk.(groth16.ProvingKey), fullWitness)
 	if err != nil {
 		return nil, err

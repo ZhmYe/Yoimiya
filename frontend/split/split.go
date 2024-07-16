@@ -9,6 +9,7 @@ import (
 	"Yoimiya/frontend"
 	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"
+	"runtime"
 	"time"
 )
 
@@ -72,6 +73,7 @@ func ProveSplitWithWitness(split constraint.ConstraintSystem,
 	//}
 	startTime := time.Now()
 	pk, vk := frontend.SetUpSplit(split)
+	runtime.GC()
 	publicWitness, _ := fullWitness.Public()
 	Record.GlobalRecord.SetSetUpTime(time.Since(startTime))
 	startTime = time.Now()

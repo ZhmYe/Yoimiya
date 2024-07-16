@@ -32,6 +32,7 @@ import (
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr/fft"
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr/hash_to_field"
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr/pedersen"
+	"github.com/rs/zerolog/log"
 	"math/big"
 	"runtime"
 	"time"
@@ -57,6 +58,269 @@ func (proof *Proof) isValid() bool {
 // CurveID returns the curveID
 func (proof *Proof) CurveID() ecc.ID {
 	return curve.ID
+}
+
+// Solve add by ZhmYe
+// 把solve和prove分开来
+func Solve(r1cs *cs.R1CS, fullWitness witness.Witness, pk *ProvingKey, opts ...backend.ProverOption) (constraint.Groth16Commitments, *cs.R1CSSolution, int, int, error) {
+	opt, err := backend.NewProverConfig(opts...)
+	if err != nil {
+		panic(err)
+	}
+	if opt.HashToFieldFn == nil {
+		opt.HashToFieldFn = hash_to_field.New([]byte(constraint.CommitmentDst))
+	}
+	//log := logger.Logger().With().Str("curve", r1cs.CurveID().String()).Str("acceleration", "none").Int("nbConstraints", r1cs.GetNbConstraints()).Str("backend", "groth16").Logger()
+	//commitmentInfo := r1cs.CommitmentInfo.(constraint.Groth16Commitments)
+	// modify by ZhmYe
+	commitmentInfo := r1cs.GetCommitmentInfoInSplit()
+	//fmt.Println(len(commitmentInfo))
+	proof := &Proof{Commitments: make([]curve.G1Affine, len(commitmentInfo))}
+	solverOpts := opt.SolverOpts[:len(opt.SolverOpts):len(opt.SolverOpts)]
+
+	privateCommittedValues := make([][]fr.Element, len(commitmentInfo))
+	// override hints
+	bsb22ID := solver.GetHintID(fcs.Bsb22CommitmentComputePlaceholder)
+	solverOpts = append(solverOpts, solver.OverrideHint(bsb22ID, func(_ *big.Int, in []*big.Int, out []*big.Int) error {
+		i := int(in[0].Int64())
+		in = in[1:]
+		privateCommittedValues[i] = make([]fr.Element, len(commitmentInfo[i].PrivateCommitted))
+		hashed := in[:len(commitmentInfo[i].PublicAndCommitmentCommitted)]
+		committed := in[+len(hashed):]
+		for j, inJ := range committed {
+			privateCommittedValues[i][j].SetBigInt(inJ)
+		}
+
+		var err error
+		if proof.Commitments[i], err = pk.CommitmentKeys[i].Commit(privateCommittedValues[i]); err != nil {
+			return err
+		}
+
+		opt.HashToFieldFn.Write(constraint.SerializeCommitment(proof.Commitments[i].Marshal(), hashed, (fr.Bits-1)/8+1))
+		hashBts := opt.HashToFieldFn.Sum(nil)
+		opt.HashToFieldFn.Reset()
+		nbBuf := fr.Bytes
+		if opt.HashToFieldFn.Size() < fr.Bytes {
+			nbBuf = opt.HashToFieldFn.Size()
+		}
+		var res fr.Element
+		res.SetBytes(hashBts[:nbBuf])
+		res.BigInt(out[0])
+		return nil
+	}))
+	if r1cs.GkrInfo.Is() {
+		var gkrData cs.GkrSolvingData
+		solverOpts = append(solverOpts,
+			solver.OverrideHint(r1cs.GkrInfo.SolveHintID, cs.GkrSolveHint(r1cs.GkrInfo, &gkrData)),
+			solver.OverrideHint(r1cs.GkrInfo.ProveHintID, cs.GkrProveHint(r1cs.GkrInfo.HashName, &gkrData)))
+	}
+	//fmt.Println("Before Solve: ", time.Since(startTime))
+	//startTime := time.Now()
+	_solution, err := r1cs.Solve(fullWitness, solverOpts...)
+	if err != nil {
+		panic(err)
+	}
+	//fmt.Println("Solve Time: ", time.Since(startTime))
+	return commitmentInfo, _solution.(*cs.R1CSSolution), r1cs.GetNbPublicVariables(), r1cs.GetNbSecretVariables(), nil
+}
+func GenerateZKP(commitmentInfo constraint.Groth16Commitments, solution cs.R1CSSolution, pk *ProvingKey, nbPublic int, nbPrivate int) (*Proof, error) {
+	var err error
+	wireValues := []fr.Element(solution.W)
+	proof := &Proof{Commitments: make([]curve.G1Affine, len(commitmentInfo))}
+	start := time.Now()
+	privateCommittedValues := make([][]fr.Element, len(commitmentInfo))
+	commitmentsSerialized := make([]byte, fr.Bytes*len(commitmentInfo))
+	for i := range commitmentInfo {
+		copy(commitmentsSerialized[fr.Bytes*i:], wireValues[commitmentInfo[i].CommitmentIndex].Marshal())
+	}
+
+	if proof.CommitmentPok, err = pedersen.BatchProve(pk.CommitmentKeys, privateCommittedValues, commitmentsSerialized); err != nil {
+		return nil, err
+	}
+
+	// H (witness reduction / FFT part)
+	var h []fr.Element
+	chHDone := make(chan struct{}, 1)
+	go func() {
+		h = computeH(solution.A, solution.B, solution.C, &pk.Domain)
+		solution.A = nil
+		solution.B = nil
+		solution.C = nil
+		chHDone <- struct{}{}
+	}()
+
+	// we need to copy and filter the wireValues for each multi exp
+	// as pk.G1.A, pk.G1.B and pk.G2.B may have (a significant) number of point at infinity
+	var wireValuesA, wireValuesB []fr.Element
+	chWireValuesA, chWireValuesB := make(chan struct{}, 1), make(chan struct{}, 1)
+
+	go func() {
+		wireValuesA = make([]fr.Element, len(wireValues)-int(pk.NbInfinityA))
+		for i, j := 0, 0; j < len(wireValuesA); i++ {
+			if pk.InfinityA[i] {
+				continue
+			}
+			wireValuesA[j] = wireValues[i]
+			j++
+		}
+		close(chWireValuesA)
+	}()
+	go func() {
+		wireValuesB = make([]fr.Element, len(wireValues)-int(pk.NbInfinityB))
+		for i, j := 0, 0; j < len(wireValuesB); i++ {
+			if pk.InfinityB[i] {
+				continue
+			}
+			wireValuesB[j] = wireValues[i]
+			j++
+		}
+		close(chWireValuesB)
+	}()
+
+	// sample random r and s
+	var r, s big.Int
+	var _r, _s, _kr fr.Element
+	if _, err := _r.SetRandom(); err != nil {
+		return nil, err
+	}
+	if _, err := _s.SetRandom(); err != nil {
+		return nil, err
+	}
+	_kr.Mul(&_r, &_s).Neg(&_kr)
+
+	_r.BigInt(&r)
+	_s.BigInt(&s)
+
+	// computes r[δ], s[δ], kr[δ]
+	deltas := curve.BatchScalarMultiplicationG1(&pk.G1.Delta, []fr.Element{_r, _s, _kr})
+
+	var bs1, ar curve.G1Jac
+
+	n := runtime.NumCPU()
+
+	chBs1Done := make(chan error, 1)
+	computeBS1 := func() {
+		<-chWireValuesB
+		if _, err := bs1.MultiExp(pk.G1.B, wireValuesB, ecc.MultiExpConfig{NbTasks: n / 2}); err != nil {
+			chBs1Done <- err
+			close(chBs1Done)
+			return
+		}
+		bs1.AddMixed(&pk.G1.Beta)
+		bs1.AddMixed(&deltas[1])
+		chBs1Done <- nil
+	}
+
+	chArDone := make(chan error, 1)
+	computeAR1 := func() {
+		<-chWireValuesA
+		if _, err := ar.MultiExp(pk.G1.A, wireValuesA, ecc.MultiExpConfig{NbTasks: n / 2}); err != nil {
+			chArDone <- err
+			close(chArDone)
+			return
+		}
+		ar.AddMixed(&pk.G1.Alpha)
+		ar.AddMixed(&deltas[0])
+		proof.Ar.FromJacobian(&ar)
+		chArDone <- nil
+	}
+
+	chKrsDone := make(chan error, 1)
+	computeKRS := func() {
+		// we could NOT graph the Krs multiExp in 2, and just append pk.G1.K and pk.G1.Z
+		// however, having similar lengths for our tasks helps with parallelism
+
+		var krs, krs2, p1 curve.G1Jac
+		chKrs2Done := make(chan error, 1)
+		sizeH := int(pk.Domain.Cardinality - 1) // comes from the fact the deg(H)=(n-1)+(n-1)-n=n-2
+		go func() {
+			_, err := krs2.MultiExp(pk.G1.Z, h[:sizeH], ecc.MultiExpConfig{NbTasks: n / 2})
+			chKrs2Done <- err
+		}()
+
+		// filter the wire values if needed
+		// TODO Perf @Tabaie worst memory allocation offender
+		toRemove := commitmentInfo.GetPrivateCommitted()
+		toRemove = append(toRemove, commitmentInfo.CommitmentIndexes())
+		_wireValues := filterHeap(wireValues[nbPublic:], nbPublic, internal.ConcatAll(toRemove...))
+
+		if _, err := krs.MultiExp(pk.G1.K, _wireValues, ecc.MultiExpConfig{NbTasks: n / 2}); err != nil {
+			chKrsDone <- err
+			return
+		}
+		krs.AddMixed(&deltas[2])
+		n := 3
+		for n != 0 {
+			select {
+			case err := <-chKrs2Done:
+				if err != nil {
+					chKrsDone <- err
+					return
+				}
+				krs.AddAssign(&krs2)
+			case err := <-chArDone:
+				if err != nil {
+					chKrsDone <- err
+					return
+				}
+				p1.ScalarMultiplication(&ar, &s)
+				krs.AddAssign(&p1)
+			case err := <-chBs1Done:
+				if err != nil {
+					chKrsDone <- err
+					return
+				}
+				p1.ScalarMultiplication(&bs1, &r)
+				krs.AddAssign(&p1)
+			}
+			n--
+		}
+
+		proof.Krs.FromJacobian(&krs)
+		chKrsDone <- nil
+	}
+
+	computeBS2 := func() error {
+		// Bs2 (1 multi exp G2 - size = len(wires))
+		var Bs, deltaS curve.G2Jac
+
+		nbTasks := n
+		if nbTasks <= 16 {
+			// if we don't have a lot of CPUs, this may artificially graph the MSM
+			nbTasks *= 2
+		}
+		<-chWireValuesB
+		if _, err := Bs.MultiExp(pk.G2.B, wireValuesB, ecc.MultiExpConfig{NbTasks: nbTasks}); err != nil {
+			return err
+		}
+
+		deltaS.FromAffine(&pk.G2.Delta)
+		deltaS.ScalarMultiplication(&deltaS, &s)
+		Bs.AddAssign(&deltaS)
+		Bs.AddMixed(&pk.G2.Beta)
+
+		proof.Bs.FromJacobian(&Bs)
+		return nil
+	}
+
+	// wait for FFT to end, as it uses all our CPUs
+	<-chHDone
+
+	// schedule our proof part computations
+	go computeKRS()
+	go computeAR1()
+	go computeBS1()
+	if err := computeBS2(); err != nil {
+		return nil, err
+	}
+
+	// wait for all parts of the proof to be computed.
+	if err := <-chKrsDone; err != nil {
+		return nil, err
+	}
+	//fmt.Println("Prove Time: ", time.Since(start))
+	log.Debug().Dur("took", time.Since(start)).Msg("prover done")
+	return proof, nil
 }
 
 // Prove generates the proof of knowledge of a r1cs with full witness (secret + public part).
@@ -118,11 +382,13 @@ func Prove(r1cs *cs.R1CS, pk *ProvingKey, fullWitness witness.Witness, opts ...b
 			solver.OverrideHint(r1cs.GkrInfo.ProveHintID, cs.GkrProveHint(r1cs.GkrInfo.HashName, &gkrData)))
 	}
 	//fmt.Println("Before Solve: ", time.Since(startTime))
+	startTime := time.Now()
 	_solution, err := r1cs.Solve(fullWitness, solverOpts...)
 	if err != nil {
 		return nil, err
 	}
-
+	fmt.Println("Solve Time: ", time.Since(startTime))
+	startTime = time.Now()
 	solution := _solution.(*cs.R1CSSolution)
 	wireValues := []fr.Element(solution.W)
 
@@ -317,9 +583,8 @@ func Prove(r1cs *cs.R1CS, pk *ProvingKey, fullWitness witness.Witness, opts ...b
 	if err := <-chKrsDone; err != nil {
 		return nil, err
 	}
-
+	fmt.Println("Prove Time: ", time.Since(startTime))
 	log.Debug().Dur("took", time.Since(start)).Msg("prover done")
-
 	return proof, nil
 }
 

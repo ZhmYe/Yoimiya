@@ -56,7 +56,7 @@ func (system *System) IsOutput(wireID uint32, split bool) bool {
 		return false
 	}
 	//bias := system.GetWireBias(int(wireID)) // 得到wireID在values中的位置
-	bias, exist := system.Bias[wireID]
+	bias, exist := system.GetWireBias(int(wireID))
 	if !split {
 		// 如果不是在split方法下
 		// 此时bias未设置

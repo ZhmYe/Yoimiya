@@ -458,13 +458,14 @@ func setupABC(r1cs *cs.R1CS, domain *fft.Domain, toxicWaste toxicWaste) (A []fr.
 
 	j := 0
 	it := r1cs.GetR1CIterator()
-	bias := r1cs.GetBias()
+	//bias := r1cs.GetBias()
 	//fmt.Println(len(bias), nbWires)
 	// todo 这里 A,B,C是根据WireID来取下标的，但是总长度是根据Wire数来取的
 	for c := it.Next(); c != nil; c = it.Next() {
 		for _, t := range c.L {
 			//fmt.Println(t.WireID())
-			idx, exist := bias[t.GetWireID()]
+			idx, exist := r1cs.GetWireBias(int(t.WireID()))
+			//idx := bias[t.GetWireID()]
 			if !exist {
 				idx = t.WireID()
 				if idx >= nbWires {
@@ -475,7 +476,7 @@ func setupABC(r1cs *cs.R1CS, domain *fft.Domain, toxicWaste toxicWaste) (A []fr.
 			accumulate(&A[idx], t, &L)
 		}
 		for _, t := range c.R {
-			idx, exist := bias[t.GetWireID()]
+			idx, exist := r1cs.GetWireBias(int(t.WireID()))
 			if !exist {
 				idx = t.WireID()
 				if idx >= nbWires {
@@ -485,7 +486,7 @@ func setupABC(r1cs *cs.R1CS, domain *fft.Domain, toxicWaste toxicWaste) (A []fr.
 			accumulate(&B[idx], t, &L)
 		}
 		for _, t := range c.O {
-			idx, exist := bias[t.GetWireID()]
+			idx, exist := r1cs.GetWireBias(int(t.WireID()))
 			if !exist {
 				idx = t.WireID()
 				if idx >= nbWires {

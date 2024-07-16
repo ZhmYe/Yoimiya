@@ -117,7 +117,7 @@ func buildConstraintSystemFromIBR(ibr constraint.IBR,
 	}
 	for _, item := range ibr.Items() {
 		bID := cs.AddBlueprint(item.BluePrint)
-		cs.AddInstructionInSpilt(bID, item.CallData, item.IsForwardOutput())
+		cs.AddInstructionInSpilt(bID, item.ConstraintOffset, item.CallData, item.IsForwardOutput())
 		//if item.IsForwardOutput() {
 		//	cs.AddForwardOutputInstruction(cs.GetNbInstructions() - 1) // iID = len(instruction) -1
 		//}
@@ -129,6 +129,6 @@ func buildConstraintSystemFromIBR(ibr constraint.IBR,
 func printConstraintSystemInfo(cs *cs_bn254.R1CS, name string) {
 	fmt.Println("[", name, "]", " Compile Result: ")
 	fmt.Println("	NbPublic=", cs.GetNbPublicVariables(), " NbSecret=", cs.GetNbSecretVariables(), " NbInternal=", cs.GetNbInternalVariables())
-	fmt.Println("	NbCoeff=", cs.GetNbConstraints())
+	fmt.Println("	NbConstraints=", cs.GetNbConstraints())
 	fmt.Println("	NbWires=", cs.GetNbPublicVariables()+cs.GetNbSecretVariables()+cs.GetNbInternalVariables())
 }

@@ -185,7 +185,7 @@ func newSolver(cs *system, witness fr.Vector, opts ...csolver.Option) (*solver, 
 }
 
 func (s *solver) set(id int, value fr.Element) {
-	bias := s.GetWireBias(id)
+	bias, _ := s.GetWireBias(id)
 	if s.solved[bias] {
 		panic("solving the same wire twice should never happen.")
 	}
@@ -202,14 +202,14 @@ func (s *solver) set(id int, value fr.Element) {
 	atomic.AddUint64(&s.nbSolved, 1)
 }
 func (s *solver) GetWireValue(wireID int) fr.Element {
-	bias := s.GetWireBias(wireID)
+	bias, _ := s.GetWireBias(wireID)
 	return s.values[bias]
 }
 
 // computeTerm computes coeff*variable
 func (s *solver) computeTerm(t constraint.Term) fr.Element {
 	cID, vID := t.CoeffID(), t.WireID()
-	bias := s.GetWireBias(vID)
+	bias, _ := s.GetWireBias(vID)
 	if t.IsConstant() {
 		return s.Coefficients[cID]
 	}
@@ -247,15 +247,14 @@ func (s *solver) computeTerm(t constraint.Term) fr.Element {
 // r += (t.coeff*t.value)
 // TODO @gbotrel check t.IsConstant on the caller side when necessary
 func (s *solver) accumulateInto(t constraint.Term, r *fr.Element) {
+	//startTime := time.Now()
 	cID := t.CoeffID()
 	vID := t.WireID()
-	bias := s.GetWireBias(vID)
+	bias, _ := s.GetWireBias(vID)
 	if t.IsConstant() {
 		r.Add(r, &s.Coefficients[cID])
 		return
 	}
-	// modify by ZhmYe
-	//value := s.solvedValues[vID]
 	value := s.values[bias]
 	switch cID {
 	case constraint.CoeffIdZero:
@@ -273,6 +272,7 @@ func (s *solver) accumulateInto(t constraint.Term, r *fr.Element) {
 		res.Mul(&s.Coefficients[cID], &value)
 		r.Add(r, &res)
 	}
+	//Config.TimeTest.Add(time.Since(startTime))
 }
 
 // solveWithHint executes a hint and assign the result to its defined outputs.
@@ -362,7 +362,7 @@ func (s *solver) logValue(log constraint.LogEntry) string {
 				continue
 			}
 			//_, hasSolved := s.solvedValues[vID]
-			bias := s.GetWireBias(vID)
+			bias, _ := s.GetWireBias(vID)
 			if !s.solved[bias] {
 				missingValue = true
 				break // stop the loop we can't evaluate.
@@ -439,7 +439,7 @@ func (s *solver) IsSolved(vID uint32) bool {
 
 	//_, hasSolved := s.solvedValues[int(vID)]
 	//return hasSolved
-	bias := s.GetWireBias(int(vID))
+	bias, _ := s.GetWireBias(int(vID))
 	return s.solved[bias]
 }
 
@@ -473,7 +473,6 @@ func (solver *solver) processInstruction(pi constraint.PackedInstruction, scratc
 	blueprint := solver.Blueprints[pi.BlueprintID]
 	inst := pi.Unpack(&solver.System)
 	cID := inst.ConstraintOffset // here we have 1 constraint in the instruction only
-
 	if solver.Type == constraint.SystemR1CS {
 		if bc, ok := blueprint.(constraint.BlueprintR1C); ok {
 			// TODO @gbotrel we use the solveR1C method for now, having user-defined
@@ -483,7 +482,6 @@ func (solver *solver) processInstruction(pi constraint.PackedInstruction, scratc
 			return solver.solveR1C(cID, &scratch.tR1C)
 		}
 	}
-
 	// blueprint declared "I know how to solve this."
 	if bc, ok := blueprint.(constraint.BlueprintSolvable); ok {
 		if err := bc.Solve(solver, inst); err != nil {
@@ -668,13 +666,14 @@ func (solver *solver) runInLevels() error {
 			if maxCPU <= 1.0 {
 				// we do it sequentially
 				for _, i := range level {
+					//startTime := time.Now()
 					if err := solver.processInstruction(solver.Instructions[i], &scratch); err != nil {
 						return err
 					}
+					//Config.TimeTest.Add(time.Since(startTime))
 				}
 				continue
 			}
-
 			// number of tasks for this level is set to number of CPU
 			// but if we don't have enough work for all our CPU, it can be lower.
 			nbTasks := runtime.NumCPU()
@@ -716,6 +715,7 @@ func (solver *solver) runInLevels() error {
 			}
 		}
 	}
+	//Config.TimeTest.Print()
 	return nil
 }
 
@@ -741,6 +741,7 @@ func (solver *solver) run() error {
 		}
 
 	}
+	//fmt.Println(time.Since(startTime))
 	if int(solver.nbSolved) != len(solver.values) {
 		fmt.Println(int(solver.nbSolved), len(solver.values))
 		return errors.New("solver didn't assign a value to all wires")
@@ -767,11 +768,13 @@ func (solver *solver) solveR1C(cID uint32, r *constraint.R1C) error {
 	var loc uint8
 
 	var termToCompute constraint.Term
-
 	processLExp := func(l constraint.LinearExpression, val *fr.Element, locValue uint8) {
 		for _, t := range l {
+			//startTime := time.Now()
 			vID := t.WireID()
-			bias := solver.GetWireBias(vID)
+			bias, _ := solver.GetWireBias(vID)
+			//Config.TimeTest.Add(time.Since(startTime))
+
 			// wire is already computed, we just accumulate in val
 			//_, hasSolved := solver.solvedValues[vID]
 			//if hasSolved {
@@ -789,18 +792,16 @@ func (solver *solver) solveR1C(cID uint32, r *constraint.R1C) error {
 				if !exist {
 					panic("no such Wire In Wire2Instruction!!!")
 				}
-				fmt.Println(t.GetWireID(), solver.GetWireBias(int(t.GetWireID())), solver.Wires2Instruction[t.GetWireID()])
+				//fmt.Println(t.GetWireID(), solver.GetWireBias(int(t.GetWireID())), solver.Wires2Instruction[t.GetWireID()])
 				panic("found more than one wire to instantiate")
 			}
 			termToCompute = t
 			loc = locValue
 		}
 	}
-
 	processLExp(r.L, a, 1)
 	processLExp(r.R, b, 2)
 	processLExp(r.O, c, 3)
-
 	if loc == 0 {
 		// there is nothing to solve, may happen if we have an assertion
 		// (ie a constraints that doesn't yield any output)
@@ -811,13 +812,11 @@ func (solver *solver) solveR1C(cID uint32, r *constraint.R1C) error {
 		}
 		return nil
 	}
-
 	// we compute the wire value and instantiate it
 	wID := termToCompute.WireID()
 
 	// solver result
 	var wire fr.Element
-
 	switch loc {
 	case 1:
 		if !b.IsZero() {
@@ -848,13 +847,12 @@ func (solver *solver) solveR1C(cID uint32, r *constraint.R1C) error {
 
 		c.Add(c, &wire)
 	}
-
 	// wire is the term (coeff * value)
 	// but in the solver we want to store the value only
 	// note that in gnark frontend, coeff here is always 1 or -1
+	//startTime = time.Now()
 	solver.divByCoeff(&wire, termToCompute.CID)
 	solver.set(wID, wire)
-
 	return nil
 }
 

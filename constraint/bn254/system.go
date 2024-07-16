@@ -86,13 +86,11 @@ func (cs *system) Solve(witness witness.Witness, opts ...csolver.Option) (any, e
 	// defer log printing once all solver.values are computed
 	// (or sooner, if a constraint is not satisfied)
 	defer Asolver.printLogs(cs.Logs)
-
 	// run it.
 	if err := Asolver.run(); err != nil {
 		log.Err(err).Send()
 		return nil, err
 	}
-
 	log.Debug().Dur("took", time.Since(start)).Msg("constraint system solver done")
 	// add by ZhmYe
 	//Asolver.UpdateForwardOutput() // 这里cs.ForwardOutput或者Asolver.ForwardOutput就是middle的wireID

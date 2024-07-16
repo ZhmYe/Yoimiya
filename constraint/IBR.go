@@ -1,9 +1,10 @@
 package constraint
 
 type Item struct {
-	CallData        []uint32  // 这里直接存calldata不需要instruction
-	BluePrint       Blueprint // 这里直接把instruction和对应的Item放在一起
-	isForwardOutput bool      // 当前instruction是否需要被传递给后面的电路
+	CallData         []uint32  // 这里直接存calldata不需要instruction
+	BluePrint        Blueprint // 这里直接把instruction和对应的Item放在一起
+	ConstraintOffset uint32
+	isForwardOutput  bool // 当前instruction是否需要被传递给后面的电路
 }
 
 func (i *Item) IsForwardOutput() bool {
@@ -25,11 +26,12 @@ func NewIBR() *IBR {
 func (r *IBR) Items() []Item {
 	return r.items
 }
-func (r *IBR) Append(data []uint32, b Blueprint, isForwardOutput bool) {
+func (r *IBR) Append(offset uint32, data []uint32, b Blueprint, isForwardOutput bool) {
 	item := Item{
-		CallData:        data,
-		BluePrint:       b,
-		isForwardOutput: isForwardOutput,
+		CallData:         data,
+		BluePrint:        b,
+		isForwardOutput:  isForwardOutput,
+		ConstraintOffset: offset,
 	}
 	r.items = append(r.items, item)
 }
