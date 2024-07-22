@@ -7,7 +7,7 @@ import (
 )
 
 func Test4Parallel(t *testing.T) {
-	parallelMaster := NewParallelMaster(1)
+	parallelMaster := NewParallelMaster(3)
 	circuit := Circuit4Fib.NewLoopFibonacciCircuit()
 	record := parallelMaster.Process(20, &circuit)
 	// p = 1,串行

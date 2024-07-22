@@ -28,10 +28,12 @@ type PluginRecord struct {
 	finish bool
 	times  []PackedTime
 	m      []uint64
+	name   string
 }
 
-func NewPluginRecord() PluginRecord {
+func NewPluginRecord(name string) PluginRecord {
 	return PluginRecord{
+		name: name,
 		memory: PackedMemory{
 			totalMemoryUsed: 0,
 			proveMemoryUsed: 0,
@@ -89,11 +91,11 @@ func (r *PluginRecord) Finish() {
 	r.finish = true
 }
 func (r *PluginRecord) Print() {
-	fmt.Println("[Record]: ")
+	fmt.Printf("[%s Record]: \n", r.name)
 	fmt.Println("\t[Memory Used]: ", r.memory.totalMemoryUsed, "GB")
 	fmt.Println("\t[Prove Memory Used: ]", r.memory.proveMemoryUsed, "GB")
 	for _, pt := range r.times {
 		fmt.Printf("\t[%s]: %v \n", pt.name, pt.timeUsed)
 	}
-	fmt.Println(r.m)
+	//fmt.Println(r.m)
 }

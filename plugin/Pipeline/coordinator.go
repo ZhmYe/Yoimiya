@@ -36,10 +36,10 @@ func NewCoordinator(s int, p int) Coordinator {
 }
 func (c *Coordinator) Process(nbTask int, circuit Circuit.TestCircuit) plugin.PluginRecord {
 	Config.Config.SwitchToSplit()
-	record := plugin.NewPluginRecord()
+	record := plugin.NewPluginRecord("Process")
 	go record.MemoryMonitor()
 	cs, compileTime := circuit.Compile()
-	record.SetCompileTime(compileTime)
+	record.SetTime("Compile", compileTime)
 	c.injectTasks(nbTask, circuit)
 	pli := frontend.GetPackedLeafInfoFromAssignment(circuit.GetAssignment()) // 随机的assignment用来获取pli
 	c.Split(cs, pli)
@@ -63,7 +63,7 @@ func (c *Coordinator) Process(nbTask int, circuit Circuit.TestCircuit) plugin.Pl
 	}
 
 	wg.Wait()
-	record.SetProveTime(time.Since(startTime))
+	record.SetTime("Prove", time.Since(startTime))
 	return record
 }
 func (c *Coordinator) injectTasks(nbTask int, circuit Circuit.TestCircuit) {

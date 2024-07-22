@@ -27,17 +27,16 @@ func NewParallelMaster(p int) ParallelMaster {
 }
 func (m *ParallelMaster) Process(nbTask int, circuit Circuit.TestCircuit) plugin.PluginRecord {
 	Config.Config.CancelSplit()
-	record := plugin.NewPluginRecord()
-	go record.MemoryMonitor()
+	record := plugin.NewPluginRecord("Parallel")
 	cs, compileTime := circuit.Compile()
 	m.cs = cs
-	record.SetCompileTime(compileTime)
+	record.SetTime("Compile", compileTime)
 	setupStartTime := time.Now()
 	pk, vk, err := groth16.Setup(m.cs)
 	if err != nil {
 		panic(err)
 	}
-	record.SetSetupTime(time.Since(setupStartTime))
+	record.SetTime("SetUp", time.Since(setupStartTime))
 	m.pk, m.vk = pk, vk
 	runtime.GC()
 	tasks := make([]witness.Witness, 0)
@@ -54,6 +53,7 @@ func (m *ParallelMaster) Process(nbTask int, circuit Circuit.TestCircuit) plugin
 	//proof, err := groth16.Prove(cs, pk.(groth16.ProvingKey), fullWitness)
 	startTime := time.Now()
 	nbIter := nbTask / m.maxParallel
+	go record.MemoryMonitor()
 	for i := 0; i < nbIter; i++ {
 		var wg sync.WaitGroup
 		wg.Add(m.maxParallel)
@@ -91,7 +91,7 @@ func (m *ParallelMaster) Process(nbTask int, circuit Circuit.TestCircuit) plugin
 		wg.Wait()
 	}
 	proveTime := time.Since(startTime)
-	record.SetProveTime(proveTime)
+	record.SetTime("Prove", proveTime)
 	record.Finish()
 	return record
 }

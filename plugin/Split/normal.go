@@ -15,29 +15,32 @@ import (
 )
 
 type Groth16NormalRunner struct {
-	record   plugin.PluginRecord
+	record   []plugin.PluginRecord
 	prover   Prover
 	verifier Verifier
 }
 
 func NewGroth16NormalRunner() Groth16NormalRunner {
-	return Groth16NormalRunner{record: plugin.NewPluginRecord()}
+	return Groth16NormalRunner{record: make([]plugin.PluginRecord, 0)}
 }
 func (r *Groth16NormalRunner) Prepare(circuit Circuit.TestCircuit) (*cs_bn254.R1CS, witness.Witness) {
 	//runtime.GOMAXPROCS(16)
+	record := plugin.NewPluginRecord("Prepare")
+	master := NewMaster(1)
 	assignment := circuit.GetAssignment()
 	cs, compileTime := circuit.Compile()
 	runtime.GC()
-	r.record.SetTime("Compile", compileTime)
+	record.SetTime("Compile", compileTime)
 	//fmt.Println(compileTime)
-	setupTime := time.Now()
-	pk, vk, err := groth16.Setup(cs)
-	if err != nil {
-		panic(err)
-	}
+	//setupTime := time.Now()
+	//pk, vk, err := groth16.Setup(cs)
+	pk, vk, setupTime := master.SetUp(cs)
+	//if err != nil {
+	//	panic(err)
+	//}
 	runtime.GC()
 	//go r.record.MemoryMonitor()
-	r.record.SetTime("SetUp", time.Since(setupTime))
+	record.SetTime("SetUp", setupTime)
 	r.prover = NewProver(pk)
 	fullWitness, _ := frontend.GenerateWitness(assignment, make([]constraint.ExtraValue, 0), ecc.BN254.ScalarField())
 	publicWitness, err := fullWitness.Public()
@@ -53,6 +56,8 @@ func (r *Groth16NormalRunner) Prepare(circuit Circuit.TestCircuit) (*cs_bn254.R1
 		//	panic(err)
 		//}
 		//r.record.SetTime("Solve", time.Since(solveTime))
+		record.Finish()
+		r.record = append(r.record, record)
 		return _r1cs, fullWitness
 	default:
 		panic("Only Support BN254 now!!!")
@@ -62,15 +67,17 @@ func (r *Groth16NormalRunner) Prepare(circuit Circuit.TestCircuit) (*cs_bn254.R1
 	return &cs_bn254.R1CS{}, fullWitness
 }
 func (r *Groth16NormalRunner) Process(circuit Circuit.TestCircuit) ([]groth16.Proof, error) {
-	go r.record.MemoryMonitor()
 	Config.Config.CancelSplit()
 	proofs := make([]groth16.Proof, 0)
 	r1cs, fullWitness := r.Prepare(circuit)
 	runtime.GC()
 
 	//publicWitness, _ := frontend.GenerateWitness(assignment, extra, ecc.BN254.ScalarField(), frontend.PublicOnly())
+	record := plugin.NewPluginRecord("Process")
+	go record.MemoryMonitor()
 	proveTime := time.Now()
-	_, err := r.prover.SolveAndProve(r1cs, fullWitness)
+	runtime.GOMAXPROCS(16)
+	proof, err := r.prover.SolveAndProve(r1cs, fullWitness)
 	//var wg sync.WaitGroup
 	//wg.Add(2)
 	//for i := 0; i < 2; i++ {
@@ -83,17 +90,20 @@ func (r *Groth16NormalRunner) Process(circuit Circuit.TestCircuit) ([]groth16.Pr
 	if err != nil {
 		panic(err)
 	}
-	//psroofs = append(proofs, proof)
-	r.record.SetTime("Prove", time.Since(proveTime))
-	r.record.Finish()
-	//for _, proof := range proofs {
-	//	isSuccess, err := r.verifier.Verify(proof)
-	//	if !isSuccess {
-	//		panic(err)
-	//	}
-	//}
+	proofs = append(proofs, proof)
+	record.SetTime("Prove", time.Since(proveTime))
+	record.Finish()
+	for _, proof := range proofs {
+		isSuccess, err := r.verifier.Verify(proof)
+		if !isSuccess {
+			panic(err)
+		}
+	}
+	r.record = append(r.record, record)
 	return proofs, nil
 }
 func (r *Groth16NormalRunner) Record() {
-	r.record.Print()
+	for _, record := range r.record {
+		record.Print()
+	}
 }

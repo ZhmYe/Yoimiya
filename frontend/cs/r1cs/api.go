@@ -580,16 +580,29 @@ func (builder *builder) IsZero(i1 frontend.Variable) frontend.Variable {
 func (builder *builder) Cmp(i1, i2 frontend.Variable) frontend.Variable {
 
 	nbBits := builder.cs.FieldBitLen()
-	// in AssertIsLessOrEq we omitted comparison against modulus for the left
-	// side as if `a+r<b` implies `a<b`, then here we compute the inequality
-	// directly.
+	fmt.Println(nbBits)
+	// Convert to binary representation, assuming the highest bit is the sign bit
 	bi1 := bits.ToBinary(builder, i1, bits.WithNbDigits(nbBits))
 	bi2 := bits.ToBinary(builder, i2, bits.WithNbDigits(nbBits))
+	//fmt.Println(bi1, bi2)
+	// Sign bits
+	sign1 := bi1[nbBits-1]
+	sign2 := bi2[nbBits-1]
 
+	// Compare signs first
+	isNegative1 := builder.IsZero(sign1) // 如果是负数则为1
+	isNegative2 := builder.IsZero(sign2)
+
+	// If signs are different, determine the result based on sign
+	// If i1 is negative and i2 is positive, i1 < i2
+	// If i1 is positive and i2 is negative, i1 > i2
+	signComparison := builder.Xor(isNegative1, isNegative2)
+
+	//signComparison = builder.Select(builder.And(isNegative2, builder.Select(isNegative1, 0, 1)), 1, signComparison)
+
+	// If signs are the same, compare the absolute values
 	res := builder.cstZero()
-
-	for i := builder.cs.FieldBitLen() - 1; i >= 0; i-- {
-
+	for i := nbBits - 2; i >= 0; i-- { // nbBits-2 to skip the sign bit
 		iszeroi1 := builder.IsZero(bi1[i])
 		iszeroi2 := builder.IsZero(bi2[i])
 
@@ -600,9 +613,11 @@ func (builder *builder) Cmp(i1, i2 frontend.Variable) frontend.Variable {
 		m := builder.Select(i1i2, 1, n)
 
 		res = builder.Select(builder.IsZero(res), m, res).(expr.LinearExpression)
-
 	}
-	return res
+	return builder.Select(signComparison, builder.Select(isNegative2, -1, 1), builder.Select(isNegative1, res, builder.Neg(res)))
+	// If signComparison is non-zero, it means signs were different and it has the result
+	// Otherwise, use the result of the absolute value comparison
+	//return builder.Select(builder.IsZero(signComparison), res, signComparison)
 }
 
 // Println enables circuit debugging and behaves almost like fmt.Println()

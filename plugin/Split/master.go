@@ -1,10 +1,10 @@
 package Split
 
 import (
+	"Yoimiya/backend/groth16"
 	"Yoimiya/constraint"
 	cs_bn254 "Yoimiya/constraint/bn254"
 	"Yoimiya/frontend"
-	"Yoimiya/plugin"
 	"fmt"
 	"runtime"
 	"time"
@@ -12,15 +12,16 @@ import (
 
 // Master 用于对给定的cs进行setup或者split+setup
 type Master struct {
-	split  int
-	record plugin.PluginRecord
+	split int
+	//record plugin.PluginRecord
 }
 
 func NewMaster(s int) Master {
-	return Master{split: s, record: plugin.NewPluginRecord()}
+	return Master{split: s}
 }
 
-func (m *Master) Split(cs constraint.ConstraintSystem, assignment frontend.Circuit) ([]constraint.ConstraintSystem, error) {
+func (m *Master) Split(cs constraint.ConstraintSystem,
+	assignment frontend.Circuit) ([]constraint.IBR, constraint.Commitments, cs_bn254.CoeffTable, frontend.PackedLeafInfo, time.Duration) {
 	runtime.GC() //清理内存
 	//forwardOutput := make([]constraint.ExtraValue, 0)
 	var ibrs []constraint.IBR
@@ -29,13 +30,14 @@ func (m *Master) Split(cs constraint.ConstraintSystem, assignment frontend.Circu
 	//var topIBR, bottomIBR constraint.IBR
 	var commitment constraint.Commitments
 	var coefftable cs_bn254.CoeffTable
+	var splitTime time.Duration
 	pli := frontend.GetPackedLeafInfoFromAssignment(assignment)
 	runtime.GC() //清理内存
 	switch _r1cs := cs.(type) {
 	case *cs_bn254.R1CS:
 		splitStartTime := time.Now()
 		_r1cs.SplitEngine.AssignLayer(m.split)
-		m.record.SetTime("Split", time.Since(splitStartTime))
+		splitTime = time.Since(splitStartTime)
 		runtime.GC()
 		StructureRoundLog(_r1cs)
 		//top, bottom = _r1cs.SplitEngine.GetSubCircuitInstructionIDs()
@@ -51,8 +53,16 @@ func (m *Master) Split(cs constraint.ConstraintSystem, assignment frontend.Circu
 	default:
 		panic("Only Support bn254 r1cs now...")
 	}
+	return ibrs, commitment, coefftable, pli, splitTime
 }
-
+func (m *Master) SetUp(cs constraint.ConstraintSystem) (groth16.ProvingKey, groth16.VerifyingKey, time.Duration) {
+	startTime := time.Now()
+	pk, vk, err := groth16.Setup(cs)
+	if err != nil {
+		panic(err)
+	}
+	return pk, vk, time.Since(startTime)
+}
 func StructureRoundLog(_r1cs *cs_bn254.R1CS) {
 	//fmt.Println("Round ", round)
 	fmt.Println("Circuit Structure: ")
