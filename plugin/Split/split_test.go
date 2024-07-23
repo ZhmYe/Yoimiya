@@ -7,7 +7,7 @@ import (
 
 func Test_Groth16_Normal_Runner(t *testing.T) {
 	runner := NewGroth16NormalRunner()
-	circuit := Circuit4Fib.NewLoopFibonacciCircuit()y
+	circuit := Circuit4Fib.NewLoopFibonacciCircuit()
 	_, err := runner.Process(&circuit)
 	if err != nil {
 		panic(err)

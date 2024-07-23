@@ -21,7 +21,7 @@ type GlobalConfig struct {
 var Config = GlobalConfig{
 	Split: SPLIT_LRO,
 	//MaxParallelingNumber: 100,
-	MinWorkPerCPU:     10,
+	MinWorkPerCPU:     1000,
 	RootPath:          "/root/Yoimiya/logWriter/log/",
 	CompressThreshold: 2,
 	NbLoop:            2000000,

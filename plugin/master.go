@@ -1,4 +1,4 @@
-package Split
+package plugin
 
 import (
 	"Yoimiya/backend/groth16"

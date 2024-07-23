@@ -216,6 +216,7 @@ func GenerateSplitWitnessFromPli(pli PackedLeafInfo, splitInfo []int, extra []co
 	//fmt.Println(splitInfo)
 	for i, wireID := range splitInfo {
 		packedValue := pli.GetVariablesByWireID(wireID)
+		//fmt.Println(packedValue.name)
 		if !packedValue.IsPublic() {
 			nbPublic = i
 			break

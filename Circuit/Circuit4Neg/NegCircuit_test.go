@@ -16,7 +16,7 @@ func TestNeg(t *testing.T) {
 	startTime := time.Now()
 	var circuit NegCircuit
 	assignmentGenerator := func() frontend.Circuit {
-		return &NegCircuit{X: 1}
+		return &NegCircuit{X1: 0, X2: 0, V1: 0, V2: 0}
 	}
 	Config.Config.CancelSplit()
 	assignment := assignmentGenerator()
@@ -33,19 +33,4 @@ func TestNeg(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	//proofs, err := split.Split(ccs, assignment, 1)
-	//if err != nil {
-	//	panic("error")
-	//}
-	//for i, packedProof := range proofs {
-	//	proof := packedProof.GetProof()
-	//	verifyKey := packedProof.GetVerifyingKey()
-	//	publicWitness := packedProof.GetPublicWitness()
-	//	err := groth16.Verify(proof, verifyKey, publicWitness)
-	//	if err != nil {
-	//		panic(err)
-	//	}
-	//	fmt.Println("Proof ", i, " Verify Pass...")
-	//}
-	//fmt.Println(Record.GlobalRecord)
 }

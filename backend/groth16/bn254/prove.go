@@ -24,7 +24,6 @@ import (
 	cs "Yoimiya/constraint/bn254"
 	"Yoimiya/constraint/solver"
 	"Yoimiya/internal/utils"
-	"Yoimiya/logger"
 	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"
 	curve "github.com/consensys/gnark-crypto/ecc/bn254"
@@ -32,7 +31,6 @@ import (
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr/fft"
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr/hash_to_field"
 	"github.com/consensys/gnark-crypto/ecc/bn254/fr/pedersen"
-	"github.com/rs/zerolog/log"
 	"math/big"
 	"runtime"
 	"time"
@@ -127,7 +125,7 @@ func GenerateZKP(commitmentInfo constraint.Groth16Commitments, solution cs.R1CSS
 	var err error
 	wireValues := []fr.Element(solution.W)
 	proof := &Proof{Commitments: make([]curve.G1Affine, len(commitmentInfo))}
-	start := time.Now()
+	//start := time.Now()
 	privateCommittedValues := make([][]fr.Element, len(commitmentInfo))
 	commitmentsSerialized := make([]byte, fr.Bytes*len(commitmentInfo))
 	for i := range commitmentInfo {
@@ -319,7 +317,7 @@ func GenerateZKP(commitmentInfo constraint.Groth16Commitments, solution cs.R1CSS
 		return nil, err
 	}
 	//fmt.Println("Prove Time: ", time.Since(start))
-	log.Debug().Dur("took", time.Since(start)).Msg("prover done")
+	//log.Debug().Dur("took", time.Since(start)).Msg("prover done")
 	return proof, nil
 }
 
@@ -333,7 +331,7 @@ func Prove(r1cs *cs.R1CS, pk *ProvingKey, fullWitness witness.Witness, opts ...b
 	if opt.HashToFieldFn == nil {
 		opt.HashToFieldFn = hash_to_field.New([]byte(constraint.CommitmentDst))
 	}
-	log := logger.Logger().With().Str("curve", r1cs.CurveID().String()).Str("acceleration", "none").Int("nbConstraints", r1cs.GetNbConstraints()).Str("backend", "groth16").Logger()
+	//log := logger.Logger().With().Str("curve", r1cs.CurveID().String()).Str("acceleration", "none").Int("nbConstraints", r1cs.GetNbConstraints()).Str("backend", "groth16").Logger()
 	//commitmentInfo := r1cs.CommitmentInfo.(constraint.Groth16Commitments)
 	// modify by ZhmYe
 	commitmentInfo := r1cs.GetCommitmentInfoInSplit()
@@ -392,7 +390,7 @@ func Prove(r1cs *cs.R1CS, pk *ProvingKey, fullWitness witness.Witness, opts ...b
 	solution := _solution.(*cs.R1CSSolution)
 	wireValues := []fr.Element(solution.W)
 
-	start := time.Now()
+	//start := time.Now()
 
 	commitmentsSerialized := make([]byte, fr.Bytes*len(commitmentInfo))
 	for i := range commitmentInfo {
@@ -583,8 +581,8 @@ func Prove(r1cs *cs.R1CS, pk *ProvingKey, fullWitness witness.Witness, opts ...b
 	if err := <-chKrsDone; err != nil {
 		return nil, err
 	}
-	fmt.Println("Prove Time: ", time.Since(startTime))
-	log.Debug().Dur("took", time.Since(start)).Msg("prover done")
+	//fmt.Println("Prove Time: ", time.Since(startTime))
+	//log.Debug().Dur("took", time.Since(start)).Msg("prover done")
 	return proof, nil
 }
 

@@ -16,8 +16,8 @@ import (
 
 type Groth16NormalRunner struct {
 	record   []plugin.PluginRecord
-	prover   Prover
-	verifier Verifier
+	prover   plugin.Prover
+	verifier plugin.Verifier
 }
 
 func NewGroth16NormalRunner() Groth16NormalRunner {
@@ -26,7 +26,7 @@ func NewGroth16NormalRunner() Groth16NormalRunner {
 func (r *Groth16NormalRunner) Prepare(circuit Circuit.TestCircuit) (*cs_bn254.R1CS, witness.Witness) {
 	//runtime.GOMAXPROCS(16)
 	record := plugin.NewPluginRecord("Prepare")
-	master := NewMaster(1)
+	master := plugin.NewMaster(1)
 	assignment := circuit.GetAssignment()
 	cs, compileTime := circuit.Compile()
 	runtime.GC()
@@ -41,13 +41,13 @@ func (r *Groth16NormalRunner) Prepare(circuit Circuit.TestCircuit) (*cs_bn254.R1
 	runtime.GC()
 	//go r.record.MemoryMonitor()
 	record.SetTime("SetUp", setupTime)
-	r.prover = NewProver(pk)
+	r.prover = plugin.NewProver(pk)
 	fullWitness, _ := frontend.GenerateWitness(assignment, make([]constraint.ExtraValue, 0), ecc.BN254.ScalarField())
 	publicWitness, err := fullWitness.Public()
 	if err != nil {
 		panic(err)
 	}
-	r.verifier = NewVerifier(vk, publicWitness)
+	r.verifier = plugin.NewVerifier(vk, publicWitness)
 	//solveTime := time.Now()
 	switch _r1cs := cs.(type) {
 	case *cs_bn254.R1CS:

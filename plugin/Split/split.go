@@ -9,7 +9,6 @@ import (
 	"Yoimiya/frontend"
 	"Yoimiya/frontend/split"
 	"Yoimiya/plugin"
-	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"
 	"runtime"
 	"strconv"
@@ -41,7 +40,7 @@ func (r *Groth16SplitRunner) Prepare(circuit Circuit.TestCircuit) ([]constraint.
 	cs, compileTime := circuit.Compile()
 	runtime.GC()
 	originCircuitRecord.SetTime("Compile", compileTime)
-	master := NewMaster(r.split)
+	master := plugin.NewMaster(r.split)
 	ibrs, commitment, coefftable, pli, splitTime := master.Split(cs, assignment)
 	originCircuitRecord.SetTime("Split", splitTime)
 	runtime.GC() //清理内存
@@ -70,7 +69,7 @@ func (r *Groth16SplitRunner) Process(circuit Circuit.TestCircuit) ([]groth16.Pro
 
 func (r *Groth16SplitRunner) ProcessImpl(i int, ibr constraint.IBR, pli frontend.PackedLeafInfo, commitment constraint.Commitments, coefftable cs_bn254.CoeffTable, extras *[]constraint.ExtraValue) groth16.Proof {
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	master := NewMaster(1)
+	master := plugin.NewMaster(1)
 	record := plugin.NewPluginRecord("Sub Circuit " + strconv.Itoa(i))
 	buildStartTime := time.Now()
 	//fmt.Println("	Fill In Sub Circuit ", i, " Witness...")
@@ -90,7 +89,7 @@ func (r *Groth16SplitRunner) ProcessImpl(i int, ibr constraint.IBR, pli frontend
 	runtime.GC()
 	//publicWitness, _ := fullWitness.Public()
 	go record.MemoryMonitor()
-	prover := NewProver(pk)
+	prover := plugin.NewProver(pk)
 	//verifier := NewVerifier(vk, publicWitness)
 	runtime.GOMAXPROCS(16)
 	switch _r1cs := SubCs.(type) {
@@ -155,14 +154,8 @@ func buildConstraintSystemFromIBR(ibr constraint.IBR,
 		//	cs.AddForwardOutputInstruction(cs.GetNbInstructions() - 1) // iID = len(instruction) -1
 		//}
 	}
-	printConstraintSystemInfo(cs, name)
+	plugin.PrintConstraintSystemInfo(cs, name)
 	return cs, nil
-}
-func printConstraintSystemInfo(cs *cs_bn254.R1CS, name string) {
-	fmt.Println("[", name, "]", " Compile Result: ")
-	fmt.Println("	NbPublic=", cs.GetNbPublicVariables(), " NbSecret=", cs.GetNbSecretVariables(), " NbInternal=", cs.GetNbInternalVariables())
-	fmt.Println("	NbConstraints=", cs.GetNbConstraints())
-	fmt.Println("	NbWires=", cs.GetNbPublicVariables()+cs.GetNbSecretVariables()+cs.GetNbInternalVariables())
 }
 func (r *Groth16SplitRunner) Record() {
 	for _, record := range r.record {
