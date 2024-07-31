@@ -30,12 +30,12 @@ func NewGroth16SplitPipelineRunner(circuit Circuit.TestCircuit, s int) Groth16Sp
 	}
 }
 
-func (r *Groth16SplitPipelineRunner) Prepare() []PackedConstraintSystem {
+func (r *Groth16SplitPipelineRunner) Prepare() *PipelineConstraintSystem {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	Config.Config.SwitchToSplit()
 	record := plugin.NewPluginRecord("Prepare")
 	//master := plugin.NewMaster(1)
-	assignment := r.circuit.GetAssignment()
+	//assignment := r.circuit.GetAssignment()
 	//pli := frontend.GetPackedLeafInfoFromAssignment(assignment)
 	cs, compileTime := r.circuit.Compile()
 	plugin.PrintConstraintSystemInfo(cs.(*cs_bn254.R1CS), r.circuit.Name())
@@ -43,10 +43,10 @@ func (r *Groth16SplitPipelineRunner) Prepare() []PackedConstraintSystem {
 	record.SetTime("Compile", compileTime)
 	ibrs, commitments, coefftable, pli, splitTime := r.Split(cs)
 	record.SetTime("Split", splitTime)
-	record.SetTime("Build", buildTime)
-	record.Finish()
-	//record.SetTime()
-	return pcss
+	r.record = append(r.record, record)
+	pcs, pipelineCsRecord := NewPipelineConstraintSystem(pli, ibrs, commitments, coefftable)
+	r.record = append(r.record, pipelineCsRecord)
+	return pcs
 }
 
 func (r *Groth16SplitPipelineRunner) Split(cs constraint.ConstraintSystem) ([]constraint.IBR,
@@ -59,7 +59,36 @@ func (r *Groth16SplitPipelineRunner) Split(cs constraint.ConstraintSystem) ([]co
 }
 
 func (r *Groth16SplitPipelineRunner) Process() {
-	// 先有prepare，把所有(pk, vk)先得到,存在packedConstraintSystem里
+	// 先有prepare，得到可迭代的PipelineConstraintSystem里
+	pcs := r.Prepare()
+	record := plugin.NewPluginRecord("Split Pipeline")
+	go record.MemoryMonitor()
+	//var wg sync.WaitGroup
+	//wg.Add(len(r.tasks))
+	startTime := time.Now()
+	var nbCommit int
+	nbCommit = 0
+	//for {
+	//	if nbCommit == len(r.tasks) {
+	//		break
+	//	}
+	for pcs.Next(&record) {
+		cs, pk, vk, inputID := pcs.Params()
+		for _, task := range r.tasks {
+			task.SyncProcess(pk, cs, inputID, vk, &r.proveLock, &nbCommit)
+		}
+		runtime.GC()
+	}
+	//}
+	for {
+		if nbCommit == len(r.tasks) {
+			break
+		}
+	}
+	processTime := time.Since(startTime)
+	record.SetTime("Total", processTime)
+	record.Finish()
+	r.record = append(r.record, record)
 
 }
 func (r *Groth16SplitPipelineRunner) InjectTasks(nbTask int) {

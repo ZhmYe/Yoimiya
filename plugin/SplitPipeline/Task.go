@@ -90,6 +90,8 @@ func (t *Task) SyncProcess(pk groth16.ProvingKey, ccs constraint.ConstraintSyste
 	//startTime := time.Now()
 	commitmentsInfo, solution, nbPublic, nbPrivate := prover.Solve(ccs.(*cs_bn254.R1CS), witness)
 	//fmt.Printf("%d solveTime: %s", t.tID, time.Since(startTime))
+	newExtra := split.GetExtra(ccs)
+	t.UpdateExtra(newExtra)
 	mutex.Lock()
 	go func() {
 		//mutex.Lock()
