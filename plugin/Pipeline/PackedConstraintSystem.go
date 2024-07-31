@@ -30,7 +30,7 @@ func BuildNewPackedConstraintSystem(pli frontend.PackedLeafInfo, ibr constraint.
 	}
 	for _, item := range ibr.Items() {
 		bID := cs.AddBlueprint(item.BluePrint)
-		cs.AddInstructionInSpilt(bID, item.CallData, item.IsForwardOutput())
+		cs.AddInstructionInSpilt(bID, item.ConstraintOffset, item.CallData, item.IsForwardOutput())
 		//if item.IsForwardOutput() {
 		//	cs.AddForwardOutputInstruction(cs.GetNbInstructions() - 1) // iID = len(instruction) -1
 		//}

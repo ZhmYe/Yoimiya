@@ -3,7 +3,7 @@ package SplitPipeline
 import (
 	groth16 "Yoimiya/backend/groth16"
 	"Yoimiya/constraint"
-	cs "Yoimiya/constraint/bn254"
+	cs_bn254 "Yoimiya/constraint/bn254"
 	"Yoimiya/frontend"
 	"Yoimiya/plugin"
 	"runtime"
@@ -19,12 +19,13 @@ type PipelineConstraintSystem struct {
 	//witness     []int // 记录该电路哪些input是witness
 	ibrs        []constraint.IBR
 	commitments constraint.Commitments
-	coefftable  cs.CoeffTable
+	coefftable  cs_bn254.CoeffTable
 	phase       int
 	pli         frontend.PackedLeafInfo
+	extra       []constraint.ExtraValue
 }
 
-func NewPipelineConstraintSystem(pli frontend.PackedLeafInfo, ibrs []constraint.IBR, commitment constraint.Commitments, coefftable cs.CoeffTable) (*PipelineConstraintSystem, plugin.PluginRecord) {
+func NewPipelineConstraintSystem(pli frontend.PackedLeafInfo, ibrs []constraint.IBR, commitment constraint.Commitments, coefftable cs_bn254.CoeffTable) (*PipelineConstraintSystem, plugin.PluginRecord) {
 	if len(ibrs) == 0 {
 		panic("Len(ibrs) == 0")
 	}
@@ -58,6 +59,7 @@ func NewPipelineConstraintSystem(pli frontend.PackedLeafInfo, ibrs []constraint.
 		coefftable:  coefftable,
 		phase:       0,
 		pli:         pli,
+		extra:       make([]constraint.ExtraValue, 0),
 	}, record
 }
 func (cs *PipelineConstraintSystem) Next(record *plugin.PluginRecord) bool {
@@ -66,6 +68,7 @@ func (cs *PipelineConstraintSystem) Next(record *plugin.PluginRecord) bool {
 	}
 	cs.phase++
 	ibr := cs.ibrs[cs.phase]
+	//newExtra :=
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	master := plugin.NewMaster(1)
 	//record := plugin.NewPluginRecord("Sub Circuit " + strconv.Itoa(i))
@@ -75,7 +78,7 @@ func (cs *PipelineConstraintSystem) Next(record *plugin.PluginRecord) bool {
 	//fmt.Println("	Witness Filled...")
 	//fmt.Println("	Build Sub Circuit ", i, " From IBR...")
 	SubCs, err := plugin.BuildConstraintSystemFromIBR(ibr,
-		cs.commitments, cs.coefftable, cs.pli, make([]constraint.ExtraValue, 0), "Sub Circuit"+strconv.Itoa(cs.phase))
+		cs.commitments, cs.coefftable, cs.pli, cs.extra, "Sub Circuit"+strconv.Itoa(cs.phase))
 	//fmt.Println("	Sub Circuit ", i, " Building Finish...")
 	if err != nil {
 		panic(err)
@@ -86,6 +89,8 @@ func (cs *PipelineConstraintSystem) Next(record *plugin.PluginRecord) bool {
 	record.SetTime("SetUp", setupTime)
 	runtime.GC()
 	cs.cs, cs.pk, cs.vk = SubCs, pk, vk
+	newExtra := SubCs.(*cs_bn254.R1CS).GetForwardOutputs()
+	cs.extra = append(cs.extra, newExtra...)
 	return true
 }
 func (cs *PipelineConstraintSystem) Params() (constraint.ConstraintSystem, groth16.ProvingKey, groth16.VerifyingKey, []int) {
