@@ -1,0 +1,22 @@
+[Record]: 
+	[NumCPU]: 128
+		[Solve Time]: 16.473633887s
+		[Prove Time]: 6.530556902s
+	[NumCPU]: 64
+		[Solve Time]: 16.19997918s
+		[Prove Time]: 6.946257991s
+	[NumCPU]: 32
+		[Solve Time]: 16.210104764s
+		[Prove Time]: 10.247832229s
+	[NumCPU]: 16
+		[Solve Time]: 15.767506912s
+		[Prove Time]: 19.045719886s
+	[NumCPU]: 8
+		[Solve Time]: 16.427091341s
+		[Prove Time]: 37.222042359s
+	[NumCPU]: 4
+		[Solve Time]: 16.329146722s
+		[Prove Time]: 1m13.822591435s
+	[NumCPU]: 2
+		[Solve Time]: 16.895154944s
+		[Prove Time]: 2m27.403489505s

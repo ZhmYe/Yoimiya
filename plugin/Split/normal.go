@@ -76,7 +76,10 @@ func (r *Groth16NormalRunner) Process(circuit Circuit.TestCircuit) ([]groth16.Pr
 	record := plugin.NewPluginRecord("Process")
 	go record.MemoryMonitor()
 	proveTime := time.Now()
-	runtime.GOMAXPROCS(16)
+	//runtime.GOMAXPROCS(16)
+	//for i := 0; i < 10; i++ {
+	//	r.prover.SolveAndProve(r1cs, fullWitness)
+	//}
 	proof, err := r.prover.SolveAndProve(r1cs, fullWitness)
 	//var wg sync.WaitGroup
 	//wg.Add(2)
@@ -102,8 +105,9 @@ func (r *Groth16NormalRunner) Process(circuit Circuit.TestCircuit) ([]groth16.Pr
 	r.record = append(r.record, record)
 	return proofs, nil
 }
-func (r *Groth16NormalRunner) Record() {
+func (r *Groth16NormalRunner) Record() []plugin.PluginRecord {
 	for _, record := range r.record {
 		record.Print()
 	}
+	return r.record
 }

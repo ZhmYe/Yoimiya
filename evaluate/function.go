@@ -7,48 +7,54 @@ import (
 	"Yoimiya/Circuit/Circuit4MatrixMultiplication"
 	"Yoimiya/Circuit/Circuit4Multiplication"
 	"Yoimiya/Circuit/Circuit4VerifyCircuit"
+	"Yoimiya/logWriter"
+	"Yoimiya/plugin"
+	"strconv"
 )
 
-type CircuitOption int
-
-// 这里给出所有电路的枚举
-const (
-	Fib       CircuitOption = iota // 这个需要注释compress或者修改config.CompressThreshold才能得到
-	FibSquare                      // 带平方的变种斐波那契数列电路
-	Mul                            // 连乘电路
-	Verify                         // 递归验证电路
-	Matrix                         // 矩阵乘法
-	Conv                           // 卷积
-)
-
-// format 用于format log的名字
-func format(circuitName string, testName string) string {
+// Format 用于format log的名字
+func Format(circuitName string, testName string) string {
 	return "test_" + testName + "_" + circuitName
 }
 
-// getCircuit 根据电路枚举给出电路
-func getCircuit(option CircuitOption) Circuit.TestCircuit {
+// GetCircuit 根据电路枚举给出电路
+func GetCircuit(option Circuit.CircuitOption) Circuit.TestCircuit {
 	switch option {
-	case Fib:
+	case Circuit.Fib:
 		circuit := Circuit4Fib.NewLoopFibonacciCircuit()
 		return &circuit
-	case FibSquare:
+	case Circuit.FibSquare:
 		circuit := Circuit4Fib.NewLoopFibonacciCircuit()
 		return &circuit
-	case Mul:
+	case Circuit.Mul:
 		circuit := Circuit4Multiplication.NewLoopMultiplicationCircuit()
 		return &circuit
-	case Verify:
+	case Circuit.Verify:
 		circuit := Circuit4VerifyCircuit.NewVerifyCircuit()
 		return &circuit
-	case Matrix:
+	case Circuit.Matrix:
 		circuit := Circuit4MatrixMultiplication.NewInterfaceMatrixMultiplicationCircuit()
 		return &circuit
-	case Conv:
+	case Circuit.Conv:
 		circuit := Circuit4Conv.NewInterfaceConvolutionalCircuit()
 		return &circuit
 	default:
 		circuit := Circuit4Fib.NewLoopFibonacciCircuit()
 		return &circuit
 	}
+}
+
+func PluginRecordLog(records []plugin.PluginRecord, path string) {
+	lw := logWriter.NewLogWriter(path)
+	for _, record := range records {
+		lw.Writeln("[" + record.Name + " Record]")
+		lw.Writeln("\t[Memory Used]: " + strconv.FormatFloat(record.Memory.TotalMemoryUsed, 'f', 2, 64) + " GB")
+		lw.Writeln("\t[Prove Memory Used: ]" + strconv.FormatFloat(record.Memory.ProveMemoryUsed, 'f', 2, 64) + " GB")
+		for _, pt := range record.Times {
+			lw.Writeln("\t[" + pt.Name + "]: " + pt.TimeUsed.String())
+			//lw.Writeln("\t[%s]: %v \n", pt.Name, pt.TimeUsed)
+		}
+	}
+	//lw.Writeln("[Record]: ")
+	lw.Finish()
 }

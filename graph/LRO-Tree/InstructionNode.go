@@ -108,6 +108,70 @@ func (n *InstructionNode) SetSplit(s int) bool {
 	return true
 }
 
+// ErgodicIterative 后续遍历的迭代版本，电路太大时用递归栈会报stack overflow
+func (n *InstructionNode) ErgodicIterative(b *Bucket) {
+	// 创建一个栈来保存待处理的节点和一个标志位
+	type NodeWithFlag struct {
+		node    *InstructionNode
+		visited bool // 标志位，用于标识该节点的子节点是否已处理
+	}
+	stack := []NodeWithFlag{{node: n, visited: false}}
+
+	// 当栈不为空时，继续处理
+	for len(stack) > 0 {
+		// 取出栈顶元素
+		current := stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
+
+		if current.visited {
+			// 子节点已处理，处理当前节点
+			if current.node.O != FAKE_ROOT_ID {
+				//current.node.Visit()
+				b.Add(current.node)
+				for _, node := range current.node.LR {
+					node.CheckMiddle(current.node.split, b)
+				}
+			}
+		} else {
+			// 首先将当前节点压入栈中，但标记为已访问子节点
+			stack = append(stack, NodeWithFlag{node: current.node, visited: true})
+
+			// 对LR节点按深度和出度进行排序
+			sort := func(a LroNode, b LroNode) bool {
+				if a.Depth() < b.Depth() {
+					return true
+				} else if a.Depth() == b.Depth() {
+					return a.Degree() <= b.Degree()
+				}
+				return false
+			}
+
+			// 冒泡排序（可以替换为更高效的sort.Slice）
+			for i := 0; i < len(current.node.LR); i++ {
+				for j := 0; j < len(current.node.LR)-i-1; j++ {
+					if !sort(current.node.LR[j], current.node.LR[j+1]) {
+						current.node.LR[j], current.node.LR[j+1] = current.node.LR[j+1], current.node.LR[j]
+					}
+				}
+			}
+
+			// 将子节点逆序压入栈中以确保后续处理顺序
+			for i := len(current.node.LR) - 1; i >= 0; i-- {
+				if current.node.LR[i].TryVisit() {
+					switch current.node.LR[i].(type) {
+					case *InstructionNode:
+						stack = append(stack, NodeWithFlag{node: current.node.LR[i].(*InstructionNode), visited: false})
+						current.node.LR[i].(*InstructionNode).Visit()
+					case *InputNode:
+						current.node.LR[i].Ergodic(b)
+					}
+					//stack = append(stack, NodeWithFlag{node: current.node.LR[i].(*InstructionNode), visited: false})
+				}
+			}
+		}
+	}
+}
+
 // Ergodic 后续遍历
 // todo 节点遍历逻辑，后序遍历
 func (n *InstructionNode) Ergodic(b *Bucket) {
@@ -125,16 +189,16 @@ func (n *InstructionNode) Ergodic(b *Bucket) {
 		}
 		return false
 	}
-	se := NewSortEngine(sort)
-	n.LR = se.Sort(n.LR).([]LroNode)
+	//se := NewSortEngine(sort)
+	//n.LR = se.Sort(n.LR).([]LroNode)
 	// 冒泡排序
-	//for i := 0; i < len(n.LR); i++ {
-	//	for j := 0; j < len(n.LR)-i-1; j++ {
-	//		if !sort(n.LR[j], n.LR[j+1]) {
-	//			n.LR[j], n.LR[j+1] = n.LR[j+1], n.LR[j]
-	//		}
-	//	}
-	//}
+	for i := 0; i < len(n.LR); i++ {
+		for j := 0; j < len(n.LR)-i-1; j++ {
+			if !sort(n.LR[j], n.LR[j+1]) {
+				n.LR[j], n.LR[j+1] = n.LR[j+1], n.LR[j]
+			}
+		}
+	}
 	// 后续遍历
 	for _, node := range n.LR {
 		if !node.TryVisit() {

@@ -17,15 +17,17 @@ type Groth16SplitPipelineRunner struct {
 	record    []plugin.PluginRecord
 	circuit   Circuit.TestCircuit
 	proveLock sync.Mutex
+	solveLock chan int
 	split     int
 }
 
-func NewGroth16SplitPipelineRunner(circuit Circuit.TestCircuit, s int) Groth16SplitPipelineRunner {
+func NewGroth16SplitPipelineRunner(circuit Circuit.TestCircuit, s int, solveLimit int) Groth16SplitPipelineRunner {
 	return Groth16SplitPipelineRunner{
-		tasks:   make([]*Task, 0),
-		record:  make([]plugin.PluginRecord, 0),
-		circuit: circuit,
-		split:   s,
+		tasks:     make([]*Task, 0),
+		record:    make([]plugin.PluginRecord, 0),
+		circuit:   circuit,
+		split:     s,
+		solveLock: make(chan int, solveLimit),
 		//proveLock: sync.Mutex{},
 	}
 }
@@ -43,9 +45,10 @@ func (r *Groth16SplitPipelineRunner) Prepare() *PipelineConstraintSystem {
 	record.SetTime("Compile", compileTime)
 	ibrs, commitments, coefftable, pli, splitTime := r.Split(cs)
 	record.SetTime("Split", splitTime)
+	buildTime := time.Now()
+	pcs := NewPipelineConstraintSystem(pli, ibrs, commitments, coefftable)
+	record.SetTime("Build", time.Since(buildTime))
 	r.record = append(r.record, record)
-	pcs, pipelineCsRecord := NewPipelineConstraintSystem(pli, ibrs, commitments, coefftable)
-	r.record = append(r.record, pipelineCsRecord)
 	return pcs
 }
 
@@ -61,7 +64,8 @@ func (r *Groth16SplitPipelineRunner) Split(cs constraint.ConstraintSystem) ([]co
 func (r *Groth16SplitPipelineRunner) Process() {
 	// 先有prepare，得到可迭代的PipelineConstraintSystem里
 	pcs := r.Prepare()
-	record := plugin.NewPluginRecord("Split Pipeline")
+	//switchRecord := plugin.NewPluginRecord("Switch")
+	record := plugin.NewPluginRecord("Prove")
 	go record.MemoryMonitor()
 	//var wg sync.WaitGroup
 	//wg.Add(len(r.tasks))
@@ -72,13 +76,20 @@ func (r *Groth16SplitPipelineRunner) Process() {
 	//	if nbCommit == len(r.tasks) {
 	//		break
 	//	}
-	for pcs.Next(&record) {
-		cs, pk, vk, inputID := pcs.Params()
-		for _, task := range r.tasks {
-			task.SyncProcess(pk, cs, inputID, vk, &r.proveLock, &nbCommit)
-		}
-		runtime.GC()
+	//for pcs.Next() {
+	//	cs, pk, vk, inputID := pcs.Params()
+	for _, task := range r.tasks {
+		tmpTask := task
+		//tmpCs, tmpPK, tmpVK, tmpID := cs, pk, vk, inputID
+		go func(task *Task, pcs PipelineConstraintSystem) {
+			for pcs.Next() {
+				cs, pk, vk, inputID := pcs.Params()
+				task.SyncProcess(pk, cs, inputID, vk, &r.solveLock, &r.proveLock, &nbCommit)
+			}
+		}(tmpTask, *pcs)
+
 	}
+	//runtime.GC()
 	//}
 	for {
 		if nbCommit == len(r.tasks) {
@@ -93,7 +104,7 @@ func (r *Groth16SplitPipelineRunner) Process() {
 }
 func (r *Groth16SplitPipelineRunner) InjectTasks(nbTask int) {
 	for len(r.tasks) < nbTask {
-		r.tasks = append(r.tasks, NewTask(r.circuit, 1, len(r.tasks)))
+		r.tasks = append(r.tasks, NewTask(r.circuit, r.split, len(r.tasks)))
 	}
 }
 func (r *Groth16SplitPipelineRunner) Record() {

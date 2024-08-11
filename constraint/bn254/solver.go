@@ -629,90 +629,90 @@ func (solver *solver) runInLevels() error {
 	// first we solve the unsolved wire (if any)
 	// then we check that the constraint is valid
 	// if a[i] * b[i] != c[i]; it means the constraint is not satisfied
-	var minWorkPerCPU = Config.Config.MinWorkPerCPU // TODO @gbotrel revisit that with blocks.
-	var wg sync.WaitGroup
-	chTasks := make(chan []int, runtime.NumCPU())
-	chError := make(chan error, runtime.NumCPU())
-
-	// start a worker pool
-	// each worker wait on chTasks
-	// a task is a slice of constraint indexes to be solved
-	for i := 0; i < runtime.NumCPU(); i++ {
-		go func() {
-			var scratch Scratch
-			for t := range chTasks {
-				for _, i := range t {
-					if err := solver.processInstruction(solver.Instructions[i], &scratch); err != nil {
-						chError <- err
-						wg.Done()
-						return
-					}
-				}
-				wg.Done()
-			}
-		}()
-	}
-	// clean up pool go routines
-	defer func() {
-		close(chTasks)
-		close(chError)
-	}()
+	//var minWorkPerCPU = Config.Config.MinWorkPerCPU // TODO @gbotrel revisit that with blocks.
+	//var wg sync.WaitGroup
+	//chTasks := make(chan []int, runtime.NumCPU())
+	//chError := make(chan error, runtime.NumCPU())
+	//
+	//// start a worker pool
+	//// each worker wait on chTasks
+	//// a task is a slice of constraint indexes to be solved
+	//for i := 0; i < runtime.NumCPU(); i++ {
+	//	go func() {
+	//		var scratch Scratch
+	//		for t := range chTasks {
+	//			for _, i := range t {
+	//				if err := solver.processInstruction(solver.Instructions[i], &scratch); err != nil {
+	//					chError <- err
+	//					wg.Done()
+	//					return
+	//				}
+	//			}
+	//			wg.Done()
+	//		}
+	//	}()
+	//}
+	//// clean up pool go routines
+	//defer func() {
+	//	close(chTasks)
+	//	close(chError)
+	//}()
 	switch levels := solver.SplitEngine.(type) {
 	case *PackedLevel.PackedLevel:
 		for _, level := range levels.Levels {
 			var scratch Scratch
 			// max CPU to use
-			maxCPU := float64(len(level)) / float64(minWorkPerCPU)
-			if maxCPU <= 1.0 {
-				// we do it sequentially
-				for _, i := range level {
-					//startTime := time.Now()
-					if err := solver.processInstruction(solver.Instructions[i], &scratch); err != nil {
-						return err
-					}
-					//Config.TimeTest.Add(time.Since(startTime))
+			//maxCPU := float64(len(level)) / float64(minWorkPerCPU)
+			//if maxCPU <= 1.0 {
+			// we do it sequentially
+			for _, i := range level {
+				//startTime := time.Now()
+				if err := solver.processInstruction(solver.Instructions[i], &scratch); err != nil {
+					return err
 				}
-				continue
+				//Config.TimeTest.Add(time.Since(startTime))
 			}
+			//continue
+			//}
 			// number of tasks for this level is set to number of CPU
 			// but if we don't have enough work for all our CPU, it can be lower.
-			nbTasks := runtime.NumCPU()
-			maxTasks := int(math.Ceil(maxCPU))
-			if nbTasks > maxTasks {
-				nbTasks = maxTasks
-			}
-			nbIterationsPerCpus := len(level) / nbTasks
-
-			// more CPUs than tasks: a CPU will work on exactly one iteration
-			// note: this depends on minWorkPerCPU constant
-			if nbIterationsPerCpus < 1 {
-				nbIterationsPerCpus = 1
-				nbTasks = len(level)
-			}
-
-			extraTasks := len(level) - (nbTasks * nbIterationsPerCpus)
-			extraTasksOffset := 0
-
-			for i := 0; i < nbTasks; i++ {
-				wg.Add(1)
-				_start := i*nbIterationsPerCpus + extraTasksOffset
-				_end := _start + nbIterationsPerCpus
-				if extraTasks > 0 {
-					_end++
-					extraTasks--
-					extraTasksOffset++
-				}
-				// since we're never pushing more than num CPU tasks
-				// we will never be blocked here
-				chTasks <- level[_start:_end]
-			}
-
-			// wait for the level to be done
-			wg.Wait()
-
-			if len(chError) > 0 {
-				return <-chError
-			}
+			//nbTasks := runtime.NumCPU()
+			//maxTasks := int(math.Ceil(maxCPU))
+			//if nbTasks > maxTasks {
+			//	nbTasks = maxTasks
+			//}
+			//nbIterationsPerCpus := len(level) / nbTasks
+			//
+			//// more CPUs than tasks: a CPU will work on exactly one iteration
+			//// note: this depends on minWorkPerCPU constant
+			//if nbIterationsPerCpus < 1 {
+			//	nbIterationsPerCpus = 1
+			//	nbTasks = len(level)
+			//}
+			//
+			//extraTasks := len(level) - (nbTasks * nbIterationsPerCpus)
+			//extraTasksOffset := 0
+			//
+			//for i := 0; i < nbTasks; i++ {
+			//	wg.Add(1)
+			//	_start := i*nbIterationsPerCpus + extraTasksOffset
+			//	_end := _start + nbIterationsPerCpus
+			//	if extraTasks > 0 {
+			//		_end++
+			//		extraTasks--
+			//		extraTasksOffset++
+			//	}
+			//	// since we're never pushing more than num CPU tasks
+			//	// we will never be blocked here
+			//	chTasks <- level[_start:_end]
+			//}
+			//
+			//// wait for the level to be done
+			//wg.Wait()
+			//
+			//if len(chError) > 0 {
+			//	return <-chError
+			//}
 		}
 	}
 	//Config.TimeTest.Print()

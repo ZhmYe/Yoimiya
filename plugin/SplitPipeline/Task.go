@@ -8,9 +8,11 @@ import (
 	"Yoimiya/frontend"
 	"Yoimiya/frontend/split"
 	"Yoimiya/plugin"
+	"fmt"
 	"github.com/consensys/gnark-crypto/ecc"
 	"runtime"
 	"sync"
+	"time"
 )
 
 // Task 将pipeline表示为若干个任务
@@ -24,6 +26,7 @@ type Task struct {
 	proofs []split.PackedProof     // 该任务的所有proof
 	finish bool
 	//wg     *sync.WaitGroup         // 用来说明所有任务全部完成
+	execLock sync.Mutex
 }
 
 func NewTask(circuit Circuit.TestCircuit, split int, id int) *Task {
@@ -41,6 +44,7 @@ func NewTask(circuit Circuit.TestCircuit, split int, id int) *Task {
 func (t *Task) Next() bool {
 	if t.phase == t.count-1 {
 		//t.wg.Done() // 该任务结束
+		//fmt.Println(len(t.proofs))
 		t.finish = true
 		return false
 	}
@@ -56,14 +60,18 @@ func (t *Task) Process(pk groth16.ProvingKey, ccs constraint.ConstraintSystem, i
 	if t.finish {
 		return
 	}
-	runtime.GOMAXPROCS(16)
+	runtime.GOMAXPROCS(runtime.NumCPU())
 	//fmt.Println(inputID)
+	//t.execLock.Lock()
 	witness, err := frontend.GenerateSplitWitnessFromPli(t.pli, inputID, t.extra, ecc.BN254.ScalarField())
 	if err != nil {
 		panic(err)
 	}
 	prover := plugin.NewProver(pk)
+	startTime := time.Now()
 	proof, err := prover.SolveAndProve(ccs.(*cs_bn254.R1CS), witness)
+	//t.execLock.Unlock()
+	fmt.Println(time.Since(startTime))
 	//proof, err := groth16.Prove(ccs, pk, witness)
 	if err != nil {
 		panic(err)
@@ -74,40 +82,48 @@ func (t *Task) Process(pk groth16.ProvingKey, ccs constraint.ConstraintSystem, i
 	}
 	t.proofs = append(t.proofs, split.NewPackedProof(proof, vk, publicWitness))
 }
-func (t *Task) SyncProcess(pk groth16.ProvingKey, ccs constraint.ConstraintSystem, inputID []int, vk groth16.VerifyingKey, mutex *sync.Mutex, nbCommit *int) {
+func (t *Task) SyncProcess(pk groth16.ProvingKey, ccs constraint.ConstraintSystem, inputID []int, vk groth16.VerifyingKey, solveLock *chan int, ProveLock *sync.Mutex, nbCommit *int) {
 	//if t.phase == t.count-1 {
 	//	return
 	//}
 	if t.finish {
 		return
 	}
-	runtime.GOMAXPROCS(16)
+	runtime.GOMAXPROCS(runtime.NumCPU())
+	t.execLock.Lock()
+	*solveLock <- 1
 	witness, err := frontend.GenerateSplitWitnessFromPli(t.pli, inputID, t.extra, ecc.BN254.ScalarField())
 	if err != nil {
 		panic(err)
 	}
 	prover := plugin.NewProver(pk)
-	//startTime := time.Now()
+	startTime := time.Now()
 	commitmentsInfo, solution, nbPublic, nbPrivate := prover.Solve(ccs.(*cs_bn254.R1CS), witness)
-	//fmt.Printf("%d solveTime: %s", t.tID, time.Since(startTime))
+	fmt.Printf("%d solveTime: %s\n", t.tID, time.Since(startTime))
 	newExtra := split.GetExtra(ccs)
 	t.UpdateExtra(newExtra)
-	mutex.Lock()
+	<-*solveLock
+	t.execLock.Unlock()
+	//mutex.Lock()
+	//*channel <- 1
+	//<-*solveLock
+	//ProveLock.Lock()
 	go func() {
-		//mutex.Lock()
-		//startTime := time.Now()
+		ProveLock.Lock()
+		startTime := time.Now()
 		proof, err := prover.Prove(*solution, commitmentsInfo, nbPublic, nbPrivate)
 		if err != nil {
 			panic(err)
 		}
-		//fmt.Printf("%d ProveTime: %s", t.tID, time.Since(startTime))
+		fmt.Printf("%d ProveTime: %s\n", t.tID, time.Since(startTime))
 		publicWitness, err := witness.Public()
 		if err != nil {
 			panic(err)
 		}
 		t.proofs = append(t.proofs, split.NewPackedProof(proof, vk, publicWitness))
 		runtime.GC()
-		mutex.Unlock()
+		ProveLock.Unlock()
+		//<-*channel
 		if !t.Next() {
 			//wg.Done()
 			*nbCommit++

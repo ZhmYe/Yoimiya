@@ -17,6 +17,7 @@
 package cs
 
 import (
+	"fmt"
 	"github.com/fxamacker/cbor/v2"
 	"io"
 	"time"
@@ -87,10 +88,12 @@ func (cs *system) Solve(witness witness.Witness, opts ...csolver.Option) (any, e
 	// (or sooner, if a constraint is not satisfied)
 	defer Asolver.printLogs(cs.Logs)
 	// run it.
+	startTime := time.Now()
 	if err := Asolver.run(); err != nil {
 		log.Err(err).Send()
 		return nil, err
 	}
+	fmt.Println(time.Since(startTime))
 	log.Debug().Dur("took", time.Since(start)).Msg("constraint system solver done")
 	// add by ZhmYe
 	//Asolver.UpdateForwardOutput() // 这里cs.ForwardOutput或者Asolver.ForwardOutput就是middle的wireID

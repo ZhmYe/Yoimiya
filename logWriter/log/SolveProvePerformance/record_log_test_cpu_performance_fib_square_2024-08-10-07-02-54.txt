@@ -1,0 +1,22 @@
+[Record]: 
+	[NumCPU]: 128
+		[Solve CPU Usage]: 3.4782608E+00
+		[Prove CPU Usage]: 1E+02
+	[NumCPU]: 64
+		[Solve CPU Usage]: 4.2016807E+00
+		[Prove CPU Usage]: 6.234568E+01
+	[NumCPU]: 32
+		[Solve CPU Usage]: 1.1403508E+01
+		[Prove CPU Usage]: 3.419355E+01
+	[NumCPU]: 16
+		[Solve CPU Usage]: 4.237288E+00
+		[Prove CPU Usage]: 1.86747E+01
+	[NumCPU]: 8
+		[Solve CPU Usage]: 4.347826E+00
+		[Prove CPU Usage]: 2.6754387E+01
+	[NumCPU]: 4
+		[Solve CPU Usage]: 4.206349E+01
+		[Prove CPU Usage]: 6.554054E+01
+	[NumCPU]: 2
+		[Solve CPU Usage]: 5.084746E+00
+		[Prove CPU Usage]: 2.5925926E+01

@@ -305,9 +305,13 @@ func GenerateZKP(commitmentInfo constraint.Groth16Commitments, solution cs.R1CSS
 	<-chHDone
 
 	// schedule our proof part computations
+	// todo
 	go computeKRS()
 	go computeAR1()
 	go computeBS1()
+	//go computeKRS()
+	//go computeAR1()
+	//go computeBS1()
 	if err := computeBS2(); err != nil {
 		return nil, err
 	}

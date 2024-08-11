@@ -25,7 +25,7 @@ func TestMisalignedParalleling(t *testing.T) {
 		record.Sprintf(log, "MisalignedParallelingTest/"+circuit.Name()+"/serial_running", format(circuit.Name(), "serial_running_"+"task_"+strconv.Itoa(nbTask)))
 	}
 	nbTask := 4
-	circuit := getCircuit(Fib)
+	circuit := GetCircuit(Circuit.Fib)
 	cutList := []int{2, 3}
 	for _, cut := range cutList {
 		misalignParallelingTest(nbTask, cut, circuit, false)
@@ -38,19 +38,19 @@ func TestMisalignedParalleling(t *testing.T) {
 func TestMemoryReduceByNSplit(t *testing.T) {
 	//Experiment_N_Split_Memory_Reduce(Conv, false)
 	//Experiment_N_Split_Memory_Reduce(Matrix, false)
-	Experiment_N_Split_Memory_Reduce(Fib, false)
+	Experiment_N_Split_Memory_Reduce(Circuit.Fib, false)
 	//Experiment_N_Split_Memory_Reduce(Mul, true)
 }
 
 // todo 扩大约束数，查看内存数量减少变化，形成不同电路
 func TestMemoryReduceInDifferentNbLoop(t *testing.T) {
-	Experiment_N_Split_Memory_Reduce_With_NbLoop(Fib, 2, true)
-	Experiment_N_Split_Memory_Reduce_With_NbLoop(Mul, 2, true)
+	Experiment_N_Split_Memory_Reduce_With_NbLoop(Circuit.Fib, 2, true)
+	Experiment_N_Split_Memory_Reduce_With_NbLoop(Circuit.Mul, 2, true)
 }
 
 // todo 扩大task数，查看misaligned效果
 func TestMisalignedParallelingInDifferentNbTasks(t *testing.T) {
-	Experiment_MisAligned_Paralleling_With_NbTask(Fib, true)
-	Experiment_MisAligned_Paralleling_With_NbTask(Mul, true)
+	Experiment_MisAligned_Paralleling_With_NbTask(Circuit.Fib, true)
+	Experiment_MisAligned_Paralleling_With_NbTask(Circuit.Mul, true)
 
 }

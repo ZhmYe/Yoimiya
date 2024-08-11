@@ -91,7 +91,7 @@ func (r *Groth16SplitRunner) ProcessImpl(i int, ibr constraint.IBR, pli frontend
 	go record.MemoryMonitor()
 	prover := plugin.NewProver(pk)
 	//verifier := NewVerifier(vk, publicWitness)
-	runtime.GOMAXPROCS(16)
+	//runtime.GOMAXPROCS(16)
 	switch _r1cs := SubCs.(type) {
 	case *cs_bn254.R1CS:
 		proveStartTime := time.Now()
@@ -126,9 +126,10 @@ func (r *Groth16SplitRunner) ProcessImpl(i int, ibr constraint.IBR, pli frontend
 	//proofs = append(proofs, GetSplitProof(SubCs, assignment, &extras, false))
 }
 
-func (r *Groth16SplitRunner) Record() {
+func (r *Groth16SplitRunner) Record() []plugin.PluginRecord {
 	for _, record := range r.record {
 		record.Print()
 	}
+	return r.record
 	//r.record.Print()
 }

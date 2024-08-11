@@ -6,6 +6,18 @@ import (
 	"time"
 )
 
+type CircuitOption int
+
+// 这里给出所有电路的枚举
+const (
+	Fib       CircuitOption = iota // 这个需要注释compress或者修改config.CompressThreshold才能得到
+	FibSquare                      // 带平方的变种斐波那契数列电路
+	Mul                            // 连乘电路
+	Verify                         // 递归验证电路
+	Matrix                         // 矩阵乘法
+	Conv                           // 卷积
+)
+
 // 这里写一个testCircuit的接口
 // 方便代码编写
 type TestCircuit interface {

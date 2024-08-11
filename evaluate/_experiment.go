@@ -15,7 +15,7 @@ import (
 // 2. N-split 时间结构: Compile + Split + Build + SetUp + Solve
 // todo 3. N-split Verify Time
 // Table
-// 1. Split后的约束、变量
+// 1. Split后的约束、变量option CircuitOption, log bool
 func Experiment_N_Split_Memory_Reduce(option CircuitOption, log bool) {
 	NSplitTest := func(cut int, circuit Circuit.TestCircuit, log bool) {
 		runtime.GOMAXPROCS(runtime.NumCPU())
@@ -31,7 +31,7 @@ func Experiment_N_Split_Memory_Reduce(option CircuitOption, log bool) {
 	}
 	//CircuitList := []CircuitOption{Fib, Mul}
 	//for _, option := range CircuitList {
-	circuit := getCircuit(option)
+	circuit := GetCircuit(option)
 	// todo n=2,3,4,5
 	nList := []int{2, 3, 4, 5}
 	for _, n := range nList {
@@ -64,7 +64,7 @@ func Experiment_N_Split_Memory_Reduce_With_NbLoop(option CircuitOption, n int, l
 	nbLoopList := []int{1000, 10000, 100000, 500000, 1000000, 5000000, 10000000, 50000000}
 	//CircuitList := []CircuitOption{Fib, Mul}
 	//for _, option := range CircuitList {
-	circuit := getCircuit(option)
+	circuit := GetCircuit(option)
 	for _, nbLoop := range nbLoopList {
 		NSplitInDifferentNbLoopTest(nbLoop, n, circuit, log)
 		NormalRunningTest(nbLoop, circuit, log)
@@ -93,7 +93,7 @@ func Experiment_MisAligned_Paralleling_With_NbTask(option CircuitOption, log boo
 	nbTaskList := []int{2, 4, 8, 16, 32, 64, 128}
 	//circuitList := []CircuitOption{Fib, Mul}
 	//for _, c := range circuitList {
-	circuit := getCircuit(option)
+	circuit := GetCircuit(option)
 	for _, nbTask := range nbTaskList {
 		nList := []int{2, 3}
 		for _, cut := range nList {

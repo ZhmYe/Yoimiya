@@ -13,9 +13,10 @@ func Test_Groth16_Normal_Runner(t *testing.T) {
 		panic(err)
 	}
 	runner.Record()
+
 }
 func Test_Groth16_Split_Runner(t *testing.T) {
-	runner := NewGroth16SplitRunner(4)
+	runner := NewGroth16SplitRunner(5)
 	circuit := Circuit4Fib.NewLoopFibonacciCircuit()
 	_, err := runner.Process(&circuit)
 	if err != nil {

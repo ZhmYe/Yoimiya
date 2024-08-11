@@ -81,7 +81,10 @@ func (t *LroTree) AssignLayer(cut int) {
 	t.bucket.SetThreshold(cut)
 	// todo 先写后续遍历的逻辑
 	Leaf := t.GetLeafNode()
-	Leaf.Ergodic(t.bucket)
+	//LeafStack := make([]*LroNode, 0)
+
+	//Leaf.Ergodic(t.bucket)
+	Leaf.ErgodicIterative(t.bucket)
 	//fmt.Println(t.bucket.split)
 }
 func (t *LroTree) IsMiddle(iID int) bool {

@@ -18,10 +18,16 @@ type Groth16PipelineRunner struct {
 	record    []plugin.PluginRecord
 	circuit   Circuit.TestCircuit
 	proveLock sync.Mutex
+	solveLock chan int
 }
 
 func NewGroth16PipelineRunner(circuit Circuit.TestCircuit) Groth16PipelineRunner {
-	return Groth16PipelineRunner{tasks: make([]*Task, 0), circuit: circuit, record: make([]plugin.PluginRecord, 0)}
+	return Groth16PipelineRunner{
+		tasks:     make([]*Task, 0),
+		circuit:   circuit,
+		record:    make([]plugin.PluginRecord, 0),
+		solveLock: make(chan int, 1),
+	}
 }
 func (r *Groth16PipelineRunner) InjectTasks(nbTask int) {
 	for len(r.tasks) < nbTask {
@@ -66,10 +72,18 @@ func (r *Groth16PipelineRunner) Process() {
 	startTime := time.Now()
 	var nbCommit int
 	nbCommit = 0
+	for _, task := range r.tasks {
+		tmpTask := task
+		//tmpCs, tmpPK, tmpVK, tmpID := cs, pk, vk, inputID
+		go func(task *Task) {
+			task.SyncProcess(pk, cs, inputID, vk, &r.solveLock, &r.proveLock, &nbCommit)
+		}(tmpTask)
+
+	}
 	for {
-		for _, task := range r.tasks {
-			task.SyncProcess(pk, cs, inputID, vk, &r.proveLock, &nbCommit)
-		}
+		//for _, task := range r.tasks {
+		//	task.SyncProcess(pk, cs, inputID, vk, &r.solveLock, &r.proveLock, &nbCommit)
+		//}
 		if nbCommit == len(r.tasks) {
 			break
 		}

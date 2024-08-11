@@ -34,10 +34,10 @@ func (c *InterfaceMatrixMultiplicationCircuit) Init() {
 	var circuit MatrixMultiplicationCircuit
 	c.outerCircuit = &circuit
 	c.assignmentGenerator = func() frontend.Circuit {
-		var A [150][150]frontend.Variable
-		for i := 0; i < 150; i++ {
+		var A [256][256]frontend.Variable
+		for i := 0; i < 256; i++ {
 			//A = append(A, make([]frontend.Variable, 100))
-			for j := 0; j < 150; j++ {
+			for j := 0; j < 256; j++ {
 				A[i][j] = frontend.Variable(0)
 			}
 		}
