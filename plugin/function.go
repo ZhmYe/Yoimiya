@@ -5,8 +5,6 @@ import (
 	cs_bn254 "Yoimiya/constraint/bn254"
 	"Yoimiya/frontend"
 	"fmt"
-	"syscall"
-	"unsafe"
 )
 
 func PrintConstraintSystemInfo(cs *cs_bn254.R1CS, name string) {
@@ -47,7 +45,8 @@ func BuildConstraintSystemFromIBR(ibr constraint.IBR,
 	PrintConstraintSystemInfo(cs, name)
 	return cs, nil
 }
-func bindToCPU(cpuID int) error {
+
+/*func bindToCPU(cpuID int) error {
 	var mask uintptr = 1 << cpuID
 	pid := syscall.Getpid()
 
@@ -57,4 +56,4 @@ func bindToCPU(cpuID int) error {
 		return fmt.Errorf("failed to set CPU affinity: %v", errno)
 	}
 	return nil
-}
+}*/
