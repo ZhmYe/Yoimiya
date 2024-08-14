@@ -103,6 +103,7 @@ func (t *Task) SyncProcess(pk groth16.ProvingKey, ccs constraint.ConstraintSyste
 	commitmentsInfo, solution, nbPublic, nbPrivate := prover.Solve(ccs.(*cs_bn254.R1CS), witness)
 	fmt.Printf("%d solveTime: %s\n", t.tID, time.Since(startTime))
 	<-solveLock
+	time.Sleep(10 * time.Minute)
 	newExtra := split.GetExtra(ccs)
 	t.UpdateExtra(newExtra)
 
@@ -113,7 +114,6 @@ func (t *Task) SyncProcess(pk groth16.ProvingKey, ccs constraint.ConstraintSyste
 	//<-*solveLock
 	//ProveLock.Lock()
 
-	time.Sleep(10 * time.Minute)
 	go func() {
 		ProveLock.Lock()
 		startTimeForOneProcess := time.Now()
