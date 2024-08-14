@@ -106,11 +106,13 @@ func (t *Task) SyncProcess(pk groth16.ProvingKey, ccs constraint.ConstraintSyste
 	WGG.Done()
 	WGG.Wait()
 
-	solveLock <- 1
+	//solveLock <- 1
+	ProveLock.Lock()
 	startTime := time.Now()
 	commitmentsInfo, solution, nbPublic, nbPrivate := prover.Solve(ccs.(*cs_bn254.R1CS), witness)
 	fmt.Printf("%d solveTime: %s\n", t.tID, time.Since(startTime))
-	<-solveLock
+	ProveLock.Unlock()
+	//<-solveLock
 	//time.Sleep(10 * time.Minute)
 	newExtra := split.GetExtra(ccs)
 	t.UpdateExtra(newExtra)
