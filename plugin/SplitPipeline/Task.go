@@ -100,7 +100,7 @@ func (t *Task) SyncProcess(pk groth16.ProvingKey, ccs constraint.ConstraintSyste
 	prover := plugin.NewProver(pk)
 	solveLock <- 1
 	startTime := time.Now()
-	commitmentsInfo, solution, nbPublic, nbPrivate := prover.Solve(ccs.(*cs_bn254.R1CS), witness)
+	/*commitmentsInfo, solution, nbPublic, nbPrivate := (*/ prover.Solve(ccs.(*cs_bn254.R1CS), witness)
 	fmt.Printf("%d solveTime: %s\n", t.tID, time.Since(startTime))
 	<-solveLock
 	time.Sleep(10 * time.Minute)
