@@ -84,6 +84,7 @@ func (r *Groth16PipelineRunner) Process() {
 		//for _, task := range r.tasks {
 		//	task.SyncProcess(pk, cs, inputID, vk, &r.solveLock, &r.proveLock, &nbCommit)
 		//}
+		time.Sleep(2 * time.Second)
 		if nbCommit == len(r.tasks) {
 			break
 		}
