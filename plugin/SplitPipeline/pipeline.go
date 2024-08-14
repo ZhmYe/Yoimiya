@@ -76,7 +76,7 @@ func (r *Groth16PipelineRunner) Process() {
 		tmpTask := task
 		//tmpCs, tmpPK, tmpVK, tmpID := cs, pk, vk, inputID
 		go func(task *Task) {
-			task.SyncProcess(pk, cs, inputID, vk, &r.solveLock, &r.proveLock, &nbCommit)
+			task.SyncProcess(pk, cs, inputID, vk, r.solveLock, &r.proveLock, &nbCommit)
 		}(tmpTask)
 
 	}

@@ -84,7 +84,7 @@ func (r *Groth16SplitPipelineRunner) Process() {
 		go func(task *Task, pcs PipelineConstraintSystem) {
 			for pcs.Next() {
 				cs, pk, vk, inputID := pcs.Params()
-				task.SyncProcess(pk, cs, inputID, vk, &r.solveLock, &r.proveLock, &nbCommit)
+				task.SyncProcess(pk, cs, inputID, vk, r.solveLock, &r.proveLock, &nbCommit)
 			}
 		}(tmpTask, *pcs)
 
