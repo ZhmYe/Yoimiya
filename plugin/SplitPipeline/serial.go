@@ -67,7 +67,7 @@ func (r *Groth16SerialRunner) Process() {
 			if !task.Next() {
 				nbCommit++
 			}
-			runtime.GC()
+			//runtime.GC()
 		}
 		if nbCommit == len(r.tasks) {
 			break

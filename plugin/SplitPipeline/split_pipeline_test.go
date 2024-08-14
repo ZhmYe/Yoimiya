@@ -14,7 +14,7 @@ import (
 func Test4Groth16SerialRunner(t *testing.T) {
 	circuit := Circuit4Fib.NewLoopFibonacciCircuit()
 	runner := NewGroth16SerialRunner(&circuit)
-	runner.InjectTasks(10)
+	runner.InjectTasks(20)
 	runner.Process()
 	runner.Record()
 }
@@ -22,7 +22,7 @@ func Test4Groth16SerialRunner(t *testing.T) {
 func Test4Groth16PipelineRunner(t *testing.T) {
 	circuit := Circuit4Fib.NewLoopFibonacciCircuit()
 	runner := NewGroth16PipelineRunner(&circuit)
-	runner.InjectTasks(10)
+	runner.InjectTasks(20)
 	runner.Process()
 	runner.Record()
 }
