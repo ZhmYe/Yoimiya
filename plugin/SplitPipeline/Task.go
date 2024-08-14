@@ -128,16 +128,16 @@ func (t *Task) SyncProcess(pk groth16.ProvingKey, ccs constraint.ConstraintSyste
 
 	ProveLock.Lock()
 	startTimeForOneProcess := time.Now()
-	proof, err := prover.Prove(*solution, commitmentsInfo, nbPublic, nbPrivate)
+	/*proof, err :=*/ prover.Prove(*solution, commitmentsInfo, nbPublic, nbPrivate)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Printf("%d ProveTime: %s\n", t.tID, time.Since(startTimeForOneProcess))
-	publicWitness, err := witness.Public()
+	/*publicWitness, err := witness.Public()
 	if err != nil {
 		panic(err)
-	}
-	t.proofs = append(t.proofs, split.NewPackedProof(proof, vk, publicWitness))
+	}*/
+	//t.proofs = append(t.proofs, split.NewPackedProof(proof, vk, publicWitness))
 	//runtime.GC()
 	ProveLock.Unlock()
 	//<-*channel
