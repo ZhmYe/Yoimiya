@@ -100,10 +100,10 @@ func (t *Task) SyncProcess(pk groth16.ProvingKey, ccs constraint.ConstraintSyste
 	prover := plugin.NewProver(pk)
 	solveLock <- 1
 	startTime := time.Now()
-	/*commitmentsInfo, solution, nbPublic, nbPrivate := (*/ prover.Solve(ccs.(*cs_bn254.R1CS), witness)
+	commitmentsInfo, solution, nbPublic, nbPrivate := prover.Solve(ccs.(*cs_bn254.R1CS), witness)
 	fmt.Printf("%d solveTime: %s\n", t.tID, time.Since(startTime))
 	<-solveLock
-	time.Sleep(10 * time.Minute)
+	//time.Sleep(10 * time.Minute)
 	newExtra := split.GetExtra(ccs)
 	t.UpdateExtra(newExtra)
 
@@ -113,6 +113,27 @@ func (t *Task) SyncProcess(pk groth16.ProvingKey, ccs constraint.ConstraintSyste
 	//*channel <- 1
 	//<-*solveLock
 	//ProveLock.Lock()
+
+	ProveLock.Lock()
+	startTimeForOneProcess := time.Now()
+	proof, err := prover.Prove(*solution, commitmentsInfo, nbPublic, nbPrivate)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%d ProveTime: %s\n", t.tID, time.Since(startTimeForOneProcess))
+	publicWitness, err := witness.Public()
+	if err != nil {
+		panic(err)
+	}
+	t.proofs = append(t.proofs, split.NewPackedProof(proof, vk, publicWitness))
+	//runtime.GC()
+	ProveLock.Unlock()
+	//<-*channel
+	if !t.Next() {
+		//wg.Done()
+		*nbCommit++
+		//fmt.Println(*nbCommit)
+	}
 
 	/*go func() {
 		ProveLock.Lock()
