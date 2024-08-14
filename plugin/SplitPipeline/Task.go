@@ -114,7 +114,7 @@ func (t *Task) SyncProcess(pk groth16.ProvingKey, ccs constraint.ConstraintSyste
 	//<-*solveLock
 	//ProveLock.Lock()
 
-	time.Sleep(100 * time.Second)
+	time.Sleep(30 * time.Second)
 
 	ProveLock.Lock()
 	startTimeForOneProcess := time.Now()
