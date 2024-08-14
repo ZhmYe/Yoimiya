@@ -114,7 +114,7 @@ func (t *Task) SyncProcess(pk groth16.ProvingKey, ccs constraint.ConstraintSyste
 	//<-*solveLock
 	//ProveLock.Lock()
 
-	go func() {
+	/*go func() {
 		ProveLock.Lock()
 		startTimeForOneProcess := time.Now()
 		proof, err := prover.Prove(*solution, commitmentsInfo, nbPublic, nbPrivate)
@@ -136,5 +136,5 @@ func (t *Task) SyncProcess(pk groth16.ProvingKey, ccs constraint.ConstraintSyste
 			//fmt.Println(*nbCommit)
 		}
 
-	}()
+	}()*/
 }
