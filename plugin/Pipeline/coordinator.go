@@ -146,7 +146,7 @@ func (c *Coordinator) runSlot(sID int, tIDs []int, slotWg *sync.WaitGroup) {
 			if err != nil {
 				panic(err)
 			}
-			fmt.Println(time.Since(tmp))
+			fmt.Printf("run slot: %v \n", time.Since(tmp))
 			GetExtra := func(system constraint.ConstraintSystem) []constraint.ExtraValue {
 				switch _r1cs := system.(type) {
 				case *cs_bn254.R1CS:
