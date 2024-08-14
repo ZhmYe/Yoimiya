@@ -91,6 +91,7 @@ func (r *PluginRecord) Finish() {
 	r.finish = true
 }
 func (r *PluginRecord) Print() {
+	//fmt.Println(r.M)
 	fmt.Printf("[%s Record]: \n", r.Name)
 	fmt.Println("\t[Memory Used]: ", r.Memory.TotalMemoryUsed, "GB")
 	fmt.Println("\t[Prove Memory Used: ]", r.Memory.ProveMemoryUsed, "GB")

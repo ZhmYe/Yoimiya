@@ -7,6 +7,7 @@ import (
 
 func Test_Groth16_Normal_Runner(t *testing.T) {
 	runner := NewGroth16NormalRunner()
+	//circuit := Circuit4MatrixMultiplication.NewInterfaceMatrixMultiplicationCircuit()
 	circuit := Circuit4Fib.NewLoopFibonacciCircuit()
 	_, err := runner.Process(&circuit)
 	if err != nil {
@@ -16,7 +17,8 @@ func Test_Groth16_Normal_Runner(t *testing.T) {
 
 }
 func Test_Groth16_Split_Runner(t *testing.T) {
-	runner := NewGroth16SplitRunner(5)
+	runner := NewGroth16SplitRunner(2)
+	//circuit := Circuit4MatrixMultiplication.NewInterfaceMatrixMultiplicationCircuit()
 	circuit := Circuit4Fib.NewLoopFibonacciCircuit()
 	_, err := runner.Process(&circuit)
 	if err != nil {

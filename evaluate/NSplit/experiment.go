@@ -6,6 +6,7 @@ import (
 	"Yoimiya/plugin/Split"
 	"runtime"
 	"strconv"
+	"time"
 )
 
 // Experiment_N_Split_Performance
@@ -44,5 +45,6 @@ func Experiment_N_Split_Performance(option Circuit.CircuitOption, log bool) {
 			evaluate.PluginRecordLog(records, "NSplitPerformance"+"/"+"record_log_"+evaluate.Format(circuit.Name(), strconv.Itoa(s)+"_split_performance"))
 		}
 		runtime.GC()
+		time.Sleep(time.Second * time.Duration(10))
 	}
 }

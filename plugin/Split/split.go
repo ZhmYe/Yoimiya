@@ -88,6 +88,7 @@ func (r *Groth16SplitRunner) ProcessImpl(i int, ibr constraint.IBR, pli frontend
 	record.SetTime("SetUp", setupTime)
 	runtime.GC()
 	//publicWitness, _ := fullWitness.Public()
+	time.Sleep(time.Duration(10) * time.Second)
 	go record.MemoryMonitor()
 	prover := plugin.NewProver(pk)
 	//verifier := NewVerifier(vk, publicWitness)

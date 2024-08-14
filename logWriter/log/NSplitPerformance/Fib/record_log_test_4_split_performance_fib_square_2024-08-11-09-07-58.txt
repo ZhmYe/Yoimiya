@@ -1,0 +1,29 @@
+[Prepare Record]
+	[Memory Used]: 0.00 GB
+	[Prove Memory Used: ]0.00 GB
+	[Compile Time]: 2m28.039970061s
+	[Split Time]: 9.785432647s
+[Sub Circuit 0 Record]
+	[Memory Used]: 22.62 GB
+	[Prove Memory Used: ]5.72 GB
+	[Build Time]: 23.273310848s
+	[SetUp Time]: 2m5.436625904s
+	[Prove Time]: 5.6626147s
+[Sub Circuit 1 Record]
+	[Memory Used]: 22.84 GB
+	[Prove Memory Used: ]5.72 GB
+	[Build Time]: 23.095046017s
+	[SetUp Time]: 2m2.460897154s
+	[Prove Time]: 6.385174854s
+[Sub Circuit 2 Record]
+	[Memory Used]: 23.08 GB
+	[Prove Memory Used: ]5.72 GB
+	[Build Time]: 24.082374743s
+	[SetUp Time]: 2m0.934555972s
+	[Prove Time]: 6.019018602s
+[Sub Circuit 3 Record]
+	[Memory Used]: 23.40 GB
+	[Prove Memory Used: ]5.72 GB
+	[Build Time]: 23.464245427s
+	[SetUp Time]: 2m1.903953355s
+	[Prove Time]: 6.955149179s

@@ -16,10 +16,10 @@ func TestMatrixMultiplication(t *testing.T) {
 	startTime := time.Now()
 	var circuit MatrixMultiplicationCircuit
 	assignmentGenerator := func() frontend.Circuit {
-		var A [256][256]frontend.Variable
-		for i := 0; i < 256; i++ {
-			//A = append(A, make([]frontend.Variable, 256))
-			for j := 0; j < 256; j++ {
+		var A [300][300]frontend.Variable
+		for i := 0; i < 300; i++ {
+			//A = append(A, make([]frontend.Variable, 300))
+			for j := 0; j < 300; j++ {
 				A[i][j] = frontend.Variable(0)
 			}
 		}
