@@ -73,14 +73,11 @@ func (r *Groth16PipelineRunner) Process() {
 	var nbCommit int
 	nbCommit = 0
 	for _, task := range r.tasks {
-		//tmpTask := task
+		tmpTask := task
 		//tmpCs, tmpPK, tmpVK, tmpID := cs, pk, vk, inputID
-
-		task.SyncProcess(pk, cs, inputID, vk, r.solveLock, &r.proveLock, &nbCommit)
-
-		/*go func(task *Task) {
+		go func(task *Task) {
 			task.SyncProcess(pk, cs, inputID, vk, r.solveLock, &r.proveLock, &nbCommit)
-		}(tmpTask)*/
+		}(tmpTask)
 
 	}
 	for {

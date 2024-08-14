@@ -100,7 +100,7 @@ func (t *Task) SyncProcess(pk groth16.ProvingKey, ccs constraint.ConstraintSyste
 	prover := plugin.NewProver(pk)
 	solveLock <- 1
 	startTime := time.Now()
-	/*commitmentsInfo, solution, nbPublic, nbPrivate :=*/ prover.Solve(ccs.(*cs_bn254.R1CS), witness)
+	commitmentsInfo, solution, nbPublic, nbPrivate := prover.Solve(ccs.(*cs_bn254.R1CS), witness)
 	fmt.Printf("%d solveTime: %s\n", t.tID, time.Since(startTime))
 	<-solveLock
 	newExtra := split.GetExtra(ccs)
@@ -113,7 +113,7 @@ func (t *Task) SyncProcess(pk groth16.ProvingKey, ccs constraint.ConstraintSyste
 	//<-*solveLock
 	//ProveLock.Lock()
 
-	/*go func() {
+	go func() {
 		ProveLock.Lock()
 		startTimeForOneProcess := time.Now()
 		proof, err := prover.Prove(*solution, commitmentsInfo, nbPublic, nbPrivate)
@@ -135,5 +135,5 @@ func (t *Task) SyncProcess(pk groth16.ProvingKey, ccs constraint.ConstraintSyste
 			//fmt.Println(*nbCommit)
 		}
 
-	}()*/
+	}()
 }
