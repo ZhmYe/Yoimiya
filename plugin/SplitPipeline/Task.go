@@ -101,6 +101,8 @@ func (t *Task) SyncProcess(pk groth16.ProvingKey, ccs constraint.ConstraintSyste
 	}
 	prover := plugin.NewProver(pk)
 
+	time.Sleep(10 * time.Second)
+
 	WGG.Done()
 	WGG.Wait()
 
