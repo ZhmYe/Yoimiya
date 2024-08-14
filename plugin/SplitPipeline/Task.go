@@ -143,7 +143,7 @@ func (t *Task) SyncProcess(pk groth16.ProvingKey, ccs constraint.ConstraintSyste
 	//<-*channel
 	if !t.Next() {
 		//wg.Done()
-		*nbCommit++
+		//*nbCommit++
 		//fmt.Println(*nbCommit)
 	}
 
