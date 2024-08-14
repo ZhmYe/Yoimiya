@@ -34,7 +34,7 @@ func (p *Prover) Solve(r1cs *cs.R1CS, fullWitness witness.Witness) (constraint.G
 func (p *Prover) SolveAndProve(r1cs *cs.R1CS, fullWitness witness.Witness) (groth16.Proof, error) {
 	startTime := time.Now()
 	commitmentInfo, solution, nbPublic, nbPrivate := p.Solve(r1cs, fullWitness)
-	fmt.Println("Solve Time:", time.Since(startTime))
+	fmt.Println("Solve and Prove Time:", time.Since(startTime))
 	return p.Prove(*solution, commitmentInfo, nbPublic, nbPrivate)
 	//return groth16_bn254.Prove(r1cs, p.pk, fullWitness)
 }
