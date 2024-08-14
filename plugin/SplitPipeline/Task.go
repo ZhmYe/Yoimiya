@@ -121,7 +121,7 @@ func (t *Task) SyncProcess(pk groth16.ProvingKey, ccs constraint.ConstraintSyste
 			panic(err)
 		}
 		t.proofs = append(t.proofs, split.NewPackedProof(proof, vk, publicWitness))
-		runtime.GC()
+		//runtime.GC()
 		ProveLock.Unlock()
 		//<-*channel
 		if !t.Next() {
