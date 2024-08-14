@@ -71,7 +71,7 @@ func (t *Task) Process(pk groth16.ProvingKey, ccs constraint.ConstraintSystem, i
 	startTime := time.Now()
 	proof, err := prover.SolveAndProve(ccs.(*cs_bn254.R1CS), witness)
 	//t.execLock.Unlock()
-	fmt.Println(time.Since(startTime))
+	fmt.Printf("solve and prove: %v, \n", time.Since(startTime))
 	//proof, err := groth16.Prove(ccs, pk, witness)
 	if err != nil {
 		panic(err)
