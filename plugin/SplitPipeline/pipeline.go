@@ -72,6 +72,9 @@ func (r *Groth16PipelineRunner) Process() {
 	startTime := time.Now()
 	var nbCommit int
 	nbCommit = 0
+
+	WGG.Add(20)
+
 	for _, task := range r.tasks {
 		tmpTask := task
 		//tmpCs, tmpPK, tmpVK, tmpID := cs, pk, vk, inputID

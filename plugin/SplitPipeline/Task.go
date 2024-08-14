@@ -83,6 +83,8 @@ func (t *Task) Process(pk groth16.ProvingKey, ccs constraint.ConstraintSystem, i
 	t.proofs = append(t.proofs, split.NewPackedProof(proof, vk, publicWitness))
 }
 
+var WGG sync.WaitGroup
+
 func (t *Task) SyncProcess(pk groth16.ProvingKey, ccs constraint.ConstraintSystem, inputID []int, vk groth16.VerifyingKey, solveLock chan int, ProveLock *sync.Mutex, nbCommit *int) {
 	//if t.phase == t.count-1 {
 	//	return
@@ -98,6 +100,10 @@ func (t *Task) SyncProcess(pk groth16.ProvingKey, ccs constraint.ConstraintSyste
 		panic(err)
 	}
 	prover := plugin.NewProver(pk)
+
+	WGG.Done()
+	WGG.Wait()
+
 	solveLock <- 1
 	startTime := time.Now()
 	commitmentsInfo, solution, nbPublic, nbPrivate := prover.Solve(ccs.(*cs_bn254.R1CS), witness)
