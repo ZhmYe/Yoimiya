@@ -82,7 +82,7 @@ func (t *Task) Process(pk groth16.ProvingKey, ccs constraint.ConstraintSystem, i
 	}
 	t.proofs = append(t.proofs, split.NewPackedProof(proof, vk, publicWitness))
 }
-func (t *Task) SyncProcess(pk groth16.ProvingKey, ccs constraint.ConstraintSystem, inputID []int, vk groth16.VerifyingKey, solveLock *chan int, ProveLock *sync.Mutex, nbCommit *int) {
+func (t *Task) SyncProcess(pk groth16.ProvingKey, ccs constraint.ConstraintSystem, inputID []int, vk groth16.VerifyingKey, solveLock chan int, ProveLock *sync.Mutex, nbCommit *int) {
 	//if t.phase == t.count-1 {
 	//	return
 	//}
@@ -91,7 +91,7 @@ func (t *Task) SyncProcess(pk groth16.ProvingKey, ccs constraint.ConstraintSyste
 	}
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	t.execLock.Lock()
-	*solveLock <- 1
+	solveLock <- 1
 	witness, err := frontend.GenerateSplitWitnessFromPli(t.pli, inputID, t.extra, ecc.BN254.ScalarField())
 	if err != nil {
 		panic(err)
@@ -102,7 +102,7 @@ func (t *Task) SyncProcess(pk groth16.ProvingKey, ccs constraint.ConstraintSyste
 	fmt.Printf("%d solveTime: %s\n", t.tID, time.Since(startTime))
 	newExtra := split.GetExtra(ccs)
 	t.UpdateExtra(newExtra)
-	<-*solveLock
+	<-solveLock
 	t.execLock.Unlock()
 	//mutex.Lock()
 	//*channel <- 1
@@ -110,12 +110,12 @@ func (t *Task) SyncProcess(pk groth16.ProvingKey, ccs constraint.ConstraintSyste
 	//ProveLock.Lock()
 	go func() {
 		ProveLock.Lock()
-		startTime := time.Now()
+		startTimeForOneProcess := time.Now()
 		proof, err := prover.Prove(*solution, commitmentsInfo, nbPublic, nbPrivate)
 		if err != nil {
 			panic(err)
 		}
-		fmt.Printf("%d ProveTime: %s\n", t.tID, time.Since(startTime))
+		fmt.Printf("%d ProveTime: %s\n", t.tID, time.Since(startTimeForOneProcess))
 		publicWitness, err := witness.Public()
 		if err != nil {
 			panic(err)
