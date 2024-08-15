@@ -57,6 +57,31 @@ func (proof *Proof) isValid() bool {
 func (proof *Proof) CurveID() ecc.ID {
 	return curve.ID
 }
+func SimpleSolve(r1cs *cs.R1CS, fullWitness witness.Witness, opts ...backend.ProverOption) (constraint.Groth16Commitments, *cs.R1CSSolution, int, int, error) {
+
+	opt, err := backend.NewProverConfig(opts...)
+	if err != nil {
+		panic(err)
+	}
+	if opt.HashToFieldFn == nil {
+		opt.HashToFieldFn = hash_to_field.New([]byte(constraint.CommitmentDst))
+	}
+	//log := logger.Logger().With().Str("curve", r1cs.CurveID().String()).Str("acceleration", "none").Int("nbConstraints", r1cs.GetNbConstraints()).Str("backend", "groth16").Logger()
+	//commitmentInfo := r1cs.CommitmentInfo.(constraint.Groth16Commitments)
+	// modify by ZhmYe
+	commitmentInfo := r1cs.GetCommitmentInfoInSplit()
+	//fmt.Println(len(commitmentInfo))
+	//proof := &Proof{Commitments: make([]curve.G1Affine, len(commitmentInfo))}
+	solverOpts := opt.SolverOpts[:len(opt.SolverOpts):len(opt.SolverOpts)]
+	//fmt.Println("Before Solve: ", time.Since(startTime))
+	//startTime := time.Now()
+	_solution, err := r1cs.Solve(fullWitness, solverOpts...)
+	if err != nil {
+		panic(err)
+	}
+	//fmt.Println("Solve Time: ", time.Since(startTime))
+	return commitmentInfo, _solution.(*cs.R1CSSolution), r1cs.GetNbPublicVariables(), r1cs.GetNbSecretVariables(), nil
+}
 
 // Solve add by ZhmYe
 // 把solve和prove分开来
@@ -73,39 +98,39 @@ func Solve(r1cs *cs.R1CS, fullWitness witness.Witness, pk *ProvingKey, opts ...b
 	// modify by ZhmYe
 	commitmentInfo := r1cs.GetCommitmentInfoInSplit()
 	//fmt.Println(len(commitmentInfo))
-	proof := &Proof{Commitments: make([]curve.G1Affine, len(commitmentInfo))}
+	//proof := &Proof{Commitments: make([]curve.G1Affine, len(commitmentInfo))}
 	solverOpts := opt.SolverOpts[:len(opt.SolverOpts):len(opt.SolverOpts)]
 
-	privateCommittedValues := make([][]fr.Element, len(commitmentInfo))
+	//privateCommittedValues := make([][]fr.Element, len(commitmentInfo))
 	// override hints
-	bsb22ID := solver.GetHintID(fcs.Bsb22CommitmentComputePlaceholder)
-	solverOpts = append(solverOpts, solver.OverrideHint(bsb22ID, func(_ *big.Int, in []*big.Int, out []*big.Int) error {
-		i := int(in[0].Int64())
-		in = in[1:]
-		privateCommittedValues[i] = make([]fr.Element, len(commitmentInfo[i].PrivateCommitted))
-		hashed := in[:len(commitmentInfo[i].PublicAndCommitmentCommitted)]
-		committed := in[+len(hashed):]
-		for j, inJ := range committed {
-			privateCommittedValues[i][j].SetBigInt(inJ)
-		}
-
-		var err error
-		if proof.Commitments[i], err = pk.CommitmentKeys[i].Commit(privateCommittedValues[i]); err != nil {
-			return err
-		}
-
-		opt.HashToFieldFn.Write(constraint.SerializeCommitment(proof.Commitments[i].Marshal(), hashed, (fr.Bits-1)/8+1))
-		hashBts := opt.HashToFieldFn.Sum(nil)
-		opt.HashToFieldFn.Reset()
-		nbBuf := fr.Bytes
-		if opt.HashToFieldFn.Size() < fr.Bytes {
-			nbBuf = opt.HashToFieldFn.Size()
-		}
-		var res fr.Element
-		res.SetBytes(hashBts[:nbBuf])
-		res.BigInt(out[0])
-		return nil
-	}))
+	//bsb22ID := solver.GetHintID(fcs.Bsb22CommitmentComputePlaceholder)
+	//solverOpts = append(solverOpts, solver.OverrideHint(bsb22ID, func(_ *big.Int, in []*big.Int, out []*big.Int) error {
+	//	i := int(in[0].Int64())
+	//	in = in[1:]
+	//	privateCommittedValues[i] = make([]fr.Element, len(commitmentInfo[i].PrivateCommitted))
+	//	hashed := in[:len(commitmentInfo[i].PublicAndCommitmentCommitted)]
+	//	committed := in[+len(hashed):]
+	//	for j, inJ := range committed {
+	//		privateCommittedValues[i][j].SetBigInt(inJ)
+	//	}
+	//
+	//	var err error
+	//	if proof.Commitments[i], err = pk.CommitmentKeys[i].Commit(privateCommittedValues[i]); err != nil {
+	//		return err
+	//	}
+	//
+	//	opt.HashToFieldFn.Write(constraint.SerializeCommitment(proof.Commitments[i].Marshal(), hashed, (fr.Bits-1)/8+1))
+	//	hashBts := opt.HashToFieldFn.Sum(nil)
+	//	opt.HashToFieldFn.Reset()
+	//	nbBuf := fr.Bytes
+	//	if opt.HashToFieldFn.Size() < fr.Bytes {
+	//		nbBuf = opt.HashToFieldFn.Size()
+	//	}
+	//	var res fr.Element
+	//	res.SetBytes(hashBts[:nbBuf])
+	//	res.BigInt(out[0])
+	//	return nil
+	//}))
 	if r1cs.GkrInfo.Is() {
 		var gkrData cs.GkrSolvingData
 		solverOpts = append(solverOpts,

@@ -4,10 +4,8 @@ import (
 	"Yoimiya/backend/groth16"
 	groth16_bn254 "Yoimiya/backend/groth16/bn254"
 	"Yoimiya/frontend/split"
-	"fmt"
 	"runtime"
 	"sync"
-	"time"
 )
 
 type ProveOutput struct {
@@ -28,12 +26,12 @@ func (pe *ProveEngine) Prove(pk groth16.ProvingKey, vk groth16.VerifyingKey) {
 		for i := 0; i < pe.proveLimit; i++ {
 			tmp := input
 			go func(input SolveOutput) {
-				startTime := time.Now()
+				//startTime := time.Now()
 				proof, err := groth16_bn254.GenerateZKP(input.CommitmentInfo, *input.Solution, pk.(*groth16_bn254.ProvingKey), input.NbPublic, input.NbPrivate)
 				if err != nil {
 					panic(err)
 				}
-				fmt.Printf("%d ProveTime: %s\n", input.tID, time.Since(startTime))
+				//fmt.Printf("%d ProveTime: %s\n", input.tID, time.Since(startTime))
 				//publicWitness, err := witness.Public()
 				if err != nil {
 					panic(err)
