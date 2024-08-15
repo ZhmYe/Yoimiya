@@ -24,7 +24,7 @@ var Config = GlobalConfig{
 	MinWorkPerCPU:     1000,
 	RootPath:          "/root/Yoimiya/logWriter/log/",
 	CompressThreshold: 2,
-	NbLoop:            10000000,
+	NbLoop:            100000,
 	isSplit:           true,
 }
 
