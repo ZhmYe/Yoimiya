@@ -34,6 +34,8 @@ type SolverEngine struct {
 	circuit    Circuit.TestCircuit // 电路
 	count      int                 // 任务计数
 	tasks      []*Runner.Task      // 任务
+	solveLock  chan int
+	nbTask     int
 }
 
 // Prepare Solver只需要将circuit编译为ccs，得到witness ID即可
@@ -113,14 +115,15 @@ func (se *SolverEngine) ClientImpl(tID int, phase int) {
 	//}
 	//fmt.Printf("Received: %s\n", string(buffer[:n]))
 }
-func (se *SolverEngine) InjectTasks(nbTasks int) {
-	for len(se.tasks) < nbTasks {
+func (se *SolverEngine) InjectTasks() {
+	for len(se.tasks) < se.nbTask {
 		se.tasks = append(se.tasks, Runner.NewTask(se.circuit, 1, len(se.tasks)))
 	}
 }
 func (se *SolverEngine) Start() {
 	go se.ServerImpl()
 	se.Prepare() // compile
+	se.InjectTasks()
 	// 等待prover setup完成
 	for {
 		if se.flag {
@@ -142,49 +145,58 @@ func (se *SolverEngine) Start() {
 	close(se.pool)
 	runtime.GOMAXPROCS(se.numCPU) // 设置solve的最大核数，默认为1 * 2 = 2个超线程
 	startTime := time.Now()
+	var wg sync.WaitGroup
+	wg.Add(len(se.tasks))
 	for input := range se.pool {
-		var wg sync.WaitGroup
-		wg.Add(se.solveLimit)
-		for i := 0; i < se.solveLimit; i++ {
-			tmp := input
-			go func(input SolverInput) {
-				//prover := plugin.NewProver(se.pk)
-				startTime := time.Now()
-				//commitmentsInfo, solution, nbPublic, nbPrivate, err := groth16_bn254.Solve(se.ccs, input.witness, pk.(*groth16_bn254.ProvingKey))
-				// 这里就单纯的solve一下，简单起见prove那边就用统一的solution
-				groth16_bn254.SimpleSolve(se.ccs, input.witness)
-				//if err != nil {
-				//	panic(err)
-				//}
-				fmt.Printf("%d solveTime: %s\n", input.tID, time.Since(startTime))
-				//publicW, err := input.witness.Public()
-				//if err != nil {
-				//	panic(err)
-				//}
-				se.ClientImpl(input.tID, input.phase)
-				wg.Done()
-			}(tmp)
-		}
-		wg.Wait()
+		//var wg sync.WaitGroup
+		//wg.Add(se.solveLimit)
+		//for i := 0; i < se.solveLimit; i++ {
+		tmp := input
+		go func(input SolverInput) {
+			//prover := plugin.NewProver(se.pk)
+			//commitmentsInfo, solution, nbPublic, nbPrivate, err := groth16_bn254.Solve(se.ccs, input.witness, pk.(*groth16_bn254.ProvingKey))
+			// 这里就单纯的solve一下，简单起见prove那边就用统一的solution
+			se.solveLock <- 1
+			startTime := time.Now()
+			groth16_bn254.SimpleSolve(se.ccs, input.witness)
+			<-se.solveLock
+			wg.Done()
+			//if err != nil {
+			//	panic(err)
+			//}
+			fmt.Printf("%d solveTime: %s\n", input.tID, time.Since(startTime))
+			//publicW, err := input.witness.Public()
+			//if err != nil {
+			//	panic(err)
+			//}
+			se.ClientImpl(input.tID, input.phase)
+			//wg.Done()
+		}(tmp)
+		//}
+		//wg.Wait()
 		se.count++
 		//fmt.Println(input.tID, input.phase)
 		//time.Sleep(time.Second)
 	}
-	se.ClientImpl(-1, 0)
+	wg.Wait()
+	se.ClientImpl(-1*len(se.tasks), 0)
 	fmt.Println(time.Since(startTime))
+	time.Sleep(time.Minute)
 
 }
-func NewSolverEngine(circuit Circuit.TestCircuit) SolverEngine {
+func NewSolverEngine(circuit Circuit.TestCircuit, nbTask int, solveLimit int, nbCpu int) SolverEngine {
 	//circuit := evaluate.GetCircuit(opt)
 	return SolverEngine{
 		ccs:        nil,
 		witnessID:  make([]int, 0),
-		solveLimit: 1,
+		solveLimit: solveLimit,
 		pool:       make(chan SolverInput, 100),
-		numCPU:     2,
+		numCPU:     nbCpu,
 		records:    make([]plugin.PluginRecord, 0),
 		flag:       false,
 		circuit:    circuit,
 		count:      0,
+		solveLock:  make(chan int, solveLimit),
+		nbTask:     nbTask,
 	}
 }

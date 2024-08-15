@@ -44,6 +44,9 @@ type ProverEngine struct {
 	records      []plugin.PluginRecord
 	circuit      Circuit.TestCircuit
 	fakeSolution SolverSolution
+	count        int
+	proveLock    chan int
+	nbTask       int
 }
 
 // Prepare Prover将circuit编译为ccs后，setup得到pk, vk
@@ -85,7 +88,6 @@ func (pe *ProverEngine) Prepare() {
 	pe.fakeSolution = fakeSolve(pe.circuit, ccs, witnessID, make([]constraint.ExtraValue, 0))
 }
 
-// ServerImpl Prover监听Solver的运行情况，一旦有新的solve任务完成，就将其添加到pool
 func (pe *ProverEngine) ServerImpl() {
 	listener, err := net.Listen("tcp", "localhost:8080")
 	if err != nil {
@@ -95,30 +97,52 @@ func (pe *ProverEngine) ServerImpl() {
 	defer listener.Close()
 
 	fmt.Println("Prover Server listening on localhost:8080")
+
+	var wg sync.WaitGroup
+	//total := -1
+	wg.Add(pe.nbTask)
+	go func() {
+		wg.Wait()
+		close(pe.pool)
+	}()
 	for {
+		//if pe.count == total && total > 0 {
+		//	wg.Wait()
+		//	fmt.Println(111)
+		//	close(pe.pool)
+		//	break
+		//}
+
 		conn, err := listener.Accept()
 		if err != nil {
 			fmt.Println("Error accepting:", err)
 			return
 		}
+
 		go func() {
+			defer conn.Close() // Ensure connection is closed
 			var message string
 			if handleRequest(conn, &message) {
 				tmp, _ := strconv.Atoi(message)
-				if tmp == -1 {
-					close(pe.pool)
+				if tmp < 0 {
+					//total = -1 * tmp
 					return
 				}
-				fmt.Println("Add Solve Output to Pool...")
-				pe.pool <- ProverInput{
-					CommitmentInfo: pe.fakeSolution.commitmentInfo,
-					Solution:       pe.fakeSolution.solution,
-					NbPublic:       pe.fakeSolution.nbPublic,
-					NbPrivate:      pe.fakeSolution.nbPrivate,
-					tID:            tmp,
-					phase:          0,
-					PublicWitness:  nil,
-				}
+
+				//fmt.Println("Add Solve Output to Pool...")
+				//wg.Add(1)
+				go func(tID int) {
+					defer wg.Done()
+					pe.pool <- ProverInput{
+						CommitmentInfo: pe.fakeSolution.commitmentInfo,
+						Solution:       pe.fakeSolution.solution,
+						NbPublic:       pe.fakeSolution.nbPublic,
+						NbPrivate:      pe.fakeSolution.nbPrivate,
+						tID:            tID,
+						phase:          0,
+						PublicWitness:  nil,
+					}
+				}(tmp)
 			}
 		}()
 	}
@@ -149,46 +173,54 @@ func (pe *ProverEngine) Start() {
 	pe.Prepare()                  // 得到pk, vk
 	pe.ClientImpl()               // 向Solver说明set up 完成
 	runtime.GOMAXPROCS(pe.numCPU) // 设置prove的最大核数
-	startTime := time.Now()
+	proveTime := time.Now()
+
 	for input := range pe.pool {
-		var wg sync.WaitGroup
-		wg.Add(pe.proveLimit)
-		for i := 0; i < pe.proveLimit; i++ {
-			tmp := input
-			go func(input ProverInput) {
-				startTime := time.Now()
-				groth16_bn254.GenerateZKP(input.CommitmentInfo, *input.Solution, pe.pk.(*groth16_bn254.ProvingKey), input.NbPublic, input.NbPrivate)
-				//proof, err := groth16_bn254.GenerateZKP(input.CommitmentInfo, *input.Solution, pk.(*groth16_bn254.ProvingKey), input.NbPublic, input.NbPrivate)
-				//if err != nil {
-				//	panic(err)
-				//}
-				fmt.Printf("%d ProveTime: %s\n", input.tID, time.Since(startTime))
-				//publicWitness, err := witness.Public()
-				//if err != nil {
-				//	panic(err)
-				//}
-				//*pe.output <- ProveOutput{
-				//	proof: split.NewPackedProof(proof, vk, input.PublicWitness),
-				//	tID:   input.tID,
-				//	phase: input.phase,
-				//}
-				runtime.GC()
-				wg.Done()
-				//t.proofs = append(t.proofs, split.NewPackedProof(proof, vk, input.PublicWitness))
-			}(tmp)
-		}
-		wg.Wait()
+		//var wg sync.WaitGroup
+		//wg.Add(pe.proveLimit)
+		//for i := 0; i < pe.proveLimit; i++ {
+		tmp := input
+		go func(input ProverInput) {
+			pe.proveLock <- 1
+			startTime := time.Now()
+			groth16_bn254.GenerateZKP(input.CommitmentInfo, *input.Solution, pe.pk.(*groth16_bn254.ProvingKey), input.NbPublic, input.NbPrivate)
+			//proof, err := groth16_bn254.GenerateZKP(input.CommitmentInfo, *input.Solution, pk.(*groth16_bn254.ProvingKey), input.NbPublic, input.NbPrivate)
+			//if err != nil {
+			//	panic(err)
+			//}
+			fmt.Printf("%d ProveTime: %s\n", input.tID, time.Since(startTime))
+			<-pe.proveLock
+			//publicWitness, err := witness.Public()
+			//if err != nil {
+			//	panic(err)
+			//}
+			//*pe.output <- ProveOutput{
+			//	proof: split.NewPackedProof(proof, vk, input.PublicWitness),
+			//	tID:   input.tID,
+			//	phase: input.phase,
+			//}
+			runtime.GC()
+			//wg.Done()
+			pe.count++
+			fmt.Println(pe.count)
+			//t.proofs = append(t.proofs, split.NewPackedProof(proof, vk, input.PublicWitness))
+		}(tmp)
+		//}
+		//wg.Wait()
 	}
-	fmt.Println(time.Since(startTime))
+	fmt.Println(time.Since(proveTime))
 }
-func NewProverEngine(circuit Circuit.TestCircuit) ProverEngine {
+func NewProverEngine(circuit Circuit.TestCircuit, nbTask int, proveLimit int, nbCpu int) ProverEngine {
 	return ProverEngine{
 		//pk:         nil,
 		//vk:         nil,
-		proveLimit: 1,
+		proveLimit: proveLimit,
 		pool:       make(chan ProverInput, 100),
-		numCPU:     runtime.NumCPU() - 2,
+		numCPU:     nbCpu,
 		records:    make([]plugin.PluginRecord, 0),
 		circuit:    circuit,
+		count:      0,
+		proveLock:  make(chan int, proveLimit),
+		nbTask:     nbTask,
 	}
 }
