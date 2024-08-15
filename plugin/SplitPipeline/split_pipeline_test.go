@@ -8,7 +8,7 @@ import (
 // Test Result
 // GOMAXCPU = 16
 // Serial 2min43s, 163s
-// Pipeline 1min53s, 113s
+// _Pipeline 1min53s, 113s
 // SplitPipeline 1min45s, 105s
 
 func Test4Groth16SerialRunner(t *testing.T) {

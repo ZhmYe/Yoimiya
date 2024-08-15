@@ -5,7 +5,7 @@ import (
 )
 
 // Yoimiya 可配置的零知识证明多任务执行框架
-// 可以选择三种运行模式：Serial/Pipeline/SplitPipeline
+// 可以选择三种运行模式：Serial/_Pipeline/SplitPipeline
 // 根据split是否为1，可以将前两个运行模式扩展为split/noSplit的串行和pipeline
 
 // YoimiyaRuntimeMode 运行模式

@@ -1,4 +1,4 @@
-package Pipeline
+package Component
 
 import (
 	"Yoimiya/backend/groth16"
@@ -95,4 +95,8 @@ func (p *PackedConstraintSystem) GetForwardOutput() []constraint.ExtraValue {
 	default:
 		panic("Only Support bn254 r1cs now...")
 	}
+}
+
+func (p *PackedConstraintSystem) Params() (constraint.ConstraintSystem, groth16.ProvingKey, groth16.VerifyingKey, []int) {
+	return p.cs, p.pk, p.vk, p.witness
 }

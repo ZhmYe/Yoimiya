@@ -1,4 +1,4 @@
-package Pipeline
+package _Pipeline
 
 import (
 	"Yoimiya/Circuit/Circuit4Fib"
