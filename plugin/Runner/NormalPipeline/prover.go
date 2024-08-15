@@ -104,8 +104,12 @@ func (pe *ProverEngine) ServerImpl() {
 		go func() {
 			var message string
 			if handleRequest(conn, &message) {
-				fmt.Println("Add Solve Output to Pool...")
 				tmp, _ := strconv.Atoi(message)
+				if tmp == -1 {
+					close(pe.pool)
+					return
+				}
+				fmt.Println("Add Solve Output to Pool...")
 				pe.pool <- ProverInput{
 					CommitmentInfo: pe.fakeSolution.commitmentInfo,
 					Solution:       pe.fakeSolution.solution,
@@ -114,9 +118,6 @@ func (pe *ProverEngine) ServerImpl() {
 					tID:            tmp,
 					phase:          0,
 					PublicWitness:  nil,
-				}
-				if tmp == -1 {
-					close(pe.pool)
 				}
 			}
 		}()
