@@ -16,6 +16,9 @@ import (
 	"time"
 )
 
+// todo
+// 这里serial也加上split
+
 type YoimiyaSerialRunner struct {
 	tasks   []*Runner.Task
 	record  []plugin.PluginRecord
