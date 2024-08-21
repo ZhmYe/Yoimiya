@@ -66,6 +66,7 @@ func (r *YoimiyaSerialRunner) Process() {
 	pk, vk, ccs, inputID := r.Prepare()
 	record := plugin.NewPluginRecord("Process")
 	go record.MemoryMonitor()
+	go record.CPUUsageMonitor()
 	startTime := time.Now()
 	processTask := func(t *Runner.Task) bool {
 		if t.Done() {

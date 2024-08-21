@@ -1,8 +1,10 @@
 package evaluate
 
 import (
-	"github.com/shirou/gopsutil/cpu"
+	"os/exec"
 	"runtime"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -59,10 +61,34 @@ func (m *Monitor) startMonitorCPU() {
 		if m.finish {
 			break
 		}
-		percent, _ := cpu.Percent(10*time.Millisecond, false)
-		if percent[0] > m.mCPUPercent {
-			m.mCPUPercent = percent[0]
+		cmd := exec.Command("bash", "-c", "mpstat 1 1 | awk '/^[0-9]/ {print $3}'")
+
+		// 获取命令的输出
+		output, err := cmd.Output()
+		if err != nil {
+			//panic(err)
+			continue
 		}
+		// 只保留第二行（实际的%usr数值），去掉空白字符
+		lines := strings.Split(string(output), "\n")
+		if len(lines) > 1 {
+			result := strings.TrimSpace(lines[1])
+			//fmt.Println(result)
+			percent, err := strconv.ParseFloat(result, 64)
+			if err != nil {
+				//fmt.Println("Error converting to float:", err)
+				//return
+				continue
+			}
+			if percent > m.mCPUPercent {
+				m.mCPUPercent = percent
+			}
+			//fmt.Println(percent)
+		}
+		//percent, _ := cpu.Percent(10*time.Millisecond, false)
+		//if percent[0] > m.mCPUPercent {
+		//	m.mCPUPercent = percent[0]
+		//}
 	}
 }
 

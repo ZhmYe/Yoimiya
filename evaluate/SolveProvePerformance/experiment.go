@@ -15,7 +15,6 @@ import (
 	"github.com/consensys/gnark-crypto/ecc"
 	"runtime"
 	"strconv"
-	"sync"
 	"time"
 )
 
@@ -102,14 +101,18 @@ func Experiment_Solve_Prove_CPU_Performance(option Circuit.CircuitOption, log bo
 	pk, _ := frontend.SetUpSplit(ccs)
 	CPUPerformance := func(ccs constraint.ConstraintSystem, pk groth16.ProvingKey, witness witness.Witness,
 		NumCPU int, log bool) {
-		//if NumCPU > runtime.NumCPU() {
-		//	NumCPU = runtime.NumCPU()
-		//}
-		NumCPU = runtime.GOMAXPROCS(NumCPU)
+		if NumCPU > runtime.NumCPU() {
+			NumCPU = runtime.NumCPU()
+		}
+		//NumCPU = runtime.GOMAXPROCS(NumCPU)
 		prover := plugin.NewProver(pk)
 		totalSolveCPUUsage := float64(0)
 		totalProveCPUUsage := float64(0)
-		for i := 0; i < 1; i++ {
+		nbIter := 10
+		if NumCPU < 16 {
+			nbIter = 2
+		}
+		for i := 0; i < nbIter; i++ {
 			monitor := evaluate.NewMonitor(true, false)
 			monitor.Start()
 			prover.Solve(ccs.(*cs_bn254.R1CS), witness)
@@ -118,7 +121,7 @@ func Experiment_Solve_Prove_CPU_Performance(option Circuit.CircuitOption, log bo
 		}
 		// 用于下一次prove
 		commitmentsInfo, solution, nbPublic, nbPrivate := prover.Solve(ccs.(*cs_bn254.R1CS), witness)
-		for i := 0; i < 1; i++ {
+		for i := 0; i < nbIter; i++ {
 			monitor := evaluate.NewMonitor(true, false)
 			monitor.Start()
 			_, err := prover.Prove(*solution, commitmentsInfo, nbPublic, nbPrivate)
@@ -128,12 +131,20 @@ func Experiment_Solve_Prove_CPU_Performance(option Circuit.CircuitOption, log bo
 			record := monitor.Finish()
 			totalProveCPUUsage += record.CPUUsage()
 		}
-		totalSolveCPUUsage /= 1
-		totalProveCPUUsage /= 1
+		totalSolveCPUUsage /= float64(nbIter)
+		totalProveCPUUsage /= float64(nbIter)
+		SolvePercent := totalSolveCPUUsage * float64(runtime.NumCPU()) / float64(NumCPU)
+		ProvePercent := totalProveCPUUsage * float64(runtime.NumCPU()) / float64(NumCPU)
+		if SolvePercent > 100 {
+			SolvePercent = 100
+		}
+		if ProvePercent > 100 {
+			ProvePercent = 100
+		}
 		if log {
 			lw.Writeln("	[NumCPU]: " + strconv.Itoa(NumCPU))
-			lw.Writeln("		[Solve CPU Usage]: " + strconv.FormatFloat(totalSolveCPUUsage*float64(runtime.NumCPU())/float64(NumCPU), 'f', 2, 64))
-			lw.Writeln("		[Prove CPU Usage]: " + strconv.FormatFloat(totalProveCPUUsage*float64(runtime.NumCPU())/float64(NumCPU), 'f', 2, 64))
+			lw.Writeln("		[Solve CPU Usage]: " + strconv.FormatFloat(SolvePercent, 'f', 2, 64))
+			lw.Writeln("		[Prove CPU Usage]: " + strconv.FormatFloat(ProvePercent, 'f', 2, 64))
 		} else {
 			fmt.Println("	[NumCPU]: " + strconv.Itoa(NumCPU))
 			fmt.Println("		[Solve CPU Usage]:", totalSolveCPUUsage)
@@ -143,43 +154,7 @@ func Experiment_Solve_Prove_CPU_Performance(option Circuit.CircuitOption, log bo
 	}
 	for _, NumCPU := range NumCPUList {
 		CPUPerformance(ccs, pk, fullWitness, NumCPU*2, log)
+		//tmpTest(NumCPU * 2)
 	}
 	lw.Finish()
-}
-
-func Experiment_Solve_Performance(option Circuit.CircuitOption, log bool) {
-	Config.Config.CancelSplit()
-	circuit := evaluate.GetCircuit(option)
-	//fmt.Println("[Record]")
-	//NumCPUList := []int{64, 32, 16, 8, 4, 2, 1}
-	ccs, _ := circuit.Compile()
-	assignment := circuit.GetAssignment()
-	//pli := frontend.GetPackedLeafInfoFromAssignment(assignment)
-	fullWitness, _ := frontend.GenerateWitness(assignment, make([]constraint.ExtraValue, 0), ecc.BN254.ScalarField())
-	pk, _ := frontend.SetUpSplit(ccs)
-	TimePerformance := func(ccs constraint.ConstraintSystem, pk groth16.ProvingKey, witness witness.Witness,
-		NumCPU int, log bool) {
-		runtime.GOMAXPROCS(NumCPU)
-		prover := plugin.NewProver(pk)
-		for {
-			var wg sync.WaitGroup
-			wg.Add(8)
-			runtime.LockOSThread()
-			for i := 0; i < 8; i++ {
-				go func() {
-					solveStartTime := time.Now()
-					prover.Solve(ccs.(*cs_bn254.R1CS), witness)
-					solveTime := time.Since(solveStartTime)
-					fmt.Println(solveTime)
-					wg.Done()
-				}()
-			}
-			wg.Wait()
-		}
-
-	}
-	//for _, NumCPU := range NumCPUList {
-	TimePerformance(ccs, pk, fullWitness, runtime.NumCPU()/2, log)
-	//}
-	//lw.Finish()
 }

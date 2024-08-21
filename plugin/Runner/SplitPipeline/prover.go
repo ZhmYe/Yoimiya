@@ -163,7 +163,9 @@ func (pe *ProverEngine) Start() {
 	pe.ClientImpl()               // 向Solver说明set up 完成
 	runtime.GOMAXPROCS(pe.numCPU) // 设置prove的最大核数
 	proveTime := time.Now()
-
+	record := plugin.NewPluginRecord("Prove")
+	go record.MemoryMonitor()
+	go record.CPUUsageMonitor()
 	for input := range pe.pool {
 		//var wg sync.WaitGroup
 		//wg.Add(pe.proveLimit)
@@ -198,7 +200,15 @@ func (pe *ProverEngine) Start() {
 		//}
 		//wg.Wait()
 	}
-	fmt.Println(time.Since(proveTime))
+	record.SetTime("Prove", time.Since(proveTime))
+	record.Finish()
+	pe.records = append(pe.records, record)
+	pe.Record()
+}
+func (pe *ProverEngine) Record() {
+	for _, record := range pe.records {
+		record.Print()
+	}
 }
 func NewProverEngine(circuit Circuit.TestCircuit, s int, nbTask int, proveLimit int, nbCpu int) ProverEngine {
 	return ProverEngine{

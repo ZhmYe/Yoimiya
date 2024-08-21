@@ -144,6 +144,9 @@ func (se *SolverEngine) Start() {
 	}
 	close(se.pool)
 	runtime.GOMAXPROCS(se.numCPU) // 设置solve的最大核数，默认为1 * 2 = 2个超线程
+	runtime.GC()
+	record := plugin.NewPluginRecord("Solve")
+	go record.MemoryMonitor()
 	startTime := time.Now()
 	var wg sync.WaitGroup
 	wg.Add(len(se.tasks))
@@ -179,10 +182,19 @@ func (se *SolverEngine) Start() {
 		//time.Sleep(time.Second)
 	}
 	wg.Wait()
+	//fmt.Println(time.Since(startTime))
+	record.SetTime("Solve", time.Since(startTime))
+	record.Finish()
+	se.records = append(se.records, record)
+	se.Record()
 	se.ClientImpl(-1*len(se.tasks), 0)
-	fmt.Println(time.Since(startTime))
 	time.Sleep(time.Minute)
 
+}
+func (se *SolverEngine) Record() {
+	for _, record := range se.records {
+		record.Print()
+	}
 }
 func NewSolverEngine(circuit Circuit.TestCircuit, nbTask int, solveLimit int, nbCpu int) SolverEngine {
 	//circuit := evaluate.GetCircuit(opt)

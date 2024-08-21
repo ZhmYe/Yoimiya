@@ -16,12 +16,12 @@ func Test4YoimiyaPipelineRunner(t *testing.T) {
 
 func Test4SolverEngine(t *testing.T) {
 	circuit := Circuit4Fib.NewLoopFibonacciCircuit()
-	solver := NewSolverEngine(&circuit, 20, 1, 6)
+	solver := NewSolverEngine(&circuit, 20, 1, 4)
 	//solver.InjectTasks(20)
 	solver.Start()
 }
 func Test4ProverEngine(t *testing.T) {
 	circuit := Circuit4Fib.NewLoopFibonacciCircuit()
-	prover := NewProverEngine(&circuit, 20, 1, runtime.NumCPU()-6)
+	prover := NewProverEngine(&circuit, 20, 1, runtime.NumCPU()-4)
 	prover.Start()
 }

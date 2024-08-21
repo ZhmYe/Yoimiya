@@ -128,6 +128,9 @@ func (se *SolverEngine) Start() {
 		}
 	}
 	//close(se.pool)
+	runtime.GC()
+	record := plugin.NewPluginRecord("Solve")
+	go record.MemoryMonitor()
 	runtime.GOMAXPROCS(se.numCPU) // 设置solve的最大核数，默认为1 * 2 = 2个超线程
 	startTime := time.Now()
 	var wg sync.WaitGroup
@@ -150,6 +153,7 @@ func (se *SolverEngine) Start() {
 			startTime := time.Now()
 			groth16_bn254.SimpleSolve(ccs.(*cs.R1CS), input.witness)
 			newExtra := split.GetExtra(ccs)
+			runtime.GC()
 			<-se.solveLock
 			//wg.Done()
 			//if err != nil {
@@ -188,10 +192,19 @@ func (se *SolverEngine) Start() {
 		//time.Sleep(time.Second)
 	}
 	wg.Wait()
+	record.SetTime("Solve", time.Since(startTime))
+	record.Finish()
+	se.records = append(se.records, record)
+	se.Record()
 	//se.ClientImpl(-1*len(se.tasks), 0)
-	fmt.Println(time.Since(startTime))
+	//fmt.Println(time.Since(startTime))
 	time.Sleep(time.Minute)
 
+}
+func (se *SolverEngine) Record() {
+	for _, record := range se.records {
+		record.Print()
+	}
 }
 func NewSolverEngine(circuit Circuit.TestCircuit, s int, nbTask int, solveLimit int, nbCpu int) SolverEngine {
 	//circuit := evaluate.GetCircuit(opt)

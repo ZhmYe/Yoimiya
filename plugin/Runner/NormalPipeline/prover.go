@@ -86,6 +86,7 @@ func (pe *ProverEngine) Prepare() {
 	//}
 	// todo 这里的solution可以不固定，通过网络发过来，测试时就用这个固定的solution
 	pe.fakeSolution = fakeSolve(pe.circuit, ccs, witnessID, make([]constraint.ExtraValue, 0))
+	runtime.GC()
 }
 
 func (pe *ProverEngine) ServerImpl() {
@@ -174,7 +175,9 @@ func (pe *ProverEngine) Start() {
 	pe.ClientImpl()               // 向Solver说明set up 完成
 	runtime.GOMAXPROCS(pe.numCPU) // 设置prove的最大核数
 	proveTime := time.Now()
-
+	record := plugin.NewPluginRecord("Prove")
+	go record.MemoryMonitor()
+	go record.CPUUsageMonitor()
 	for input := range pe.pool {
 		//var wg sync.WaitGroup
 		//wg.Add(pe.proveLimit)
@@ -208,7 +211,16 @@ func (pe *ProverEngine) Start() {
 		//}
 		//wg.Wait()
 	}
-	fmt.Println(time.Since(proveTime))
+	record.SetTime("Prove", time.Since(proveTime))
+	record.Finish()
+	pe.records = append(pe.records, record)
+	pe.Record()
+	//fmt.Println(time.Since(proveTime))
+}
+func (pe *ProverEngine) Record() {
+	for _, record := range pe.records {
+		record.Print()
+	}
 }
 func NewProverEngine(circuit Circuit.TestCircuit, nbTask int, proveLimit int, nbCpu int) ProverEngine {
 	return ProverEngine{

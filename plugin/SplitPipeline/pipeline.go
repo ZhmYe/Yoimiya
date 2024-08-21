@@ -26,7 +26,7 @@ func NewGroth16PipelineRunner(circuit Circuit.TestCircuit) Groth16PipelineRunner
 		tasks:     make([]*Task, 0),
 		circuit:   circuit,
 		record:    make([]plugin.PluginRecord, 0),
-		solveLock: make(chan int, 1),
+		solveLock: make(chan int, 4),
 	}
 }
 func (r *Groth16PipelineRunner) InjectTasks(nbTask int) {

@@ -29,7 +29,7 @@ func Test4Groth16PipelineRunner(t *testing.T) {
 
 func Test4Groth16SplitPipelineRunner(t *testing.T) {
 	circuit := Circuit4Fib.NewLoopFibonacciCircuit()
-	runner := NewGroth16SplitPipelineRunner(&circuit, 2, 1)
+	runner := NewGroth16SplitPipelineRunner(&circuit, 4, 4)
 	runner.InjectTasks(20)
 	runner.Process()
 	runner.Record()

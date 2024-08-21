@@ -1,0 +1,22 @@
+[Record]: 
+	[NumCPU]: 112
+		[Solve CPU Usage]: 1.58
+		[Prove CPU Usage]: 80.50
+	[NumCPU]: 64
+		[Solve CPU Usage]: 2.78
+		[Prove CPU Usage]: 93.20
+	[NumCPU]: 32
+		[Solve CPU Usage]: 4.52
+		[Prove CPU Usage]: 97.82
+	[NumCPU]: 16
+		[Solve CPU Usage]: 10.70
+		[Prove CPU Usage]: 100
+	[NumCPU]: 8
+		[Solve CPU Usage]: 21.25
+		[Prove CPU Usage]: 100
+	[NumCPU]: 4
+		[Solve CPU Usage]: 32.20
+		[Prove CPU Usage]: 100
+	[NumCPU]: 2
+		[Solve CPU Usage]: 61.32
+		[Prove CPU Usage]: 100
