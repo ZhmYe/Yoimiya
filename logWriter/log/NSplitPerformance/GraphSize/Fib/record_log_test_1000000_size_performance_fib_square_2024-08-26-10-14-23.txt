@@ -1,0 +1,17 @@
+[Prepare Record]
+	[Memory Used]: 0.00000000 GB
+	[Prove Memory Used: ]0.00000000 GB
+	[Compile Time]: 14.039139838s
+	[Split Time]: 929.45302ms
+[Sub Circuit 0 Record]
+	[Memory Used]: 4.01903030 GB
+	[Prove Memory Used: ]1.26924939 GB
+	[Build Time]: 3.83363911s
+	[SetUp Time]: 25.297301922s
+	[Prove Time]: 1.519629856s
+[Sub Circuit 1 Record]
+	[Memory Used]: 4.06604507 GB
+	[Prove Memory Used: ]1.26922732 GB
+	[Build Time]: 3.995628727s
+	[SetUp Time]: 25.722159714s
+	[Prove Time]: 1.436791862s

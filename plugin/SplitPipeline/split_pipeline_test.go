@@ -5,12 +5,6 @@ import (
 	"testing"
 )
 
-// Test Result
-// GOMAXCPU = 16
-// Serial 2min43s, 163s
-// _Pipeline 1min53s, 113s
-// SplitPipeline 1min45s, 105s
-
 func Test4Groth16SerialRunner(t *testing.T) {
 	circuit := Circuit4Fib.NewLoopFibonacciCircuit()
 	runner := NewGroth16SerialRunner(&circuit)

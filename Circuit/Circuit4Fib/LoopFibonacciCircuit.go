@@ -34,7 +34,7 @@ func (c *LoopFibonacciCircuit) Init() {
 	var circuit FibonacciCircuit
 	c.outerCircuit = &circuit
 	c.assignmentGenerator = func() frontend.Circuit {
-		return &FibonacciCircuit{X1: 0, X2: 0, V1: 0, V2: 0}
+		return &FibonacciCircuit{X1: 0, X2: 0, V1: 0, V2: 0, A: 1, B: 2}
 	}
 }
 

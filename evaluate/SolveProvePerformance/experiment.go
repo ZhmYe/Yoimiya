@@ -158,3 +158,37 @@ func Experiment_Solve_Prove_CPU_Performance(option Circuit.CircuitOption, log bo
 	}
 	lw.Finish()
 }
+func Experiment_Solve_Prove_Memory_Performance(option Circuit.CircuitOption, log bool) {
+	Config.Config.CancelSplit()
+	circuit := evaluate.GetCircuit(option)
+	var lw *logWriter.LogWriter
+	if log {
+		lw = logWriter.NewLogWriter("SolveProvePerformance" + "/" + "record_log_" + evaluate.Format(circuit.Name(), "cpu_performance"))
+		lw.Writeln("[Record]: ")
+	} else {
+		fmt.Println("[Record]")
+	}
+	ccs, _ := circuit.Compile()
+	assignment := circuit.GetAssignment()
+	//pli := frontend.GetPackedLeafInfoFromAssignment(assignment)
+	fullWitness, _ := frontend.GenerateWitness(assignment, make([]constraint.ExtraValue, 0), ecc.BN254.ScalarField())
+	//publicWitness, err := fullWitness.Public()
+	//if err != nil {
+	//	panic(err)
+	//}
+	pk, _ := frontend.SetUpSplit(ccs)
+	prover := plugin.NewProver(pk)
+	monitor := evaluate.NewMonitor(false, true)
+	monitor.Start()
+	commitmentsInfo, solution, nbPublic, nbPrivate := prover.Solve(ccs.(*cs_bn254.R1CS), fullWitness)
+	record := monitor.Finish()
+	fmt.Println(record.MemoryUsage())
+	monitor = evaluate.NewMonitor(false, true)
+	monitor.Start()
+	_, err := prover.Prove(*solution, commitmentsInfo, nbPublic, nbPrivate)
+	if err != nil {
+		return
+	}
+	record = monitor.Finish()
+	fmt.Println(record.MemoryUsage())
+}

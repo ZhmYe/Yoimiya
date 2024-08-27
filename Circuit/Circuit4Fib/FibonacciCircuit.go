@@ -1,5 +1,6 @@
 package Circuit4Fib
 
+import "C"
 import (
 	"Yoimiya/Config"
 	"Yoimiya/frontend"
@@ -11,6 +12,8 @@ type FibonacciCircuit struct {
 	X2 frontend.Variable `gnark:",public"`
 	V1 frontend.Variable `gnark:"v1"` // an-1
 	V2 frontend.Variable `gnark:"v2"` // an
+	A  frontend.Variable `gnark:",public"`
+	B  frontend.Variable `gnark:",public"`
 }
 
 // 这里简单起见，测试时X1,X2初始化为0，0，不然数字太大
@@ -20,8 +23,8 @@ type FibonacciCircuit struct {
 
 func (c *FibonacciCircuit) Define(api frontend.API) error {
 	for i := 0; i < Config.Config.NbLoop; i++ {
-		c.X1 = api.Add(api.Mul(c.X1, c.X1), api.Mul(c.X2, c.X2))
-		c.X2 = api.Add(api.Mul(c.X1, c.X1), api.Mul(c.X2, c.X2))
+		c.X1 = api.Add(api.Mul(c.A, c.X1), api.Mul(c.B, c.X2))
+		c.X2 = api.Add(api.Mul(c.A, c.X1), api.Mul(c.B, c.X2))
 	}
 	api.AssertIsEqual(c.V1, c.X1)
 	api.AssertIsEqual(c.V2, c.X2)

@@ -16,6 +16,7 @@ type GlobalConfig struct {
 	RootPath          string
 	CompressThreshold int
 	NbLoop            int
+	MatrixSize        int
 }
 
 var Config = GlobalConfig{
@@ -26,6 +27,7 @@ var Config = GlobalConfig{
 	CompressThreshold: 2,
 	NbLoop:            10000000,
 	isSplit:           true,
+	MatrixSize:        300,
 }
 
 func (c *GlobalConfig) IsSplit() bool {

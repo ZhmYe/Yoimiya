@@ -11,3 +11,6 @@ func Test4SolveProveTimePerformance(t *testing.T) {
 func Test4SolveProveCPUPerformance(t *testing.T) {
 	Experiment_Solve_Prove_CPU_Performance(Circuit.FibSquare, true)
 }
+func Test4SolveProveMemoryPerformance(t *testing.T) {
+	Experiment_Solve_Prove_Memory_Performance(Circuit.FibSquare, false)
+}

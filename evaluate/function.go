@@ -48,8 +48,8 @@ func PluginRecordLog(records []plugin.PluginRecord, path string) {
 	lw := logWriter.NewLogWriter(path)
 	for _, record := range records {
 		lw.Writeln("[" + record.Name + " Record]")
-		lw.Writeln("\t[Memory Used]: " + strconv.FormatFloat(record.Memory.TotalMemoryUsed, 'f', 2, 64) + " GB")
-		lw.Writeln("\t[Prove Memory Used: ]" + strconv.FormatFloat(record.Memory.ProveMemoryUsed, 'f', 2, 64) + " GB")
+		lw.Writeln("\t[Memory Used]: " + strconv.FormatFloat(record.Memory.TotalMemoryUsed, 'f', 8, 64) + " GB")
+		lw.Writeln("\t[Prove Memory Used: ]" + strconv.FormatFloat(record.Memory.ProveMemoryUsed, 'f', 8, 64) + " GB")
 		for _, pt := range record.Times {
 			lw.Writeln("\t[" + pt.Name + "]: " + pt.TimeUsed.String())
 			//lw.Writeln("\t[%s]: %v \n", pt.Name, pt.TimeUsed)

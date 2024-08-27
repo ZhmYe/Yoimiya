@@ -1,0 +1,9 @@
+[Prepare Record]
+	[Memory Used]: 0.00000000 GB
+	[Prove Memory Used: ]0.00000000 GB
+	[Compile Time]: 1.569260187s
+	[SetUp Time]: 5.478147623s
+[Process Record]
+	[Memory Used]: 0.77096917 GB
+	[Prove Memory Used: ]0.29264306 GB
+	[Prove Time]: 441.886308ms

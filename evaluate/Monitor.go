@@ -121,7 +121,7 @@ func (m *Monitor) startMonitorMemory() {
 				nowAlloc := M.Alloc
 				if nowAlloc > maxAlloc {
 					maxAlloc = nowAlloc
-					m.mMemoryUsage = float64(maxAlloc) / 1024 / 1024 / 1024
+					m.mMemoryUsage = float64(maxAlloc-startMemory) / 1024 / 1024 / 1024
 					//r.memory = float64(maxAlloc) / 1024 / 1024 / 1024
 					//r.memory = PackedMemory{
 					//	totalMemoryUsed: float64(maxAlloc) / 1024 / 1024 / 1024,
